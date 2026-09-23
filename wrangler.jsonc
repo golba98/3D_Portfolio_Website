@@ -1,0 +1,11 @@
+// Cloudflare Workers Builds runs `npm run build` then `wrangler deploy`.
+// This is a static site: Cloudflare serves the Vite build, with no Worker script.
+{
+  "name": "3d-portfolio-website",
+  "compatibility_date": "2026-09-21",
+  "assets": {
+    "directory": "./dist",
+    // The app routes with the URL hash, but send any unknown path to index.html anyway.
+    "not_found_handling": "single-page-application"
+  }
+}
