@@ -1,0 +1,17 @@
+.world {
+  position: fixed;
+  inset: 0;
+  background: var(--world-bg);
+}
+
+.canvas {
+  position: absolute !important;
+  inset: 0;
+  touch-action: none;
+}
+
+/* Stay visible under the desktop while it crossfades in, then get out of the way. */
+.world[data-phase='desktop'] {
+  visibility: hidden;
+  transition: visibility 0s linear 0.6s;
+}

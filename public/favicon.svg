@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="JV">
+  <!--
+    Jordan Vorster monogram. Paths, not <text> — favicon renderers do not reliably
+    resolve fonts, so the letterforms are drawn to keep the mark identical everywhere.
+    Inverts on dark tab bars, the same way .button-primary inverts in styles.css.
+  -->
+  <style>
+    .chip { fill: #000; }
+    .glyph { stroke: #fff; }
+    @media (prefers-color-scheme: dark) {
+      .chip { fill: #fff; }
+      .glyph { stroke: #000; }
+    }
+  </style>
+  <rect class="chip" width="32" height="32" rx="7" />
+  <g class="glyph" fill="none" stroke-width="4.4" stroke-linecap="butt" stroke-linejoin="miter">
+    <path d="M5.6 9.6h7.8" />
+    <path d="M11.2 9.6v8.4c0 3.2-2.6 4.4-5.2 2.9" />
+    <path d="M18.6 9.6 22.4 22.4 26.2 9.6" />
+  </g>
+</svg>

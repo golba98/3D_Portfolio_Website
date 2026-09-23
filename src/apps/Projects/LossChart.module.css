@@ -1,0 +1,146 @@
+.figure {
+  --series: #5294e2; /* validated against the dark window surface (dataviz checks) */
+  margin: 0;
+}
+
+.plot {
+  position: relative;
+}
+
+.plot svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  border-radius: var(--radius-sm);
+}
+
+.plot svg:focus-visible {
+  outline: 2px solid var(--desk-accent);
+  outline-offset: 4px;
+}
+
+.grid {
+  stroke: var(--desk-border-strong);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.tick,
+.axisLabel {
+  fill: var(--desk-fg-subtle);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.axisLabel {
+  fill: var(--desk-fg-muted);
+}
+
+.crosshair {
+  stroke: var(--desk-fg-subtle);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.line {
+  fill: none;
+  stroke: var(--series);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.dot {
+  fill: var(--series);
+  stroke: var(--desk-surface);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+  transition: r var(--duration-fast) var(--ease-out);
+}
+
+.endLabel {
+  fill: var(--desk-fg);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.hit {
+  fill: transparent;
+  cursor: crosshair;
+}
+
+.tooltip {
+  position: absolute;
+  display: grid;
+  gap: 2px;
+  min-width: 150px;
+  padding: 8px 10px;
+  border: 1px solid var(--desk-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--desk-surface-3);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.35);
+  font-size: var(--text-xs);
+  pointer-events: none;
+  transform: translate(-50%, calc(-100% - 14px));
+  white-space: nowrap;
+}
+
+.tooltipTitle {
+  font-weight: 700;
+}
+
+.key {
+  display: inline-block;
+  width: 10px;
+  height: 2px;
+  margin-right: 6px;
+  vertical-align: middle;
+  background: var(--series);
+}
+
+.muted {
+  color: var(--desk-fg-muted);
+}
+
+.caption {
+  margin-top: 8px;
+  color: var(--desk-fg-subtle);
+  font-size: var(--text-xs);
+}
+
+.details {
+  margin-top: 8px;
+  font-size: var(--text-sm);
+}
+
+.details summary {
+  width: fit-content;
+  color: var(--desk-accent);
+  cursor: pointer;
+}
+
+.table {
+  width: 100%;
+  margin-top: 8px;
+  border-collapse: collapse;
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.table th,
+.table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--desk-border);
+  text-align: right;
+}
+
+.table th:first-child,
+.table td:first-child {
+  text-align: left;
+}
+
+.table th {
+  color: var(--desk-fg-muted);
+  font-weight: 600;
+}

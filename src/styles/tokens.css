@@ -1,0 +1,81 @@
+/*
+  Design tokens. The 3D world and the desktop share these, and the in-scene
+  monitor preview reads the desktop values through src/config/theme.ts, so keep
+  the two in sync.
+*/
+:root {
+  color-scheme: dark;
+
+  /* Type */
+  --font-sans: 'Inter Variable', 'Adwaita Sans', 'Cantarell', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono Variable', 'Adwaita Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-md: 0.9375rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+
+  /* World (3D landing) */
+  --world-bg: #050506;
+  --world-fg: #e8e8ea;
+  --world-muted: #8b8b93;
+  --world-accent: #d8313a;
+
+  /* Desktop (GNOME-inspired, calmer than the world) */
+  --desk-wallpaper-a: #000000;
+  --desk-wallpaper-b: #0a0a0a;
+  --desk-topbar: #000000;
+  --desk-surface: #242428;
+  --desk-surface-2: #2e2e33;
+  --desk-surface-3: #38383e;
+  --desk-sidebar: #1f1f23;
+  --desk-border: rgb(255 255 255 / 0.08);
+  --desk-border-strong: rgb(255 255 255 / 0.14);
+  --desk-fg: #f4f4f5;
+  --desk-fg-muted: #a1a1aa;
+  --desk-fg-subtle: #71717a;
+  --desk-accent: #62a0ea;
+  --desk-accent-strong: #3584e4;
+  --desk-success: #57e389;
+  --desk-warning: #f8e45c;
+  --desk-danger: #f66151;
+  --desk-overview: rgb(0 0 0 / 0.55);
+
+  /* Terminal (kitty with the xterm palette, like the real machine) */
+  --term-bg: #000000;
+  --term-titlebar: #1f1f1f;
+  --term-fg: #d0d0d0;
+  --term-ok: #00cd00;
+  --term-path: #00cdcd;
+  --term-muted: #8b8b93;
+  --term-error: #ff4d4d;
+
+  /* Shape & depth */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-pill: 999px;
+  --shadow-window: 0 1px 2px rgb(0 0 0 / 0.4), 0 12px 32px rgb(0 0 0 / 0.45);
+  --shadow-window-inactive: 0 1px 2px rgb(0 0 0 / 0.3), 0 6px 16px rgb(0 0 0 / 0.3);
+  --focus-ring: 0 0 0 2px var(--desk-accent);
+
+  /* Layout */
+  --topbar-height: 32px;
+  --dock-height: 64px;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 400ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+    --duration-slow: 0ms;
+  }
+}

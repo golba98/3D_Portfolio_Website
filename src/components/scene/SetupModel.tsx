@@ -1,0 +1,129 @@
+import { useLayoutEffect, useMemo } from 'react';
+import { useGLTF } from '@react-three/drei';
+import { Box3, Matrix4, Mesh, MeshPhysicalMaterial, MeshStandardMaterial, Quaternion, Vector3, type Object3D } from 'three';
+import { LED_MATERIALS, MODEL_NODES, MODEL_PLACEMENT, MODEL_URL, RENDER } from '../../config/scene';
+import { useSceneLayout } from '../../store/sceneLayout';
+import type { ScreenRect, Vec3 } from '../../types/scene';
+
+// Start downloading as soon as this module is evaluated.
+useGLTF.preload(MODEL_URL, false, true);
+
+/** Loads the Blender export and places it so the desk top sits at the origin. */
+export function SetupModel() {
+  const { scene } = useGLTF(MODEL_URL, false, true);
+  const setLayout = useSceneLayout((s) => s.setLayout);
+
+  // All measurements are taken relative to the glTF root, so they don't depend
+  // on where (or whether) the model is currently attached.
+  const layout = useMemo(() => {
+    const s = MODEL_PLACEMENT.scale;
+    const desk = boundsInModel(scene, requireNode(scene, MODEL_PLACEMENT.anchorNode));
+    const offset = new Vector3(-(desk.min.x + desk.max.x) / 2, -desk.max.y, -(desk.min.z + desk.max.z) / 2).multiplyScalar(s);
+    const toDesk = (v: Vector3): Vec3 => [v.x * s + offset.x, v.y * s + offset.y, v.z * s + offset.z];
+
+    const monitor = boundsInModel(scene, requireNode(scene, MODEL_NODES.monitorCenter));
+    const pcCase = boundsInModel(scene, requireNode(scene, MODEL_NODES.pcCase));
+    return {
+      offset,
+      screen: measureScreen(scene, requireNode(scene, MODEL_NODES.centerScreen), toDesk, s),
+      monitorBounds: { min: toDesk(monitor.min), max: toDesk(monitor.max) },
+      pcCaseCenter: toDesk(pcCase.getCenter(new Vector3())),
+    };
+  }, [scene]);
+
+  useLayoutEffect(() => {
+    setLayout({ screen: layout.screen, monitorBounds: layout.monitorBounds, pcCaseCenter: layout.pcCaseCenter });
+  }, [layout, setLayout]);
+
+  useLayoutEffect(() => {
+    scene.traverse((object) => {
+      if (!(object instanceof Mesh)) return;
+      const materials: unknown[] = Array.isArray(object.material) ? object.material : [object.material];
+      for (const material of materials) {
+        if (!(material instanceof MeshStandardMaterial)) continue;
+        if (LED_MATERIALS.test(material.name)) {
+          material.toneMapped = false;
+          material.needsUpdate = true;
+        }
+        if (!(material instanceof MeshPhysicalMaterial) || material.transmission === 0) continue;
+        material.transmission = 0;
+        material.transparent = true;
+        material.opacity = RENDER.glassOpacity;
+        material.needsUpdate = true;
+      }
+    });
+  }, [scene]);
+
+  return (
+    <group position={layout.offset} scale={MODEL_PLACEMENT.scale}>
+      <primitive object={scene} />
+    </group>
+  );
+}
+
+function requireNode(root: Object3D, name: string): Object3D {
+  const node = root.getObjectByName(name);
+  if (!node) throw new Error(`Model is missing the "${name}" node. Re-export from Blender and run npm run model:check.`);
+  return node;
+}
+
+/** Transform from `node`'s local space into `root`'s local space. */
+function matrixInModel(root: Object3D, node: Object3D): Matrix4 {
+  root.updateWorldMatrix(true, true);
+  return root.matrixWorld.clone().invert().multiply(node.matrixWorld);
+}
+
+/** Model-space corners of every mesh's local bounding box under `node`. */
+function cornersInModel(root: Object3D, node: Object3D): Vector3[] {
+  const corners: Vector3[] = [];
+  node.traverse((child) => {
+    if (!(child instanceof Mesh)) return;
+    child.geometry.computeBoundingBox();
+    const box = child.geometry.boundingBox;
+    if (!box) return;
+    const m = matrixInModel(root, child);
+    for (const x of [box.min.x, box.max.x])
+      for (const y of [box.min.y, box.max.y])
+        for (const z of [box.min.z, box.max.z]) corners.push(new Vector3(x, y, z).applyMatrix4(m));
+  });
+  return corners;
+}
+
+function boundsInModel(root: Object3D, node: Object3D): Box3 {
+  return new Box3().setFromPoints(cornersInModel(root, node));
+}
+
+/**
+ * Measures the centre display in desk space along its own axes, so it stays
+ * correct if the monitor is ever rotated in Blender.
+ */
+function measureScreen(root: Object3D, node: Object3D, toDesk: (v: Vector3) => Vec3, scale: number): ScreenRect {
+  // decompose() rather than setFromRotationMatrix(): quantised meshes carry a scale.
+  const quaternion = new Quaternion();
+  matrixInModel(root, node).decompose(new Vector3(), quaternion, new Vector3());
+  const right = new Vector3(1, 0, 0).applyQuaternion(quaternion);
+  const up = new Vector3(0, 1, 0).applyQuaternion(quaternion);
+  const normal = new Vector3(0, 0, 1).applyQuaternion(quaternion);
+
+  const corners = cornersInModel(root, node);
+  const span = (axis: Vector3): [number, number] => {
+    const values = corners.map((c) => c.dot(axis));
+    return [Math.min(...values), Math.max(...values)];
+  };
+  const [r0, r1] = span(right);
+  const [u0, u1] = span(up);
+  const [, n1] = span(normal);
+  // Centre of the panel's front face.
+  const front = new Vector3()
+    .addScaledVector(right, (r0 + r1) / 2)
+    .addScaledVector(up, (u0 + u1) / 2)
+    .addScaledVector(normal, n1);
+
+  return {
+    center: toDesk(front),
+    normal: [normal.x, normal.y, normal.z],
+    up: [up.x, up.y, up.z],
+    width: (r1 - r0) * scale,
+    height: (u1 - u0) * scale,
+  };
+}

@@ -1,0 +1,94 @@
+.terminal {
+  min-height: 100%;
+  padding: 10px 14px 16px;
+  background: var(--term-bg);
+  color: var(--term-fg);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.3;
+  cursor: text;
+}
+
+.log {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.banner {
+  display: grid;
+  align-items: center;
+}
+
+.bannerArt {
+  height: 100%;
+  fill: var(--term-fg);
+  shape-rendering: crispEdges;
+}
+
+.row {
+  min-height: 1.3em;
+}
+
+.prompt {
+  white-space: pre;
+}
+
+.ok {
+  color: var(--term-ok);
+}
+
+.err {
+  color: var(--term-error);
+}
+
+.path {
+  color: var(--term-path);
+}
+
+.inputRow {
+  display: flex;
+  align-items: baseline;
+  white-space: pre;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--term-fg);
+  font: inherit;
+  caret-color: var(--term-fg);
+  outline: none;
+}
+
+.link {
+  color: var(--term-path);
+  text-underline-offset: 3px;
+}
+
+.muted {
+  color: var(--term-muted);
+}
+
+.accent {
+  color: var(--term-path);
+}
+
+.error {
+  color: var(--term-error);
+}
+
+.success {
+  color: var(--term-ok);
+}
+
+.dir {
+  color: var(--term-path);
+  font-weight: 700;
+}
+
+.bold {
+  font-weight: 700;
+}

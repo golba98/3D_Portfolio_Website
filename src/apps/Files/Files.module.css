@@ -1,0 +1,232 @@
+.files {
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr);
+  height: 100%;
+}
+
+@container (max-width: 560px) {
+  .files {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sidebar {
+    display: none;
+  }
+}
+
+.sidebar {
+  padding: 10px 8px;
+  border-right: 1px solid var(--desk-border);
+  background: var(--desk-sidebar);
+  overflow-y: auto;
+}
+
+.sidebar ul {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.place {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-size: var(--text-sm);
+  text-align: left;
+}
+
+.place:hover {
+  background: rgb(255 255 255 / 0.06);
+}
+
+.place[aria-current='location'] {
+  background: rgb(255 255 255 / 0.1);
+  font-weight: 600;
+}
+
+.main {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-width: 0;
+  min-height: 0;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--desk-border);
+}
+
+.navButton {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+}
+
+.navButton:hover:not(:disabled) {
+  background: rgb(255 255 255 / 0.08);
+}
+
+.navButton:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.crumbs {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  margin-left: 6px;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--desk-surface-2);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.crumbWrap {
+  display: inline-flex;
+  align-items: center;
+}
+
+.crumbSep {
+  padding: 0 2px;
+  color: var(--desk-fg-subtle);
+}
+
+.crumb {
+  padding: 3px 6px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  font-size: var(--text-sm);
+}
+
+.crumb:hover {
+  background: rgb(255 255 255 / 0.08);
+}
+
+.crumb[aria-current='location'] {
+  font-weight: 700;
+}
+
+.body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-height: 0;
+}
+
+.body[data-preview='true'] {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+}
+
+@container (max-width: 640px) {
+  .body[data-preview='true'] {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  align-content: start;
+  gap: 4px;
+  margin: 0;
+  padding: 12px;
+  list-style: none;
+  overflow-y: auto;
+}
+
+.item {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 10px 6px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--desk-fg);
+  text-align: center;
+  text-decoration: none;
+}
+
+.item:hover {
+  background: rgb(255 255 255 / 0.06);
+}
+
+.item[aria-pressed='true'] {
+  background: rgb(98 160 234 / 0.2);
+}
+
+.itemIcon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  color: var(--desk-fg-muted);
+}
+
+.itemIcon[data-kind='dir'] {
+  color: var(--desk-accent);
+}
+
+.itemName {
+  font-size: var(--text-xs);
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.preview {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 0;
+  border-left: 1px solid var(--desk-border);
+  background: var(--desk-sidebar);
+}
+
+.previewHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 8px 8px 14px;
+  border-bottom: 1px solid var(--desk-border);
+}
+
+.previewHeader h3 {
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.previewText {
+  margin: 0;
+  padding: 14px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  overflow-y: auto;
+}
+
+.status {
+  padding: 6px 12px;
+  border-top: 1px solid var(--desk-border);
+  color: var(--desk-fg-subtle);
+  font-size: var(--text-xs);
+}

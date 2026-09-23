@@ -1,0 +1,91 @@
+.figure {
+  margin: 20px 0 0;
+}
+
+.figure figcaption {
+  margin-top: 8px;
+  color: var(--desk-fg-subtle);
+  font-size: var(--text-xs);
+}
+
+.screen {
+  display: grid;
+  grid-template-rows: auto minmax(3em, 1fr) auto auto;
+  gap: 8px;
+  aspect-ratio: 100 / 44;
+  padding: 14px 16px 10px;
+  border: 1px solid var(--desk-border);
+  border-radius: var(--radius-md);
+  background: #0d0d10;
+  color: #d4d4d8;
+  font-family: var(--font-mono);
+  font-size: clamp(7px, 1.55cqi, 12px);
+  line-height: 1.2;
+}
+
+.screen[data-compact='true'] {
+  aspect-ratio: auto;
+  font-size: clamp(9px, 3cqi, 13px);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 2ch;
+}
+
+.logo {
+  margin: 0;
+  font: inherit;
+  font-weight: 400; /* bold changes box-drawing advance widths */
+  line-height: 1; /* block glyphs must touch vertically */
+  white-space: pre;
+}
+
+.tone1 {
+  color: #e4e4e7;
+}
+
+.tone2 {
+  color: #a1a1aa;
+}
+
+.tone3 {
+  color: #52525b;
+}
+
+.meta {
+  display: grid;
+  gap: 0.2em;
+  color: #a1a1aa;
+}
+
+.meta span:first-child {
+  color: #e4e4e7;
+}
+
+.composer {
+  grid-row: 3;
+  padding: 0.5em 1ch;
+  border: 1px solid #3f3f46;
+  border-radius: 0.6em;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.prompt {
+  color: #e4e4e7;
+}
+
+.placeholder {
+  color: #71717a;
+}
+
+.footer {
+  grid-row: 4;
+  display: flex;
+  justify-content: space-between;
+  gap: 2ch;
+  color: #71717a;
+  white-space: nowrap;
+}

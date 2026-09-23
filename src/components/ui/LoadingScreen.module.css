@@ -1,0 +1,46 @@
+.cover {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  transition-property: opacity;
+  transition-timing-function: var(--ease-in-out);
+}
+
+.cover[data-visible='true'] {
+  opacity: 1;
+  pointer-events: auto;
+  transition-duration: 0s !important;
+}
+
+.inner {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+}
+
+.text {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--world-muted);
+  letter-spacing: 0.02em;
+}
+
+.track {
+  width: 160px;
+  height: 2px;
+  border-radius: 2px;
+  background: rgb(255 255 255 / 0.1);
+  overflow: hidden;
+}
+
+.bar {
+  height: 100%;
+  background: var(--world-fg);
+  transform-origin: left;
+  transition: transform 200ms linear;
+}

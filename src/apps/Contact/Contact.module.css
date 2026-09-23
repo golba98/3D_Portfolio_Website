@@ -1,0 +1,87 @@
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 32px;
+  align-items: center;
+}
+
+@container (min-width: 700px) {
+  .layout {
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  }
+}
+
+.details {
+  min-width: 0;
+}
+
+.channels {
+  margin-top: 24px;
+}
+
+.channels > li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: var(--desk-fg-muted);
+}
+
+.channel {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.map {
+  margin: 0;
+  max-width: 420px;
+  justify-self: center;
+  width: 100%;
+}
+
+.map svg {
+  width: 100%;
+  height: auto;
+}
+
+.province {
+  fill: none;
+  stroke: var(--desk-fg-subtle);
+  stroke-width: 0.75;
+  vector-effect: non-scaling-stroke;
+}
+
+.home {
+  fill: rgb(98 160 234 / 0.35);
+  stroke: var(--desk-accent);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.outline {
+  fill: none;
+  stroke: var(--desk-fg);
+  stroke-width: 1.25;
+  vector-effect: non-scaling-stroke;
+}
+
+.marker {
+  fill: var(--desk-surface);
+  stroke: var(--desk-fg);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.map figcaption {
+  display: grid;
+  gap: 2px;
+  margin-top: 10px;
+  font-size: var(--text-xs);
+  color: var(--desk-fg-subtle);
+}
+
+.map figcaption strong {
+  color: var(--desk-fg);
+  font-size: var(--text-sm);
+}
