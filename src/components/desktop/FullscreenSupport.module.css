@@ -1,0 +1,23 @@
+/* An OSD pill, like GNOME's and browsers' fullscreen notice. */
+.hint {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  z-index: 2500;
+  padding: 10px 20px;
+  border-radius: var(--radius-pill);
+  background: rgb(0 0 0 / 0.75);
+  color: #fff;
+  font-size: var(--text-md);
+  pointer-events: none;
+  translate: -50% 0;
+  backdrop-filter: blur(12px);
+}
+
+.hint kbd {
+  padding: 1px 6px;
+  border-radius: 5px;
+  background: rgb(255 255 255 / 0.15);
+  font-family: inherit;
+  font-weight: 700;
+}

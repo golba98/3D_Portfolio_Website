@@ -1,7 +1,7 @@
 import { profile } from '../../data/profile';
 import { reposSection } from '../../data/repos';
 import { useGithubRepos } from '../../hooks/useGithubRepos';
-import { Icon } from '../../components/icons/Icon';
+import { ActionRow } from '../shared/ActionRow';
 import ui from '../shared/ui.module.css';
 import styles from './Projects.module.css';
 
@@ -11,12 +11,11 @@ export function Repositories() {
   const { repos, source, publicCount } = useGithubRepos();
 
   return (
-    <section className={styles.detail} aria-labelledby="repos-heading">
-      <p className={ui.eyebrow}>{reposSection.eyebrow}</p>
-      <h2 id="repos-heading" className={ui.h1}>
+    <section className={`${ui.page} ${ui.narrow}`} aria-labelledby="repos-heading">
+      <h2 id="repos-heading" className={ui.groupTitle}>
         {reposSection.heading}
       </h2>
-      <p className={ui.lede} role="status">
+      <p className={ui.groupDescription} role="status">
         {source === 'live' && publicCount !== null ? (
           <>
             Live from{' '}
@@ -32,29 +31,23 @@ export function Repositories() {
         )}
       </p>
 
-      <ul className={styles.repoGrid}>
+      <ul className={ui.list}>
         {repos.map((repo) => (
-          <li key={repo.name} className={styles.repo}>
-            <a className={styles.repoName} href={repo.url} target="_blank" rel="noreferrer">
-              {repo.name}
-            </a>
-            <p className={`${ui.small} ${ui.muted}`}>{repo.description || 'No description.'}</p>
+          <ActionRow key={repo.name} title={repo.name} subtitle={repo.description || 'No description.'} href={repo.url}>
             {(repo.language || repo.updatedAt) && (
-              <p className={styles.repoMeta}>
+              <span className={styles.repoMeta}>
                 {repo.language && <span>{repo.language}</span>}
                 {repo.stars ? <span>★ {repo.stars}</span> : null}
                 {repo.updatedAt && <span>Updated {dateFormat.format(new Date(repo.updatedAt))}</span>}
-              </p>
+              </span>
             )}
-          </li>
+          </ActionRow>
         ))}
       </ul>
 
-      <div className={ui.actions}>
-        <a className={ui.button} href={`${profile.github}?tab=repositories`} target="_blank" rel="noreferrer">
-          <Icon name="github" /> {reposSection.viewAll}
-        </a>
-      </div>
+      <ul className={`${ui.list} ${ui.section}`}>
+        <ActionRow icon="github" title={reposSection.viewAll} href={`${profile.github}?tab=repositories`} />
+      </ul>
     </section>
   );
 }

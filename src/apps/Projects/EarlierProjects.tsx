@@ -1,20 +1,16 @@
 import { earlierProjects } from '../../data/projects';
+import { ActionRow } from '../shared/ActionRow';
 import ui from '../shared/ui.module.css';
-import styles from './Projects.module.css';
 
 export function EarlierProjects() {
   return (
-    <section className={styles.detail} aria-labelledby="earlier-heading">
-      <p className={ui.eyebrow}>From my CV</p>
-      <h2 id="earlier-heading" className={ui.h1}>
-        Earlier projects
+    <section className={`${ui.page} ${ui.narrow}`} aria-labelledby="earlier-heading">
+      <h2 id="earlier-heading" className={ui.groupTitle}>
+        From My CV
       </h2>
-      <ul className={`${ui.list} ${styles.earlier}`}>
+      <ul className={ui.list}>
         {earlierProjects.map((project) => (
-          <li key={project.title}>
-            <h3 className={ui.h3}>{project.title}</h3>
-            <p className={`${ui.small} ${ui.muted}`}>{project.description}</p>
-          </li>
+          <ActionRow key={project.title} title={project.title} subtitle={project.description} />
         ))}
       </ul>
     </section>

@@ -9,7 +9,8 @@ import { useHashSync } from './useHashSync';
 // Both experiences are split out so a #/desktop deep link never downloads
 // three.js, and the 3D landing never waits on desktop app code.
 const World = lazy(() => import('../components/scene/World'));
-const Desktop = lazy(() => import('../components/desktop/Desktop'));
+const loadDesktop = () => import('../components/desktop/Desktop');
+const Desktop = lazy(loadDesktop);
 
 export function App() {
   const phase = useExperience((s) => s.phase);
@@ -31,6 +32,12 @@ export function App() {
   useEffect(() => {
     if (worldWanted && webglProblem) sceneFailed(webglProblem);
   }, [worldWanted, webglProblem, sceneFailed]);
+
+  // Fetch the desktop while the visitor looks around, so it's ready to paint
+  // the moment the camera reaches the monitor instead of popping in late.
+  useEffect(() => {
+    if (phase === 'exploring') void loadDesktop();
+  }, [phase]);
 
   return (
     <>

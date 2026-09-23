@@ -1,0 +1,161 @@
+/* AdwHeaderBar, dark: 46px, headerbar colour, a shade line underneath. */
+.headerbar {
+  display: grid;
+  grid-template-columns: minmax(max-content, 1fr) minmax(0, auto) minmax(max-content, 1fr);
+  grid-template-areas: 'start title end';
+  align-items: center;
+  flex: none;
+  min-height: 46px;
+  padding: 6px;
+  background: var(--desk-headerbar);
+  box-shadow: inset 0 -1px var(--desk-headerbar-shade);
+  color: var(--desk-fg);
+  cursor: default;
+  touch-action: none;
+  user-select: none;
+  transition: background var(--duration-base) var(--ease-out);
+}
+
+.headerbar[data-backdrop='true'] {
+  background: var(--desk-headerbar-backdrop);
+}
+
+.headerbar[data-variant='sidebar'] {
+  background: var(--desk-sidebar);
+  box-shadow: none;
+}
+
+.headerbar[data-variant='sidebar'][data-backdrop='true'] {
+  background: var(--desk-sidebar-backdrop);
+}
+
+.start,
+.end {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.start {
+  grid-area: start;
+}
+
+.end {
+  grid-area: end;
+  justify-content: flex-end;
+}
+
+.title {
+  grid-area: title;
+  display: grid;
+  justify-items: center;
+  min-width: 0;
+  padding: 0 12px;
+  line-height: 1.25;
+  pointer-events: none;
+}
+
+/* Title widgets (a path bar, say) are still clickable. */
+.title :is(button, a) {
+  pointer-events: auto;
+}
+
+.titleText,
+.subtitle {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.titleText {
+  font-weight: 700;
+}
+
+.subtitle {
+  font-size: var(--text-xs);
+  opacity: 0.55;
+}
+
+.headerbar[data-backdrop='true'] .title,
+.headerbar[data-backdrop='true'] .start,
+.headerbar[data-backdrop='true'] .end > :not(.control) {
+  opacity: 0.5;
+}
+
+/* Header-bar buttons are flat until hovered. */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 34px;
+  min-height: 34px;
+  padding: 0 9px;
+  border: 0;
+  border-radius: var(--radius-button);
+  background: transparent;
+  color: inherit;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  text-decoration: none;
+  transition: background var(--duration-fast) var(--ease-out);
+}
+
+.button:hover {
+  background: var(--desk-hover);
+}
+
+.button:active {
+  background: var(--desk-active);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: default;
+  background: transparent;
+}
+
+.button[data-suggested] {
+  padding: 0 14px;
+  background: var(--desk-accent-strong);
+  color: #fff;
+}
+
+.button[data-suggested]:hover {
+  background: var(--desk-accent-strong-hover);
+}
+
+.button:focus-visible,
+.control:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--desk-accent) 50%, transparent);
+  outline-offset: 1px;
+}
+
+/* Window controls: 24px circles, 12px apart, like libadwaita's. */
+.control {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  margin: 0 3px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--desk-button);
+  color: var(--desk-fg);
+  transition: background var(--duration-fast) var(--ease-out);
+}
+
+.control:last-child {
+  margin-right: 5px;
+}
+
+.control:hover {
+  background: var(--desk-button-hover);
+}
+
+.control:active {
+  background: rgb(255 255 255 / 0.3);
+}

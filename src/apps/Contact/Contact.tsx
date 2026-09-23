@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { place, profile } from '../../data/profile';
 import { lesotho, marker, outline, provinces, viewBox } from '../../data/zaMap';
+import { HeaderBar, HeaderLink } from '../../components/adw/HeaderBar';
+import { ToolbarView } from '../../components/adw/ToolbarView';
 import { Icon } from '../../components/icons/Icon';
 import type { AppProps } from '../../types/apps';
+import { ActionRow } from '../shared/ActionRow';
 import ui from '../shared/ui.module.css';
 import styles from './Contact.module.css';
 
@@ -20,73 +23,62 @@ export default function Contact(_props: AppProps) {
   };
 
   return (
-    <article className={`${ui.page} ${styles.layout}`}>
-      <div className={styles.details}>
-        <h1 className={ui.h1}>Get in touch.</h1>
-        <p className={ui.lede}>
-          {profile.role} · {profile.location}
-        </p>
+    <ToolbarView
+      top={<HeaderBar title="Contact" end={<HeaderLink icon="mail" label="Send Email" text="Send Email" href={`mailto:${profile.email}`} suggested />} />}
+    >
+      <article className={`${ui.page} ${ui.narrow}`}>
+        <section aria-labelledby="contact-channels">
+          <h2 id="contact-channels" className={ui.groupTitle}>
+            Get in Touch
+          </h2>
+          <p className={ui.groupDescription}>
+            {profile.role} · {profile.location}
+          </p>
+          <ul className={ui.list}>
+            <ActionRow
+              icon="mail"
+              title={
+                <a className={ui.link} href={`mailto:${profile.email}`}>
+                  {profile.email}
+                </a>
+              }
+              subtitle="Email"
+              suffix={
+                <button type="button" className={`${ui.button} ${ui.flat}`} onClick={() => void copyEmail()} aria-label="Copy email address" title="Copy">
+                  <Icon name={copied ? 'check' : 'copy'} size={16} strokeWidth={2} />
+                  <span className="visually-hidden" aria-live="polite">
+                    {copied ? 'Copied' : ''}
+                  </span>
+                </button>
+              }
+            />
+            <ActionRow icon="github" title={`@${profile.githubUsername}`} subtitle="GitHub" href={profile.github} />
+            <ActionRow icon="file" title="Resume.pdf" subtitle="CV" href={profile.resumeUrl} download />
+          </ul>
+        </section>
 
-        <ul className={`${ui.list} ${styles.channels}`}>
-          <li>
-            <Icon name="mail" size={18} />
-            <div className={styles.channel}>
-              <span className={`${ui.muted} ${ui.small}`}>Email</span>
-              <a className={ui.link} href={`mailto:${profile.email}`}>
-                {profile.email}
-              </a>
-            </div>
-            <button type="button" className={ui.button} onClick={() => void copyEmail()} aria-label="Copy email address">
-              <Icon name={copied ? 'check' : 'copy'} />
-              <span aria-live="polite">{copied ? 'Copied' : 'Copy'}</span>
-            </button>
-          </li>
-          <li>
-            <Icon name="github" size={18} />
-            <div className={styles.channel}>
-              <span className={`${ui.muted} ${ui.small}`}>GitHub</span>
-              <a className={ui.link} href={profile.github} target="_blank" rel="noreferrer">
-                @{profile.githubUsername}
-              </a>
-            </div>
-          </li>
-          <li>
-            <Icon name="file" size={18} />
-            <div className={styles.channel}>
-              <span className={`${ui.muted} ${ui.small}`}>CV</span>
-              <a className={ui.link} href={profile.resumeUrl} download>
-                Resume.pdf
-              </a>
-            </div>
-          </li>
-        </ul>
-
-        <div className={ui.actions}>
-          <a className={`${ui.button} ${ui.primary}`} href={`mailto:${profile.email}`}>
-            <Icon name="mail" /> Send an email
-          </a>
-          <a className={ui.button} href={profile.resumeUrl} download>
-            <Icon name="download" /> Download CV
-          </a>
-        </div>
-      </div>
-
-      <figure className={styles.map}>
-        <svg viewBox={viewBox} role="img" aria-label="Map of South Africa divided into its nine provinces, with the Eastern Cape filled">
-          {provinces.map((province) => (
-            <path key={province.name} className={province.name === 'Eastern Cape' ? styles.home : styles.province} d={province.d} />
-          ))}
-          <path className={styles.outline} d={outline} />
-          <path className={styles.outline} d={lesotho} />
-          <circle className={styles.marker} cx={marker.x} cy={marker.y} r="7" />
-        </svg>
-        <figcaption>
-          <strong>{place.heading}</strong>
-          <span>
-            {place.caption}. {place.note}
-          </span>
-        </figcaption>
-      </figure>
-    </article>
+        <section className={ui.section} aria-labelledby="contact-location">
+          <h2 id="contact-location" className={ui.groupTitle}>
+            Location
+          </h2>
+          <figure className={`${ui.card} ${styles.map}`}>
+            <svg viewBox={viewBox} role="img" aria-label="Map of South Africa divided into its nine provinces, with the Eastern Cape filled">
+              {provinces.map((province) => (
+                <path key={province.name} className={province.name === 'Eastern Cape' ? styles.home : styles.province} d={province.d} />
+              ))}
+              <path className={styles.outline} d={outline} />
+              <path className={styles.outline} d={lesotho} />
+              <circle className={styles.marker} cx={marker.x} cy={marker.y} r="7" />
+            </svg>
+            <figcaption>
+              <strong>{place.heading}</strong>
+              <span>
+                {place.caption}. {place.note}
+              </span>
+            </figcaption>
+          </figure>
+        </section>
+      </article>
+    </ToolbarView>
   );
 }

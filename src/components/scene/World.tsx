@@ -20,6 +20,12 @@ export default function World() {
   const [dprMin, dprMax] = RENDER.dpr[tier];
   const [dpr, setDpr] = useState(dprMax);
   const paused = phase === 'desktop';
+  // Flying into the monitor ends on a frame that stays frozen behind the
+  // desktop's crossfade, so render it at the display's full resolution,
+  // whatever the tier cap or the performance monitor says. It stays that way
+  // while paused: resizing the buffer would blank the frozen frame.
+  const canvasDpr: number | [number, number] =
+    phase === 'entering-monitor' || paused ? Math.min(window.devicePixelRatio || 1, 2) : [dprMin, Math.min(dpr, dprMax)];
   const initialPose = poseFor('introSide', window.innerWidth / Math.max(window.innerHeight, 1));
 
   return (
@@ -27,7 +33,7 @@ export default function World() {
       <ErrorBoundary fallback={null} onError={() => sceneFailed('The 3D model failed to load.')}>
         <Canvas
           className={styles.canvas}
-          dpr={[dprMin, Math.min(dpr, dprMax)]}
+          dpr={canvasDpr}
           frameloop={paused ? 'never' : 'always'}
           camera={{ fov: initialPose.fov, near: RENDER.near, far: RENDER.far, position: [...initialPose.position] }}
           gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}

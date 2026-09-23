@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Icon } from '../../components/icons/Icon';
 import type { Project } from '../../types/content';
+import { ActionRow } from '../shared/ActionRow';
 import ui from '../shared/ui.module.css';
 import { ModelSection } from './ModelSection';
 import { UbumeScreen } from './UbumeScreen';
@@ -25,17 +26,17 @@ export function ProjectDetail({ project, compact }: ProjectDetailProps) {
   };
 
   return (
-    <article className={styles.detail} aria-labelledby={`project-${project.id}`}>
+    <article className={`${ui.page} ${ui.narrow}`} aria-labelledby={`project-${project.id}`}>
       <header>
-        <div className={styles.meta}>
-          <span className={styles.badge} data-active={project.active}>
-            {project.year}
-          </span>
-        </div>
         <h2 id={`project-${project.id}`} className={ui.h1}>
           {project.title}
         </h2>
-        <p className={ui.muted}>{project.role}</p>
+        <p className={styles.meta}>
+          <span className={ui.muted}>{project.role}</span>
+          <span className={styles.badge} data-active={project.active}>
+            {project.year}
+          </span>
+        </p>
       </header>
 
       {project.image && (
@@ -59,21 +60,23 @@ export function ProjectDetail({ project, compact }: ProjectDetailProps) {
         />
       )}
 
-      <p className={`${ui.prose} ${styles.summary}`}>{project.summary}</p>
-      {project.note && <p className={`${ui.prose} ${ui.muted}`}>{project.note}</p>}
+      <div className={`${ui.card} ${styles.summary}`}>
+        <p className={ui.prose}>{project.summary}</p>
+        {project.note && <p className={`${ui.prose} ${ui.muted}`}>{project.note}</p>}
+      </div>
 
       <section className={ui.section} aria-labelledby={`how-${project.id}`}>
-        <h3 id={`how-${project.id}`} className={ui.h2}>
-          How it works
+        <h3 id={`how-${project.id}`} className={ui.groupTitle}>
+          How It Works
         </h3>
-        <p className={ui.prose}>{project.proof}</p>
+        <p className={`${ui.card} ${ui.prose}`}>{project.proof}</p>
       </section>
 
       <section className={ui.section} aria-labelledby={`stack-${project.id}`}>
-        <h3 id={`stack-${project.id}`} className={ui.h2}>
+        <h3 id={`stack-${project.id}`} className={ui.groupTitle}>
           Technologies
         </h3>
-        <ul className={ui.chips}>
+        <ul className={`${ui.chips} ${ui.card}`}>
           {project.technologies.map((tech) => (
             <li key={tech} className={ui.chip}>
               {tech}
@@ -84,36 +87,45 @@ export function ProjectDetail({ project, compact }: ProjectDetailProps) {
 
       {project.npm && (
         <section className={ui.section} aria-labelledby={`npm-${project.id}`}>
-          <h3 id={`npm-${project.id}`} className={ui.h2}>
+          <h3 id={`npm-${project.id}`} className={ui.groupTitle}>
             Install
           </h3>
-          <div className={styles.install}>
-            <code>{project.npm.install}</code>
-            <button type="button" className={ui.button} onClick={() => void copyInstall(project.npm?.install ?? '')} aria-label="Copy install command">
-              <Icon name={copied ? 'check' : 'copy'} />
-              <span aria-live="polite">{copied ? 'Copied' : 'Copy'}</span>
-            </button>
-          </div>
-          <p className={`${ui.small} ${ui.muted} ${styles.source}`}>
-            {project.npm.name} v{project.npm.version} on the{' '}
-            <a className={ui.link} href={project.npm.url} target="_blank" rel="noreferrer">
-              npm registry
-            </a>
-            .
-          </p>
+          <ul className={ui.list}>
+            <ActionRow
+              title={<code className={styles.install}>{project.npm.install}</code>}
+              subtitle={
+                <>
+                  {project.npm.name} v{project.npm.version} on the{' '}
+                  <a className={ui.link} href={project.npm.url} target="_blank" rel="noreferrer">
+                    npm registry
+                  </a>
+                </>
+              }
+              suffix={
+                <button
+                  type="button"
+                  className={`${ui.button} ${ui.flat}`}
+                  onClick={() => void copyInstall(project.npm?.install ?? '')}
+                  aria-label="Copy install command"
+                  title="Copy"
+                >
+                  <Icon name={copied ? 'check' : 'copy'} size={16} strokeWidth={2} />
+                  <span className="visually-hidden" aria-live="polite">
+                    {copied ? 'Copied' : ''}
+                  </span>
+                </button>
+              }
+            />
+          </ul>
         </section>
       )}
 
-      <div className={ui.actions}>
-        <a className={`${ui.button} ${ui.primary}`} href={project.github} target="_blank" rel="noreferrer">
-          <Icon name="github" /> View source
-        </a>
-        {project.demo && (
-          <a className={ui.button} href={project.demo} target="_blank" rel="noreferrer">
-            <Icon name="external" /> Live demo
-          </a>
-        )}
-      </div>
+      <section className={ui.section} aria-label="Links">
+        <ul className={ui.list}>
+          <ActionRow icon="github" title="View Source" subtitle={project.github.replace(/^https:\/\//, '')} href={project.github} />
+          {project.demo && <ActionRow icon="external" title="Live Demo" subtitle={project.demo.replace(/^https:\/\//, '')} href={project.demo} />}
+        </ul>
+      </section>
 
       {project.id === 'llm' && <ModelSection />}
     </article>

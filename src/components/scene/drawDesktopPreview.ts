@@ -1,6 +1,12 @@
+import { Vector3 } from 'three';
 import { DESKTOP_THEME } from '../../config/theme';
+import { MONITOR_FOCUS } from '../../config/cameraPoses';
+import { SCREEN } from '../../config/scene';
 import { APPS } from '../../apps/registry';
+import { monitorFocusPose } from '../../lib/cameraMath';
 import { formatTopBarClock } from '../../lib/format';
+import type { ScreenRect } from '../../types/scene';
+import { ICON_PATHS } from '../icons/paths';
 
 export interface PreviewImages {
   wallpaper: HTMLImageElement | null;
@@ -8,10 +14,45 @@ export interface PreviewImages {
   icons: readonly (HTMLImageElement | null)[];
 }
 
+/** A size in CSS pixels. */
+export interface Size {
+  width: number;
+  height: number;
+}
+
+export interface PreviewLayout {
+  /** The window the DOM desktop will fill. */
+  viewport: Size;
+  /** The preview plane's size on that window once the camera arrives (it overfills it slightly). */
+  plane: Size;
+}
+
+/** Stand-in for windows too narrow to show the floating desktop (they get the mobile shell). */
+const REFERENCE_VIEWPORT: Size = { width: 1920, height: 1080 };
+
 /**
- * Paints a lightweight stand-in of the desktop (wallpaper, top bar, dock) for
- * the monitor in the 3D scene. It only needs to read correctly from across
- * the room; the real DOM desktop takes over once the camera arrives.
+ * Where the preview plane lands on the window at the end of the camera move,
+ * from the same maths the camera uses (lib/cameraMath.ts#monitorFocusPose).
+ */
+export function previewLayout(viewport: Size, screen: ScreenRect): PreviewLayout {
+  const vp = viewport.width / Math.max(viewport.height, 1) < 1.2 ? REFERENCE_VIEWPORT : viewport;
+  const pose = monitorFocusPose(screen, vp.width / vp.height);
+  const distance = pose.position.distanceTo(new Vector3(...screen.center)) - SCREEN.surfaceOffset;
+  const pxPerMetre = vp.height / (2 * distance * Math.tan((MONITOR_FOCUS.fov * Math.PI) / 360));
+  return {
+    viewport: vp,
+    plane: {
+      width: (screen.width - SCREEN.inset * 2) * pxPerMetre,
+      height: (screen.height - SCREEN.inset * 2) * pxPerMetre,
+    },
+  };
+}
+
+/**
+ * Paints the desktop (wallpaper, top bar, dock) for the monitor in the 3D
+ * scene. Everything is drawn in the DOM desktop's CSS pixels, relative to the
+ * window it will fill, so when the camera arrives the texture lines up with
+ * the real desktop pixel for pixel and the crossfade shows no jump.
  */
 export function drawDesktopPreview(
   ctx: CanvasRenderingContext2D,
@@ -19,70 +60,72 @@ export function drawDesktopPreview(
   height: number,
   images: PreviewImages,
   now: Date,
+  layout: PreviewLayout,
 ): void {
   const t = DESKTOP_THEME;
-  // Scale from a 1280-wide reference layout so proportions match the DOM desktop.
-  const s = width / 1280;
-  // DOM pixels → reference pixels, for a desktop viewed in a ~1920px-wide window.
-  const d = s * (1280 / 1920);
+  const { viewport: vp, plane } = layout;
+  // CSS pixels → texture pixels, with the window's top-left corner as the origin.
+  const sx = width / plane.width;
+  const sy = height / plane.height;
+  const ox = (plane.width - vp.width) / 2;
+  const oy = (plane.height - vp.height) / 2;
+  ctx.setTransform(sx, 0, 0, sy, ox * sx, oy * sy);
 
   ctx.fillStyle = t.wallpaperA;
-  ctx.fillRect(0, 0, width, height);
+  ctx.fillRect(-ox, -oy, plane.width, plane.height);
   const { wallpaper } = images;
   if (wallpaper) {
-    // background-size: cover, like the DOM desktop.
-    const scale = Math.max(width / wallpaper.naturalWidth, height / wallpaper.naturalHeight);
-    const w = wallpaper.naturalWidth * scale;
-    const h = wallpaper.naturalHeight * scale;
-    ctx.drawImage(wallpaper, (width - w) / 2, (height - h) / 2, w, h);
+    // DesktopShell.module.css: the wallpaper is --cover-w wide, centred.
+    const w = Math.max(vp.width, (vp.height * 16) / 9) / MONITOR_FOCUS.fill;
+    const h = (wallpaper.naturalHeight / wallpaper.naturalWidth) * w;
+    ctx.drawImage(wallpaper, (vp.width - w) / 2, (vp.height - h) / 2, w, h);
   }
 
-  // Top bar: workspace indicator, Places, clock, status icons.
-  const barH = 26 * s;
-  const mid = barH / 2;
+  // Top bar (TopBar.module.css): 32px tall, 6px side padding, 13px bold text.
+  const mid = 16;
   ctx.fillStyle = t.topbar;
-  ctx.fillRect(0, 0, width, barH);
+  ctx.fillRect(-ox, -oy, plane.width, oy + 32);
   ctx.fillStyle = t.fg;
-  roundRect(ctx, 16 * d, mid - 4 * d, 30 * d, 8 * d, 4 * d);
+  // Workspace indicator: a 30px pill and an 8px dot, inside a button padded 10px.
+  roundRect(ctx, 16, mid - 4, 30, 8, 4);
   ctx.fill();
   ctx.globalAlpha = 0.45;
-  roundRect(ctx, 51 * d, mid - 4 * d, 8 * d, 8 * d, 4 * d);
+  roundRect(ctx, 51, mid - 4, 8, 8, 4);
   ctx.fill();
   ctx.globalAlpha = 1;
   ctx.textBaseline = 'middle';
-  ctx.font = `700 ${12 * s}px ${t.fontSans}`;
+  ctx.font = `700 13px ${t.fontSans}`;
   ctx.textAlign = 'left';
-  ctx.fillText('Places', 83 * d, mid);
+  ctx.fillText('Places', 83, mid);
   ctx.textAlign = 'center';
-  ctx.fillText(formatTopBarClock(now).replace('  ', ' '), width / 2, mid);
-  for (let i = 0; i < 3; i += 1) {
-    ctx.beginPath();
-    ctx.arc(width - (24 + i * 24) * d, mid, 4 * d, 0, Math.PI * 2);
-    ctx.fill();
-  }
+  ctx.fillText(formatTopBarClock(now), vp.width / 2, mid);
 
-  // Greeting, like the desktop's welcome text
-  ctx.fillStyle = 'rgba(244,244,245,0.92)';
-  ctx.textAlign = 'left';
-  ctx.font = `700 ${46 * s}px ${t.fontSans}`;
-  ctx.fillText('Jordan Vorster', 72 * s, height * 0.4);
-  ctx.fillStyle = 'rgba(161,161,170,0.95)';
-  ctx.font = `400 ${18 * s}px ${t.fontSans}`;
-  ctx.fillText('Computer Science student · Eastern Cape, South Africa', 74 * s, height * 0.4 + 44 * s);
+  // Status icons (StatusMenu.module.css): 16px, 8px apart, the last one 18px from the right edge.
+  ctx.strokeStyle = t.fg;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  (['power', 'volume', 'network-wired'] as const).forEach((name, i) => {
+    ctx.save();
+    ctx.translate(vp.width - 18 - 16 - i * 24, mid - 8);
+    ctx.scale(16 / 24, 16 / 24);
+    ctx.lineWidth = 1.8;
+    ctx.stroke(new Path2D(ICON_PATHS[name]));
+    ctx.restore();
+  });
 
-  // Dock: the same geometry as Dock.module.css (56px icons in 64px buttons,
-  // 8px gaps, 10px padding), then a separator and the "Show apps" dots.
-  const icon = 56 * d;
-  const cell = 64 * d;
-  const gap = 8 * d;
-  const pad = 10 * d;
-  const sepW = 9 * d;
+  // Dock (Dock.module.css): 56px icons in 64px buttons, 8px gaps, 10px
+  // padding, 1px border, 12px off the bottom; then a separator and "Show apps".
+  const icon = 56;
+  const cell = 64;
+  const gap = 8;
+  const pad = 11;
+  const sepW = 9;
   const cells = APPS.length + 1;
   const dockW = pad * 2 + cells * cell + sepW + cells * gap;
   const dockH = cell + pad * 2;
-  const dockX = (width - dockW) / 2;
-  const dockY = height - dockH - 12 * d;
-  roundRect(ctx, dockX, dockY, dockW, dockH, 24 * d);
+  const dockX = (vp.width - dockW) / 2;
+  const dockY = vp.height - dockH - 12;
+  roundRect(ctx, dockX, dockY, dockW, dockH, 24);
   ctx.fillStyle = 'rgba(30,30,30,0.82)';
   ctx.fill();
 
@@ -94,26 +137,28 @@ export function drawDesktopPreview(
     if (image) {
       ctx.drawImage(image, x, y, icon, icon);
     } else {
-      roundRect(ctx, x, y, icon, icon, 12 * d);
+      roundRect(ctx, x, y, icon, icon, 12);
       ctx.fillStyle = t.surface2;
       ctx.fill();
     }
   });
 
-  const sepX = dockX + pad + APPS.length * (cell + gap) + 4 * d;
+  const sepX = dockX + pad + APPS.length * (cell + gap) + 4;
   ctx.fillStyle = 'rgba(255,255,255,0.14)';
-  ctx.fillRect(sepX, dockY + dockH / 2 - 20 * d, 1 * d, 40 * d);
+  ctx.fillRect(sepX, dockY + dockH / 2 - 20, 1, 40);
 
-  const gridX = sepX + 5 * d + gap + cell / 2;
+  const gridX = sepX + 5 + gap + cell / 2;
   const gridY = dockY + dockH / 2;
   ctx.fillStyle = t.fg;
   for (let row = -1; row <= 1; row += 1) {
     for (let col = -1; col <= 1; col += 1) {
       ctx.beginPath();
-      ctx.arc(gridX + col * 15 * d, gridY + row * 15 * d, 4 * d, 0, Math.PI * 2);
+      ctx.arc(gridX + col * 15, gridY + row * 15, 4, 0, Math.PI * 2);
       ctx.fill();
     }
   }
+
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
 }
 
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number): void {

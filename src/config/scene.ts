@@ -67,8 +67,12 @@ export const LIGHTING = {
 } as const;
 
 export const SCREEN = {
-  /** Resolution of the in-scene desktop preview texture (16:9, like the panel). */
-  textureSize: [1280, 720] as [number, number],
+  /**
+   * Width bounds of the in-scene desktop preview texture. It is sized to the
+   * panel's on-screen pixels at the end of the camera move, so the hand-off to
+   * the DOM desktop is sharp.
+   */
+  texture: { minWidth: 1280, maxWidth: { high: 4096, low: 2560 } },
   /** How far in front of the physical panel the preview plane floats. */
   surfaceOffset: 0.0012,
   /** Shrinks the plane slightly so it never pokes through the bezel. */

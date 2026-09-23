@@ -7,11 +7,10 @@ import styles from './Projects.module.css';
 export function ModelSection() {
   return (
     <section className={ui.section} aria-labelledby="model-heading">
-      <p className={ui.eyebrow}>Model</p>
-      <h3 id="model-heading" className={ui.h2}>
+      <h3 id="model-heading" className={ui.groupTitle}>
         {codexa.heading}
       </h3>
-      <p className={ui.lede}>{codexa.lede}</p>
+      <p className={ui.groupDescription}>{codexa.lede}</p>
 
       <ul className={styles.stats} aria-label="Training run">
         {codexa.counters.map((counter) => (
@@ -25,21 +24,23 @@ export function ModelSection() {
       </ul>
 
       <div className={ui.section}>
-        <h4 className={ui.h3}>Conversational SFT validation loss</h4>
-        <LossChart points={codexa.loss} caption={codexa.lossCaption} ariaLabel={codexa.lossAriaLabel} />
+        <h4 className={ui.groupTitle}>Conversational SFT Validation Loss</h4>
+        <div className={ui.card}>
+          <LossChart points={codexa.loss} caption={codexa.lossCaption} ariaLabel={codexa.lossAriaLabel} />
+        </div>
       </div>
 
       <div className={ui.section}>
-        <h4 className={ui.h3}>Architecture</h4>
-        <dl className={`${ui.list} ${styles.spec}`} aria-label={`Model architecture from ${codexa.specSource}`}>
+        <h4 className={ui.groupTitle}>Architecture</h4>
+        <dl className={ui.list} aria-label={`Model architecture from ${codexa.specSource}`}>
           {codexa.spec.map((row) => (
             <div key={row.label} className={styles.specRow}>
-              <dt className={ui.muted}>{row.label}</dt>
+              <dt>{row.label}</dt>
               <dd>{row.value}</dd>
             </div>
           ))}
         </dl>
-        <p className={`${ui.small} ${styles.source}`}>Source: {codexa.specSource}</p>
+        <p className={`${ui.small} ${ui.muted} ${styles.source}`}>Source: {codexa.specSource}</p>
       </div>
 
       <p className={`${ui.card} ${styles.caveat}`}>

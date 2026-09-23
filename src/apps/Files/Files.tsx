@@ -1,6 +1,9 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { formatPath, getNode, HOME, HOME_PATH, isSamePath } from '../../data/filesystem';
+import { HeaderButton } from '../../components/adw/HeaderBar';
+import { SplitView } from '../../components/adw/SplitView';
 import { Icon, type IconName } from '../../components/icons/Icon';
+import { useElementWidth } from '../../hooks/useElementWidth';
 import type { AppProps } from '../../types/apps';
 import type { FsFile, FsNode, FsPath } from '../../types/filesystem';
 import styles from './Files.module.css';
@@ -12,10 +15,13 @@ const PLACES: ReadonlyArray<{ label: string; path: FsPath; icon: IconName }> = [
     .map((child) => ({ label: child.name, path: [...HOME_PATH, child.name], icon: 'folder' as IconName })),
 ];
 
-function iconFor(node: FsNode): IconName {
-  if (node.kind === 'dir') return 'folder';
-  if (node.opens) return node.opens.app === 'projects' ? 'folder-code' : 'file';
-  return 'file';
+/** Below this window width the sidebar hides behind a back button. */
+const SPLIT_MIN_WIDTH = 560;
+
+/** Adwaita's full-colour icons, like Nautilus's grid view. */
+function iconFor(node: FsNode): string {
+  if (node.kind === 'dir') return '/icons/files/folder.svg';
+  return node.binary ? '/icons/files/x-office-document.svg' : '/icons/files/text-x-generic.svg';
 }
 
 /** Files deep links arrive as "home/jordan/Projects". */
@@ -25,7 +31,12 @@ function initialPath(arg?: string): FsPath {
   return getNode(path)?.kind === 'dir' ? path : HOME_PATH;
 }
 
+/** Laid out like GNOME Files (Nautilus). */
 export default function Files({ arg, openApp }: AppProps) {
+  const root = useRef<HTMLDivElement>(null);
+  const width = useElementWidth(root);
+  const collapsed = width > 0 && width < SPLIT_MIN_WIDTH;
+  const [showPlaces, setShowPlaces] = useState(false);
   const [path, setPath] = useState<FsPath>(() => initialPath(arg));
   const [back, setBack] = useState<FsPath[]>([]);
   const [forward, setForward] = useState<FsPath[]>([]);
@@ -35,6 +46,7 @@ export default function Files({ arg, openApp }: AppProps) {
   const children = node?.kind === 'dir' ? node.children : [];
 
   const navigate = (next: FsPath): void => {
+    setShowPlaces(false);
     if (isSamePath(next, path)) return;
     setBack((b) => [...b, path]);
     setForward([]);
@@ -72,101 +84,112 @@ export default function Files({ arg, openApp }: AppProps) {
     path: path.slice(0, HOME_PATH.length + i),
   }));
 
-  return (
-    <div className={styles.files}>
-      <nav className={styles.sidebar} aria-label="Places">
-        <ul>
-          {PLACES.map((place) => (
-            <li key={place.label}>
-              <button
-                type="button"
-                className={styles.place}
-                aria-current={isSamePath(place.path, path) ? 'location' : undefined}
-                onClick={() => navigate(place.path)}
-              >
-                <Icon name={place.icon} /> {place.label}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </nav>
+  const pathBar = (
+    <nav className={styles.pathBar} aria-label={`Location: ${formatPath(path)}`}>
+      {crumbs.map((crumb, i) => (
+        <span key={crumb.path.join('/')} className={styles.crumbWrap}>
+          {i > 0 && (
+            <span className={styles.crumbSep} aria-hidden="true">
+              /
+            </span>
+          )}
+          <button
+            type="button"
+            className={styles.crumb}
+            aria-current={i === crumbs.length - 1 ? 'location' : undefined}
+            onClick={() => navigate(crumb.path)}
+          >
+            {i === 0 && <Icon name="home" size={14} strokeWidth={2} />}
+            {crumb.name}
+          </button>
+        </span>
+      ))}
+    </nav>
+  );
 
-      <div className={styles.main}>
-        <div className={styles.toolbar}>
-          <button type="button" className={styles.navButton} onClick={goBack} disabled={back.length === 0} aria-label="Back">
-            <Icon name="back" />
+  const places = (
+    <ul className={styles.places}>
+      {PLACES.map((place) => (
+        <li key={place.label}>
+          <button
+            type="button"
+            className={styles.place}
+            aria-current={isSamePath(place.path, path) ? 'location' : undefined}
+            onClick={() => navigate(place.path)}
+          >
+            <Icon name={place.icon} size={16} strokeWidth={2} /> {place.label}
           </button>
-          <button type="button" className={styles.navButton} onClick={goForward} disabled={forward.length === 0} aria-label="Forward">
-            <Icon name="chevron" />
-          </button>
-          <nav className={styles.crumbs} aria-label={`Location: ${formatPath(path)}`}>
-            {crumbs.map((crumb, i) => (
-              <span key={crumb.path.join('/')} className={styles.crumbWrap}>
-                {i > 0 && <span className={styles.crumbSep} aria-hidden="true">/</span>}
+        </li>
+      ))}
+    </ul>
+  );
+
+  const view = (
+    <div className={styles.body} data-preview={preview !== null}>
+      <ul className={styles.grid} aria-label={`Contents of ${formatPath(path)}`}>
+        {children.map((child) => {
+          const label = child.kind === 'dir' ? `${child.name}, folder` : child.name;
+          const content = (
+            <>
+              <img className={styles.itemIcon} src={iconFor(child)} alt="" width={64} height={64} draggable={false} />
+              <span className={styles.itemName}>{child.name}</span>
+            </>
+          );
+          return (
+            <li key={child.name}>
+              {child.kind === 'file' && child.href && !child.opens ? (
+                <a className={styles.item} href={child.href} target="_blank" rel="noreferrer" aria-label={`${child.name} (opens in a new tab)`}>
+                  {content}
+                </a>
+              ) : (
                 <button
                   type="button"
-                  className={styles.crumb}
-                  aria-current={i === crumbs.length - 1 ? 'location' : undefined}
-                  onClick={() => navigate(crumb.path)}
+                  className={styles.item}
+                  aria-label={label}
+                  aria-pressed={preview === child ? true : undefined}
+                  onClick={() => activate(child)}
                 >
-                  {crumb.name}
+                  {content}
                 </button>
-              </span>
-            ))}
-          </nav>
-        </div>
+              )}
+            </li>
+          );
+        })}
+      </ul>
 
-        <div className={styles.body} data-preview={preview !== null}>
-          <ul className={styles.grid} aria-label={`Contents of ${formatPath(path)}`}>
-            {children.map((child) => {
-              const label = child.kind === 'dir' ? `${child.name}, folder` : child.name;
-              const content = (
-                <>
-                  <span className={styles.itemIcon} data-kind={child.kind}>
-                    <Icon name={iconFor(child)} size={30} strokeWidth={1.5} />
-                  </span>
-                  <span className={styles.itemName}>{child.name}</span>
-                </>
-              );
-              return (
-                <li key={child.name}>
-                  {child.kind === 'file' && child.href && !child.opens ? (
-                    <a className={styles.item} href={child.href} target="_blank" rel="noreferrer" aria-label={`${child.name} (opens in a new tab)`}>
-                      {content}
-                    </a>
-                  ) : (
-                    <button
-                      type="button"
-                      className={styles.item}
-                      aria-label={label}
-                      aria-pressed={preview === child ? true : undefined}
-                      onClick={() => activate(child)}
-                    >
-                      {content}
-                    </button>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-
-          {preview && (
-            <aside className={styles.preview} aria-label={`Preview of ${preview.name}`}>
-              <header className={styles.previewHeader}>
-                <h3>{preview.name}</h3>
-                <button type="button" className={styles.navButton} onClick={() => setPreview(null)} aria-label="Close preview">
-                  <Icon name="close" />
-                </button>
-              </header>
-              <pre className={styles.previewText}>{preview.content}</pre>
-            </aside>
-          )}
-        </div>
-
-        <p className={styles.status}>
-          {children.length} {children.length === 1 ? 'item' : 'items'}
-        </p>
-      </div>
+      {preview && (
+        <aside className={styles.preview} aria-label={`Preview of ${preview.name}`}>
+          <header className={styles.previewHeader}>
+            <h3>{preview.name}</h3>
+            <HeaderButton icon="close" label="Close preview" onClick={() => setPreview(null)} />
+          </header>
+          <pre className={styles.previewText}>{preview.content}</pre>
+        </aside>
+      )}
     </div>
+  );
+
+  return (
+    <SplitView
+      ref={root}
+      collapsed={collapsed}
+      showContent={!showPlaces}
+      onBack={() => setShowPlaces(true)}
+      backLabel="Show places"
+      sidebarLabel="Places"
+      sidebarWidth={200}
+      sidebarHeader={{ title: 'Files' }}
+      sidebar={places}
+      contentHeader={{
+        title: pathBar,
+        start: (
+          <>
+            <HeaderButton icon="back" label="Back" onClick={goBack} disabled={back.length === 0} />
+            <HeaderButton icon="chevron" label="Forward" onClick={goForward} disabled={forward.length === 0} />
+          </>
+        ),
+      }}
+      content={view}
+    />
   );
 }

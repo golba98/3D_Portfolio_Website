@@ -66,8 +66,6 @@ function Line({ line }: { line: OutputLine }) {
 
 export default function Terminal({ openApp, setTitle }: AppProps) {
   const [entries, setEntries] = useState<Entry[]>(() => makeEntries('output', WELCOME));
-  // Like a real shell, the banner is printed once at startup and goes away on `clear`.
-  const [showBanner, setShowBanner] = useState(true);
   const [cwd, setCwd] = useState<FsPath>(HOME_PATH);
   const [status, setStatus] = useState(0);
   const [input, setInput] = useState('');
@@ -87,6 +85,8 @@ export default function Terminal({ openApp, setTitle }: AppProps) {
   }, [cwd, setTitle]);
 
   const append = (rows: Entry[]): void => setEntries((prev) => [...prev, ...rows].slice(-MAX_ENTRIES));
+  // My ~/.zshrc's clear() redraws the banner after clearing, so the top section stays.
+  const clearScreen = (): void => setEntries(makeEntries('output', WELCOME));
 
   const run = (raw: string): void => {
     const command = raw.trim();
@@ -119,8 +119,7 @@ export default function Terminal({ openApp, setTitle }: AppProps) {
     setStatus(handler ? (failed(output) ? 1 : 0) : 127);
     setCwd(nextCwd);
     if (cleared) {
-      setEntries([]);
-      setShowBanner(false);
+      clearScreen();
     } else {
       append([...echo, ...makeEntries('output', output)]);
     }
@@ -158,8 +157,7 @@ export default function Terminal({ openApp, setTitle }: AppProps) {
       }
     } else if (event.key === 'l' && event.ctrlKey) {
       event.preventDefault();
-      setEntries([]);
-      setShowBanner(false);
+      clearScreen();
     } else if (event.key === 'c' && event.ctrlKey && !window.getSelection()?.toString()) {
       event.preventDefault();
       append(makeEntries('input', [[`${input}^C`]], cwd, status));
@@ -176,7 +174,7 @@ export default function Terminal({ openApp, setTitle }: AppProps) {
       }}
     >
       <div className={styles.log} role="log" aria-live="polite" aria-label="Terminal output">
-        {showBanner && <Banner />}
+        <Banner />
         {entries.map((entry) => (
           <div key={entry.id} className={styles.row}>
             {entry.kind === 'input' && entry.cwd && <Prompt cwd={entry.cwd} status={entry.status ?? 0} />}

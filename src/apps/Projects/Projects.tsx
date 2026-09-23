@@ -1,15 +1,15 @@
 import { useRef, useState } from 'react';
 import { findProject, projects, projectsSection } from '../../data/projects';
+import { HeaderLink } from '../../components/adw/HeaderBar';
+import { SplitView } from '../../components/adw/SplitView';
 import { useElementWidth } from '../../hooks/useElementWidth';
-import { Icon } from '../../components/icons/Icon';
 import type { AppProps } from '../../types/apps';
-import ui from '../shared/ui.module.css';
 import { EarlierProjects } from './EarlierProjects';
 import { ProjectDetail } from './ProjectDetail';
 import { Repositories } from './Repositories';
 import styles from './Projects.module.css';
 
-/** What the detail pane shows: a project id, or one of the two list views. */
+/** What the content pane shows: a project id, or one of the two list views. */
 type Selection = string | 'earlier' | 'repos';
 
 const SPLIT_MIN_WIDTH = 640;
@@ -20,90 +20,74 @@ function initialSelection(arg?: string): Selection | null {
   return null;
 }
 
+function titleFor(selection: Selection): string {
+  if (selection === 'earlier') return 'Earlier Projects';
+  if (selection === 'repos') return 'All Repositories';
+  return findProject(selection)?.title ?? '';
+}
+
+/** A navigation split view, like GNOME Builder's or Settings'. */
 export default function Projects({ arg }: AppProps) {
   const root = useRef<HTMLDivElement>(null);
   const width = useElementWidth(root);
-  const split = width === 0 || width >= SPLIT_MIN_WIDTH;
+  const collapsed = width > 0 && width < SPLIT_MIN_WIDTH;
   const [selection, setSelection] = useState<Selection | null>(() => initialSelection(arg));
-  const detailRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
-  // Side-by-side, something is always selected; stacked, "nothing" means the list.
-  const shown: Selection | null = selection ?? (split ? (projects[0]?.id ?? null) : null);
+  // Side by side, something is always selected; collapsed, "nothing" means the list.
+  const shown: Selection | null = selection ?? (collapsed ? null : (projects[0]?.id ?? null));
+  const project = shown ? findProject(shown) : undefined;
 
   const select = (next: Selection): void => {
     setSelection(next);
-    detailRef.current?.scrollTo({ top: 0 });
+    contentRef.current?.scrollTo({ top: 0 });
   };
 
   const renderDetail = (value: Selection) => {
     if (value === 'earlier') return <EarlierProjects />;
     if (value === 'repos') return <Repositories />;
-    const project = findProject(value);
-    return project ? <ProjectDetail project={project} compact={width > 0 && width < 560} /> : null;
+    const found = findProject(value);
+    return found ? <ProjectDetail project={found} compact={width > 0 && width < 760} /> : null;
   };
 
-  const list = (
-    <nav className={styles.sidebar} aria-label="Projects">
+  const navRow = (id: Selection, title: string, subtitle: string) => (
+    <li key={id}>
+      <button type="button" className={styles.navItem} aria-current={shown === id ? 'page' : undefined} onClick={() => select(id)}>
+        <span className={styles.navTitle}>{title}</span>
+        <span className={styles.navSub}>{subtitle}</span>
+      </button>
+    </li>
+  );
+
+  const sidebar = (
+    <>
       <p className={styles.sidebarLabel}>{projectsSection.heading}</p>
-      <ul>
-        {projects.map((project) => (
-          <li key={project.id}>
-            <button
-              type="button"
-              className={styles.navItem}
-              aria-current={shown === project.id ? 'page' : undefined}
-              onClick={() => select(project.id)}
-            >
-              <span className={styles.navTitle}>{project.title}</span>
-              <span className={styles.navSub}>{project.role}</span>
-            </button>
-          </li>
-        ))}
-      </ul>
+      <ul>{projects.map((p) => navRow(p.id, p.title, p.role))}</ul>
       <p className={styles.sidebarLabel}>More</p>
       <ul>
-        <li>
-          <button type="button" className={styles.navItem} aria-current={shown === 'repos' ? 'page' : undefined} onClick={() => select('repos')}>
-            <span className={styles.navTitle}>All repositories</span>
-            <span className={styles.navSub}>Public code on GitHub</span>
-          </button>
-        </li>
-        <li>
-          <button type="button" className={styles.navItem} aria-current={shown === 'earlier' ? 'page' : undefined} onClick={() => select('earlier')}>
-            <span className={styles.navTitle}>Earlier projects</span>
-            <span className={styles.navSub}>From my CV</span>
-          </button>
-        </li>
+        {navRow('repos', 'All Repositories', 'Public code on GitHub')}
+        {navRow('earlier', 'Earlier Projects', 'From my CV')}
       </ul>
-    </nav>
+    </>
   );
 
   return (
-    <div ref={root} className={styles.projects} data-split={split}>
-      {split ? (
-        <>
-          {list}
-          <div ref={detailRef} className={styles.detailPane}>
-            {shown && renderDetail(shown)}
-          </div>
-        </>
-      ) : shown ? (
-        <div ref={detailRef} className={styles.detailPane}>
-          <button type="button" className={`${ui.button} ${styles.backButton}`} onClick={() => setSelection(null)}>
-            <Icon name="back" /> All projects
-          </button>
-          {renderDetail(shown)}
-        </div>
-      ) : (
-        <div className={styles.stackedList}>
-          <header className={styles.stackedHeader}>
-            <p className={ui.eyebrow}>{projectsSection.eyebrow}</p>
-            <h1 className={ui.h1}>{projectsSection.heading}</h1>
-            <p className={ui.lede}>{projectsSection.lede}</p>
-          </header>
-          {list}
-        </div>
-      )}
-    </div>
+    <SplitView
+      ref={root}
+      collapsed={collapsed}
+      showContent={selection !== null}
+      onBack={() => setSelection(null)}
+      backLabel="All projects"
+      sidebarLabel="Projects"
+      sidebarWidth={260}
+      sidebarHeader={{ title: 'Projects' }}
+      sidebar={sidebar}
+      contentHeader={{
+        title: shown ? titleFor(shown) : '',
+        end: project ? <HeaderLink icon="github" label="View source on GitHub" href={project.github} /> : undefined,
+      }}
+      content={shown && renderDetail(shown)}
+      contentRef={contentRef}
+    />
   );
 }
