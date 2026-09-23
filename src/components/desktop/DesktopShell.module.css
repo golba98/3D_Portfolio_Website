@@ -1,0 +1,45 @@
+/*
+  The wallpaper and welcome text sit exactly where drawDesktopPreview.ts paints
+  them on the 3D monitor, so the crossfade from the scene is seamless. At the
+  end of the camera move the 16:9 screen covers the viewport at
+  MONITOR_FOCUS.fill (passed in as --screen-fill); the preview's 1280×720
+  layout maps onto that box with one scale factor, --s.
+*/
+.shell {
+  --cover-w: calc(max(100vw, 100vh * 16 / 9) / var(--screen-fill, 1));
+  --cover-h: calc(var(--cover-w) * 9 / 16);
+  --s: calc(var(--cover-w) / 1280);
+  display: grid;
+  grid-template-rows: var(--topbar-height) 1fr;
+  height: 100%;
+  overflow: hidden;
+  /* The preview draws the wallpaper covering the 16:9 screen; it is wider than tall, so width decides. */
+  background: var(--desk-wallpaper-a) url('/wallpaper.webp') center / var(--cover-w) auto no-repeat;
+}
+
+/* Windows are positioned inside this box; its top-left is window (0, 0). */
+.workspace {
+  position: relative;
+  overflow: hidden;
+}
+
+.welcome {
+  position: fixed;
+  top: calc((100vh - var(--cover-h)) / 2 + var(--cover-h) * 0.4 - var(--s) * 23);
+  left: calc((100vw - var(--cover-w)) / 2 + var(--s) * 72);
+  pointer-events: none;
+  user-select: none;
+  line-height: 1;
+}
+
+.welcomeName {
+  font-size: calc(var(--s) * 46);
+  font-weight: 700;
+  color: rgb(244 244 245 / 0.92);
+}
+
+.welcomeRole {
+  margin: calc(var(--s) * 12) 0 0 calc(var(--s) * 2);
+  font-size: calc(var(--s) * 18);
+  color: rgb(161 161 170 / 0.95);
+}

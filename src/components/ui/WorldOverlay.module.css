@@ -1,0 +1,116 @@
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  padding: max(20px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+    max(20px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+}
+
+.overlay [data-visible] {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--duration-slow) var(--ease-out),
+    transform var(--duration-slow) var(--ease-out),
+    visibility 0s linear var(--duration-slow);
+}
+
+.overlay [data-visible='true'] {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition:
+    opacity var(--duration-slow) var(--ease-out),
+    transform var(--duration-slow) var(--ease-out),
+    visibility 0s;
+}
+
+.identity {
+  position: absolute;
+  top: max(24px, env(safe-area-inset-top));
+  left: max(24px, env(safe-area-inset-left));
+  pointer-events: none !important;
+}
+
+.name {
+  font-size: var(--text-lg);
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--world-fg);
+}
+
+.role {
+  font-size: var(--text-sm);
+  color: var(--world-muted);
+}
+
+.skip {
+  position: absolute;
+  right: max(24px, env(safe-area-inset-right));
+  bottom: max(24px, env(safe-area-inset-bottom));
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border: 1px solid rgb(255 255 255 / 0.14);
+  border-radius: var(--radius-pill);
+  background: rgb(10 10 12 / 0.55);
+  color: var(--world-fg);
+  font-size: var(--text-sm);
+  backdrop-filter: blur(6px);
+}
+
+.skip kbd {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--world-muted);
+}
+
+.skip:hover {
+  border-color: rgb(255 255 255 / 0.28);
+}
+
+.enter {
+  position: absolute;
+  left: 50%;
+  bottom: max(32px, env(safe-area-inset-bottom));
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  transform: translate(-50%, 6px);
+}
+
+.enter[data-visible='true'] {
+  transform: translate(-50%, 0);
+}
+
+.enterButton {
+  padding: 9px 20px;
+  border: 1px solid rgb(255 255 255 / 0.2);
+  border-radius: var(--radius-pill);
+  background: rgb(244 244 245 / 0.94);
+  color: #0b0b0d;
+  font-size: var(--text-sm);
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+
+.enterButton:hover {
+  background: #fff;
+  transform: translateY(-1px);
+}
+
+.enterButton:focus-visible {
+  outline: 2px solid var(--world-accent);
+  outline-offset: 3px;
+}
+
+.hint {
+  font-size: var(--text-xs);
+  color: var(--world-muted);
+  letter-spacing: 0.02em;
+}

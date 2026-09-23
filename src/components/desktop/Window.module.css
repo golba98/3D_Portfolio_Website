@@ -1,0 +1,198 @@
+.window {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid var(--desk-border);
+  border-radius: var(--radius-lg);
+  background: var(--desk-surface);
+  box-shadow: var(--shadow-window-inactive);
+  overflow: hidden;
+  outline: none;
+  transition:
+    left var(--duration-slow) var(--ease-out),
+    top var(--duration-slow) var(--ease-out),
+    width var(--duration-slow) var(--ease-out),
+    height var(--duration-slow) var(--ease-out),
+    border-radius var(--duration-slow) var(--ease-out),
+    box-shadow var(--duration-base) var(--ease-out);
+}
+
+.window[data-focused='true'] {
+  box-shadow: var(--shadow-window);
+}
+
+.window[data-interacting='true'] {
+  transition: box-shadow var(--duration-base) var(--ease-out);
+  user-select: none;
+}
+
+.window[data-maximized='true'] {
+  border-radius: 0;
+  border-width: 0;
+}
+
+.window:focus-visible {
+  border-color: var(--desk-accent);
+}
+
+.titlebar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  height: 46px;
+  padding: 0 8px 0 16px;
+  border-bottom: 1px solid var(--desk-border);
+  background: var(--desk-surface-2);
+  cursor: default;
+  touch-action: none;
+  user-select: none;
+  transition: background var(--duration-base) var(--ease-out);
+}
+
+.window:not([data-focused='true']) .titlebar {
+  background: var(--desk-surface);
+}
+
+.title {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.window:not([data-focused='true']) .title {
+  color: var(--desk-fg-muted);
+}
+
+.controls {
+  position: absolute;
+  right: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+.control {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.1);
+  color: var(--desk-fg);
+  transition: background var(--duration-fast) var(--ease-out);
+}
+
+.control:hover {
+  background: rgb(255 255 255 / 0.18);
+}
+
+.control:active {
+  background: rgb(255 255 255 / 0.26);
+}
+
+/* kitty: flat dark title strip, left-aligned title, bare glyph controls, black body. */
+.window[data-chrome='kitty'] {
+  border-color: rgb(255 255 255 / 0.06);
+  border-radius: 12px;
+  background: var(--term-bg);
+}
+
+.window[data-chrome='kitty'] .titlebar,
+.window[data-chrome='kitty']:not([data-focused='true']) .titlebar {
+  justify-content: flex-start;
+  height: 34px;
+  padding: 0 8px 0 12px;
+  border-bottom: 0;
+  background: var(--term-titlebar);
+}
+
+.window[data-chrome='kitty'] .title {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--term-fg);
+}
+
+.window[data-chrome='kitty']:not([data-focused='true']) .title {
+  color: var(--term-muted);
+}
+
+.window[data-chrome='kitty'] .controls {
+  right: 6px;
+  gap: 2px;
+}
+
+.window[data-chrome='kitty'] .control {
+  width: 28px;
+  height: 26px;
+  border-radius: 6px;
+  background: transparent;
+}
+
+.window[data-chrome='kitty'] .control:hover {
+  background: rgb(255 255 255 / 0.1);
+}
+
+.window[data-chrome='kitty'] .control:active {
+  background: rgb(255 255 255 / 0.16);
+}
+
+.content {
+  position: relative;
+  /* Apps lay out against the window's width, not the viewport's. */
+  container-type: inline-size;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.resize {
+  position: absolute;
+  z-index: 2;
+  touch-action: none;
+}
+
+.resize[data-edge='e'] {
+  top: 8px;
+  right: 0;
+  bottom: 8px;
+  width: 6px;
+  cursor: ew-resize;
+}
+
+.resize[data-edge='w'] {
+  top: 8px;
+  left: 0;
+  bottom: 8px;
+  width: 6px;
+  cursor: ew-resize;
+}
+
+.resize[data-edge='s'] {
+  left: 8px;
+  right: 8px;
+  bottom: 0;
+  height: 6px;
+  cursor: ns-resize;
+}
+
+.resize[data-edge='se'] {
+  right: 0;
+  bottom: 0;
+  width: 14px;
+  height: 14px;
+  cursor: nwse-resize;
+}
+
+.resize[data-edge='sw'] {
+  left: 0;
+  bottom: 0;
+  width: 14px;
+  height: 14px;
+  cursor: nesw-resize;
+}

@@ -1,0 +1,26 @@
+.loading {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  min-height: 160px;
+}
+
+.spinner {
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--desk-border-strong);
+  border-top-color: var(--desk-fg);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.message {
+  padding: 24px;
+  color: var(--desk-fg-muted);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

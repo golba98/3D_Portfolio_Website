@@ -1,0 +1,8 @@
+.desktop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  color: var(--desk-fg);
+  font-size: var(--text-md);
+  background: var(--desk-wallpaper-a) url('/wallpaper.webp') center / cover no-repeat;
+}
