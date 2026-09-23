@@ -92,3 +92,12 @@ p {
     scroll-behavior: auto !important;
   }
 }
+
+/* libadwaita-like overlay scrollbars: thin, no track. */
+:root {
+  scrollbar-color: rgb(255 255 255 / 0.3) transparent;
+}
+
+* {
+  scrollbar-width: thin;
+}

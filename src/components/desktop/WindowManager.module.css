@@ -1,0 +1,14 @@
+.snapPreview {
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  z-index: 0;
+  border: 1px solid rgb(255 255 255 / 0.3);
+  border-radius: var(--radius-window);
+  background: rgb(255 255 255 / 0.12);
+  backdrop-filter: blur(6px);
+  pointer-events: none;
+  transition:
+    left var(--duration-base) var(--ease-out),
+    width var(--duration-base) var(--ease-out);
+}

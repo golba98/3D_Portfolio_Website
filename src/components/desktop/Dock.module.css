@@ -11,6 +11,34 @@
   background: rgb(30 30 30 / 0.82);
   backdrop-filter: blur(20px) saturate(1.2);
   box-shadow: 0 10px 32px rgb(0 0 0 / 0.5);
+  transition:
+    transform var(--duration-slow) var(--ease-out),
+    opacity var(--duration-slow) var(--ease-out);
+}
+
+/* Intellihide: out of the way of maximised, tiled and overlapping windows. */
+.dock[data-hidden='true']:not(:focus-within) {
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, calc(100% + 16px));
+}
+
+/*
+  Touching the bottom edge brings a hidden dock back. While it's up, the zone
+  grows to cover the dock's surroundings (under the dock itself) so the dock
+  doesn't drop away while the pointer crosses the gap below it.
+*/
+.hotZone {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 899;
+  height: 6px;
+}
+
+.hotZone[data-revealed='true'] {
+  height: calc(var(--dock-height) + 56px);
 }
 
 .list {
@@ -49,6 +77,34 @@
   border-radius: 50%;
   background: var(--desk-fg);
   transform: translateX(-50%);
+}
+
+/* GNOME's dash label: the app name in a dark pill above the icon, on hover. */
+.label {
+  position: absolute;
+  bottom: calc(100% + 14px);
+  left: 50%;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  background: rgb(30 30 30 / 0.92);
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08), 0 4px 12px rgb(0 0 0 / 0.4);
+  color: var(--desk-fg);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 4px);
+  transition:
+    opacity var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+
+.item:hover .label,
+.item:focus-visible .label {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  transition-delay: 150ms;
 }
 
 .separator {

@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { getApp } from '../apps/registry';
 import { clamp } from '../lib/math';
 import type { AppId } from '../types/apps';
-import type { Bounds, DesktopWindow } from '../types/windows';
+import type { Bounds, DesktopWindow, SnapTarget } from '../types/windows';
 
 /** Space the top bar and dock take from the window area, in CSS pixels. */
 export const WORKSPACE_INSETS = { top: 32, bottom: 104, side: 12 } as const;
@@ -21,8 +21,20 @@ interface WindowsState {
   open: (appId: AppId, arg?: string) => void;
   close: (id: AppId) => void;
   focus: (id: AppId) => void;
+  /** GNOME's tile preview while a window is dragged to a screen edge. */
+  snapPreview: SnapTarget | null;
+
   minimize: (id: AppId) => void;
   toggleMaximize: (id: AppId) => void;
+  /** Snap to half the screen; the same side again restores. */
+  tile: (id: AppId, side: 'left' | 'right') => void;
+  /** Enter fullscreen, or go back to whatever the window was before. */
+  toggleFullscreen: (id: AppId) => void;
+  /** Back to a normal floating window at its saved bounds. */
+  restore: (id: AppId) => void;
+  /** Maximise or tile, e.g. when a drag is released over a snap target. */
+  snap: (id: AppId, target: SnapTarget) => void;
+  setSnapPreview: (target: SnapTarget | null) => void;
   move: (id: AppId, x: number, y: number) => void;
   resize: (id: AppId, bounds: Bounds) => void;
   setTitle: (id: AppId, title: string) => void;
@@ -79,6 +91,7 @@ export const useWindows = create<WindowsState>()((set, get) => {
     focusedId: null,
     topZ: 1,
     overviewOpen: false,
+    snapPreview: null,
 
     open: (appId, arg) => {
       const existing = get().windows.find((w) => w.id === appId);
@@ -127,6 +140,35 @@ export const useWindows = create<WindowsState>()((set, get) => {
       raise(id);
     },
 
+    tile: (id, side) => {
+      const mode = side === 'left' ? 'tiled-left' : 'tiled-right';
+      update(id, (w) => ({ mode: w.mode === mode ? 'normal' : mode }));
+      raise(id);
+    },
+
+    toggleFullscreen: (id) => {
+      update(id, (w) => {
+        if (w.mode === 'fullscreen') return { mode: w.preFullscreenMode ?? 'normal', preFullscreenMode: undefined };
+        const before = w.mode === 'minimized' ? (w.restoreMode ?? 'normal') : w.mode;
+        return { mode: 'fullscreen', preFullscreenMode: before === 'fullscreen' ? 'normal' : before };
+      });
+      raise(id);
+    },
+
+    restore: (id) => {
+      update(id, () => ({ mode: 'normal', preFullscreenMode: undefined }));
+      raise(id);
+    },
+
+    snap: (id, target) => {
+      update(id, () => ({ mode: target }));
+      raise(id);
+    },
+
+    setSnapPreview: (target) => {
+      if (get().snapPreview !== target) set({ snapPreview: target });
+    },
+
     move: (id, x, y) => update(id, (w) => ({ bounds: { ...w.bounds, ...clampPosition({ ...w.bounds, x, y }) } })),
 
     resize: (id, bounds) => {
@@ -158,6 +200,6 @@ export const useWindows = create<WindowsState>()((set, get) => {
       }));
     },
 
-    reset: () => set({ windows: [], focusedId: null, overviewOpen: false }),
+    reset: () => set({ windows: [], focusedId: null, overviewOpen: false, snapPreview: null }),
   };
 });

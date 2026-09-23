@@ -1,0 +1,59 @@
+/* A GNOME popover menu: dark popover colour, 12px radius, 6px padding. */
+.menu {
+  position: fixed;
+  z-index: 3000;
+  display: grid;
+  min-width: 230px;
+  padding: 6px;
+  border-radius: var(--radius-lg);
+  background: var(--desk-popover);
+  box-shadow:
+    0 0 0 1px rgb(0 0 6 / 0.5),
+    0 4px 16px rgb(0 0 0 / 0.45);
+  color: var(--desk-fg);
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 34px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: inherit;
+  text-align: left;
+}
+
+.item:hover,
+.item:focus-visible {
+  background: var(--desk-hover);
+  outline: none;
+}
+
+.item:active {
+  background: var(--desk-active);
+}
+
+.item[aria-current] {
+  color: var(--desk-accent);
+}
+
+.label {
+  flex: 1;
+}
+
+.shortcut {
+  color: var(--desk-fg-muted);
+  font-family: inherit;
+  font-size: var(--text-sm);
+}
+
+.separator {
+  height: 1px;
+  margin: 6px 4px;
+  background: var(--desk-border-strong);
+}

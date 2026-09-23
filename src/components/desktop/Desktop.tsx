@@ -22,15 +22,12 @@ export default function Desktop() {
   const reducedMotion = useReducedMotion();
   const [initialApp] = useState(appFromHash);
 
-  // First visit on a large screen: open About so there's content straight away —
-  // once the crossfade has finished, so the hand-off from the monitor reads first.
+  // A deep link (#/desktop/<app>) opens its app once the crossfade has
+  // finished. Otherwise the desktop starts empty, like a fresh login.
   useEffect(() => {
-    if (compact) return;
-    const { windows, open } = useWindows.getState();
-    const target = initialApp ?? (windows.length === 0 ? 'about' : null);
-    if (!target) return;
+    if (compact || !initialApp) return;
     const delay = reducedMotion ? 0 : TIMINGS.desktopCrossfade * 1000;
-    const timer = window.setTimeout(() => open(target), delay);
+    const timer = window.setTimeout(() => useWindows.getState().open(initialApp), delay);
     return () => window.clearTimeout(timer);
   }, [compact, initialApp, reducedMotion]);
 

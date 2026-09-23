@@ -17,7 +17,7 @@ interface ScreenSurfaceProps {
  * exported screen mesh has no UVs, so it can't carry a texture itself.)
  */
 export function ScreenSurface({ screen, brightness }: ScreenSurfaceProps) {
-  const texture = useDesktopPreviewTexture();
+  const texture = useDesktopPreviewTexture(screen);
   const material = useRef<MeshBasicMaterial>(null);
   const level = useRef({ value: brightness });
 
