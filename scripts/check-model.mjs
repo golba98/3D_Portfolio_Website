@@ -15,6 +15,11 @@ const REQUIRED_NODES = [
   'Monitor_Right',
   'Keyboard',
   'Mouse',
+  'Chair',
+  'Whiteboard',
+  'Whiteboard_Surface',
+  'Whiteboard_Tray',
+  ...[1, 2, 3, 4, 5, 6].map((i) => `Whiteboard_Marker_${String(i).padStart(2, '0')}_${['Black', 'Red', 'Blue', 'Black', 'Green', 'Red'][i - 1]}`),
 ];
 
 const file = process.argv[2] ?? 'public/models/pc-setup.glb';

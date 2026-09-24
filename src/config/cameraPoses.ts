@@ -12,7 +12,7 @@ export interface CameraPose {
   fov: number;
 }
 
-export type PoseName = 'introSide' | 'presentation';
+export type PoseName = 'introSide' | 'chairReach' | 'chairPass' | 'presentation';
 
 interface PoseSet {
   /** Landscape windows (16:9 and wider). */
@@ -23,12 +23,16 @@ interface PoseSet {
 
 export const CAMERA_POSES: PoseSet = {
   wide: {
-    introSide: { position: [-2.75, 0.62, 1.35], target: [-0.35, 0.18, -0.4], fov: 30 },
-    presentation: { position: [0.3, 0.8, 2.08], target: [0.02, 0.2, -0.42], fov: 34 },
+    introSide: { position: [0.38, 1.02, 3.65], target: [0.45, 0.36, 0.1], fov: 44 },
+    chairReach: { position: [0.16, 0.65, 2.33], target: [0.18, 0.12, 0.73], fov: 45 },
+    chairPass: { position: [0.75, 0.55, 1.83], target: [0.45, 0.30, -0.18], fov: 50 },
+    presentation: { position: [0.62, 0.60, 2.2], target: [0.55, 0.40, -0.34], fov: 52 },
   },
   narrow: {
-    introSide: { position: [-2.9, 1.5, 2.3], target: [-0.3, 0.15, -0.35], fov: 46 },
-    presentation: { position: [-0.02, 1.75, 2.6], target: [0.0, 0.12, -0.3], fov: 48 },
+    introSide: { position: [0.25, 1.22, 3.55], target: [0.28, 0.35, 0.18], fov: 58 },
+    chairReach: { position: [0.12, 0.82, 2.45], target: [0.18, 0.13, 0.78], fov: 59 },
+    chairPass: { position: [0.48, 0.69, 1.85], target: [0.25, 0.34, -0.24], fov: 60 },
+    presentation: { position: [0.27, 0.78, 2.42], target: [0.16, 0.30, -0.30], fov: 60 },
   },
 };
 

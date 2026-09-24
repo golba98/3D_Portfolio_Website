@@ -20,6 +20,10 @@ export const MODEL_NODES = {
   monitorRight: 'Monitor_Right',
   keyboard: 'Keyboard',
   mouse: 'Mouse',
+  chair: 'Chair',
+  board: 'Whiteboard',
+  boardSurface: 'Whiteboard_Surface',
+  boardTray: 'Whiteboard_Tray',
 } as const;
 
 /**

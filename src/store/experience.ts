@@ -5,7 +5,8 @@ import type { ExperiencePhase, SceneStatus } from '../types/experience';
 const TRANSITIONS: Readonly<Record<ExperiencePhase, readonly ExperiencePhase[]>> = {
   loading: ['intro', 'desktop', 'fallback'],
   intro: ['exploring', 'entering-monitor', 'desktop', 'fallback'],
-  exploring: ['entering-monitor', 'desktop', 'fallback'],
+  exploring: ['viewing-board', 'entering-monitor', 'desktop', 'fallback'],
+  'viewing-board': ['exploring', 'desktop', 'fallback'],
   'entering-monitor': ['desktop', 'exploring', 'fallback'],
   desktop: ['loading', 'exploring', 'fallback'],
   fallback: ['desktop'],
@@ -21,6 +22,8 @@ interface ExperienceState {
   fallbackReason: string | null;
   /** True once the visitor has asked to skip the intro, so the camera can cut. */
   introSkipped: boolean;
+  introProgress: number;
+  boardReady: boolean;
 
   /** The 3D model finished loading; start the intro (or drop into exploring). */
   sceneReady: () => void;
@@ -28,6 +31,10 @@ interface ExperienceState {
   sceneFailed: (reason: string) => void;
   finishIntro: () => void;
   skipIntro: () => void;
+  setIntroProgress: (progress: number) => void;
+  openBoard: () => void;
+  boardArrived: () => void;
+  closeBoard: () => void;
   enterMonitor: () => void;
   /** Camera reached the screen-filling pose. */
   arriveAtMonitor: () => void;
@@ -54,6 +61,8 @@ export const useExperience = create<ExperienceState>()((set, get) => {
     sceneStatus: 'idle',
     fallbackReason: null,
     introSkipped: false,
+    introProgress: 0,
+    boardReady: false,
 
     sceneReady: () => {
       set({ sceneStatus: 'ready' });
@@ -70,8 +79,16 @@ export const useExperience = create<ExperienceState>()((set, get) => {
       if (get().phase === 'intro') go('exploring');
     },
     skipIntro: () => {
-      if (get().phase === 'intro') go('exploring', { introSkipped: true });
+      if (get().phase === 'intro') go('exploring', { introSkipped: true, introProgress: 1 });
     },
+    setIntroProgress: (progress) => {
+      if (get().phase === 'intro') set({ introProgress: progress });
+    },
+    openBoard: () => go('viewing-board', { boardReady: false }),
+    boardArrived: () => {
+      if (get().phase === 'viewing-board') set({ boardReady: true });
+    },
+    closeBoard: () => go('exploring', { boardReady: false }),
     enterMonitor: () => go('entering-monitor'),
     arriveAtMonitor: () => {
       if (get().phase === 'entering-monitor') go('desktop');

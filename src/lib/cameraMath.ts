@@ -1,6 +1,6 @@
 import { MathUtils, Spherical, Vector3 } from 'three';
 import { CAMERA_POSES, MONITOR_FOCUS, POSE_ASPECT_RANGE, type CameraPose, type PoseName } from '../config/cameraPoses';
-import type { ScreenRect } from '../types/scene';
+import type { BoardRect, ScreenRect } from '../types/scene';
 import { angleDelta, clamp, lerp } from './math';
 
 /** Mutable camera state the rig animates. */
@@ -61,6 +61,19 @@ export function monitorFocusPose(screen: ScreenRect, aspect: number): CameraStat
     position: target.clone().addScaledVector(new Vector3(...screen.normal), distance),
     target,
     fov: MONITOR_FOCUS.fov,
+  };
+}
+
+/** Frame the entire writable face with breathing room for the drawing toolbar. */
+export function boardFocusPose(board: BoardRect, aspect: number): CameraState {
+  const fov = lerp(40, 32, clamp((aspect - 0.6) / (1.75 - 0.6), 0, 1));
+  const halfTan = Math.tan(MathUtils.degToRad(fov) / 2);
+  const distance = Math.max(board.height / (2 * halfTan), board.width / (2 * halfTan * aspect)) * 1.3;
+  const target = new Vector3(...board.center);
+  return {
+    position: target.clone().addScaledVector(new Vector3(...board.normal), distance),
+    target,
+    fov,
   };
 }
 

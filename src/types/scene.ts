@@ -11,4 +11,7 @@ export interface ScreenRect {
   height: number;
 }
 
+/** Drawable board face, measured from the GLB in desk space. */
+export type BoardRect = ScreenRect;
+
 export type DeviceTier = 'high' | 'low';
