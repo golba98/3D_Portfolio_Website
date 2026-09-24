@@ -1,8 +1,11 @@
 import { useLayoutEffect, useMemo } from 'react';
+import { useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import { Box3, Matrix4, Mesh, MeshPhysicalMaterial, MeshStandardMaterial, Quaternion, Vector3, type Object3D } from 'three';
 import { LED_MATERIALS, MODEL_NODES, MODEL_PLACEMENT, MODEL_URL, RENDER } from '../../config/scene';
 import { useSceneLayout } from '../../store/sceneLayout';
+import { useExperience } from '../../store/experience';
+import { clamp, easeInOutCubic } from '../../lib/math';
 import type { ScreenRect, Vec3 } from '../../types/scene';
 
 // Start downloading as soon as this module is evaluated.
@@ -23,17 +26,35 @@ export function SetupModel() {
 
     const monitor = boundsInModel(scene, requireNode(scene, MODEL_NODES.monitorCenter));
     const pcCase = boundsInModel(scene, requireNode(scene, MODEL_NODES.pcCase));
+    const chair = requireNode(scene, MODEL_NODES.chair);
     return {
       offset,
       screen: measureScreen(scene, requireNode(scene, MODEL_NODES.centerScreen), toDesk, s),
+      board: measureScreen(scene, requireNode(scene, MODEL_NODES.boardSurface), toDesk, s),
       monitorBounds: { min: toDesk(monitor.min), max: toDesk(monitor.max) },
       pcCaseCenter: toDesk(pcCase.getCenter(new Vector3())),
+      chair,
+      chairPosition: chair.position.clone(),
+      chairYaw: chair.rotation.y,
     };
   }, [scene]);
 
   useLayoutEffect(() => {
-    setLayout({ screen: layout.screen, monitorBounds: layout.monitorBounds, pcCaseCenter: layout.pcCaseCenter });
+    setLayout({ screen: layout.screen, board: layout.board, monitorBounds: layout.monitorBounds, pcCaseCenter: layout.pcCaseCenter });
   }, [layout, setLayout]);
+
+  // The visitor pulls the chair out, turns it, then eases it back into place.
+  // CameraRig writes progress first in the frame; all chair parts share this parent.
+  useFrame(() => {
+    const { phase, introProgress } = useExperience.getState();
+    const p = phase === 'intro' ? introProgress : 0;
+    const pull = easeInOutCubic(clamp((p - 0.22) / 0.22, 0, 1))
+      * (1 - easeInOutCubic(clamp((p - 0.70) / 0.25, 0, 1)));
+    layout.chair.position.copy(layout.chairPosition);
+    layout.chair.position.x += pull * 0.06;
+    layout.chair.position.z += pull * 0.43;
+    layout.chair.rotation.y = layout.chairYaw + pull * 0.35;
+  });
 
   useLayoutEffect(() => {
     scene.traverse((object) => {

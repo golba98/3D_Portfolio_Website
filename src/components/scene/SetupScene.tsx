@@ -4,6 +4,7 @@ import { RENDER } from '../../config/scene';
 import { useExperience } from '../../store/experience';
 import type { DeviceTier } from '../../types/scene';
 import { CameraRig } from './CameraRig';
+import { BoardInteraction } from './BoardInteraction';
 import { MonitorInteraction } from './MonitorInteraction';
 import { SceneLighting } from './SceneLighting';
 import { SetupModel } from './SetupModel';
@@ -47,6 +48,7 @@ export function SetupScene({ tier }: SetupSceneProps) {
       <CameraRig />
       <SceneLighting tier={tier} />
       <SetupModel />
+      <BoardInteraction />
       <MonitorInteraction />
     </>
   );

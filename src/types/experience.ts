@@ -3,8 +3,9 @@
  * movement between them goes through the experience store.
  *
  *   loading → intro → exploring → entering-monitor → desktop
- *                                         ↑                │
- *                                         └──── leave ─────┘
+ *                        │  ↑
+ *                        ↓  │
+ *                    viewing-board
  *
  * `fallback` replaces the 3D stages when WebGL or the model is unavailable.
  */
@@ -12,6 +13,7 @@ export type ExperiencePhase =
   | 'loading'
   | 'intro'
   | 'exploring'
+  | 'viewing-board'
   | 'entering-monitor'
   | 'desktop'
   | 'fallback';

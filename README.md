@@ -1,6 +1,7 @@
 # Jordan Vorster — portfolio
 
-A 3D model of my desk (Blender → glTF) that the camera flies into; the centre
+A 3D model of my desk (Blender → glTF). Visitors approach the desk, pull out the
+chair, and can draw on the whiteboard before entering the centre monitor. The
 monitor becomes a simulated Fedora/GNOME-style desktop holding the portfolio.
 
 ```bash
@@ -14,7 +15,8 @@ npm run lint
 
 | Path | What lives there |
 |---|---|
-| `src/store/experience.ts` | The phase machine: `loading → intro → exploring → entering-monitor → desktop` (+ `fallback`) |
+| `src/store/experience.ts` | The phase machine: `loading → intro → exploring → entering-monitor → desktop`, with a whiteboard view and fallback |
+| `src/store/boardDrawing.ts` | Whiteboard strokes, tools, undo, and browser-local saving |
 | `src/config/` | Every tunable number: camera poses, timings, lighting, DPR, model node names |
 | `src/components/scene/` | The 3D world (R3F). Loaded lazily; `#/desktop` links never download three.js |
 | `src/components/desktop/` | Top bar, dock, overview, window manager, mobile shell |
@@ -29,6 +31,12 @@ The Blender project is never modified. To use a new export:
 2. Copy it to `assets-src/pc-setup-source.glb`.
 3. `npm run model:optimize` → writes `public/models/pc-setup.glb` (meshopt + WebP).
 4. `npm run model:check` → confirms the nodes the site needs still exist and prints bounds.
+
+The export needs the named `Chair`, `Whiteboard_Surface`, and `Whiteboard_Tray`
+nodes. The drawing surface is positioned from the board mesh at runtime. Visitors
+can draw with a pointer or use the focusable keyboard drawing area (arrow keys
+to move, Enter to start or stop). Sketches are kept in that browser's local
+storage and can be cleared from the board toolbar.
 
 ## Tuning the camera
 

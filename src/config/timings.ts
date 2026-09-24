@@ -2,10 +2,12 @@
 export const TIMINGS = {
   /** Fade from black once the model is ready. */
   introFade: 1.1,
-  /** Pause on the side view before the camera starts moving. */
-  introHold: 0.7,
-  /** Side view → presentation. */
-  introMove: 3.4,
+  /** Pause while the opening fade reveals the setup. */
+  introHold: 0.45,
+  /** Approach, move the chair, and settle at the desk. */
+  introMove: 4.8,
+  /** Move into and out of the board drawing view. */
+  boardMove: 0.9,
   /** Presentation → screen-filling pose. */
   enterMonitor: 1.8,
   /** Final crossfade from the 3D screen to the DOM desktop. */

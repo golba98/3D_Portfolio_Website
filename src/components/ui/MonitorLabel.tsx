@@ -14,7 +14,7 @@ export function MonitorLabel() {
 
   return (
     <div ref={register} className={styles.anchor} aria-hidden="true">
-      <span className={styles.label} data-visible={hovered && (phase === 'exploring' || phase === 'intro')}>
+      <span className={styles.label} data-visible={hovered && phase === 'exploring'}>
         {SCREEN.hoverLabel}
       </span>
     </div>

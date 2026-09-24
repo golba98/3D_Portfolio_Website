@@ -7,7 +7,7 @@ import { TIMINGS } from '../../config/timings';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import {
   blendLinear,
-  blendOrbit,
+  boardFocusPose,
   copyCameraState,
   createCameraState,
   monitorFocusPose,
@@ -26,7 +26,6 @@ interface Tween {
   from: CameraState;
   /** Evaluated every frame so the destination follows window resizes. */
   to: (aspect: number) => CameraState;
-  path: 'orbit' | 'linear';
   delay: number;
   duration: number;
   elapsed: number;
@@ -35,9 +34,10 @@ interface Tween {
 
 /**
  * Owns the camera. Each experience phase maps to one behaviour:
- *   loading          hold the side view
- *   intro            orbit from the side view to the presentation pose
+ *   loading          hold the arrival view
+ *   intro            approach the chair and settle at the desk
  *   exploring        damp towards the presentation pose + pointer parallax
+ *   viewing-board    frame the writable whiteboard face
  *   entering-monitor dolly square-on to the centre screen
  *   desktop          hold the screen-filling pose
  */
@@ -57,13 +57,14 @@ export function CameraRig() {
   const goal = useRef<CameraState>(copyCameraState(state.current));
   const tween = useRef<Tween | null>(null);
   const heldPose = useRef(debugFlags.heldPose());
+  const introElapsed = useRef(0);
+  const previousPhase = useRef(phase);
 
   useEffect(() => {
-    const { finishIntro, arriveAtMonitor } = useExperience.getState();
+    const { finishIntro, arriveAtMonitor, boardArrived } = useExperience.getState();
     const cut = (onDone: () => void, delay: number): Tween => ({
       from: copyCameraState(state.current),
       to: () => state.current,
-      path: 'linear',
       delay,
       duration: 0.001,
       elapsed: 0,
@@ -77,20 +78,42 @@ export function CameraRig() {
         break;
 
       case 'intro':
+        introElapsed.current = 0;
         if (reducedMotion) {
           setCameraState(state.current, poseFor('presentation', aspectNow()));
+          useExperience.getState().setIntroProgress(1);
           tween.current = cut(finishIntro, TIMINGS.reducedMotionFade);
         } else {
-          tween.current = {
-            from: copyCameraState(state.current),
-            to: (aspect) => createCameraState(poseFor('presentation', aspect)),
-            path: 'orbit',
-            delay: TIMINGS.introFade * 0.5 + TIMINGS.introHold,
-            duration: TIMINGS.introMove,
-            elapsed: 0,
-            onDone: finishIntro,
-          };
+          useExperience.getState().setIntroProgress(0);
+          tween.current = null;
         }
+        break;
+
+      case 'viewing-board':
+        tween.current = {
+          from: copyCameraState(state.current),
+          to: (aspect) => {
+            const board = useSceneLayout.getState().board;
+            return board ? boardFocusPose(board, aspect) : state.current;
+          },
+          delay: 0,
+          duration: reducedMotion ? 0.001 : TIMINGS.boardMove,
+          elapsed: 0,
+          onDone: boardArrived,
+        };
+        break;
+
+      case 'exploring':
+        tween.current = previousPhase.current === 'viewing-board'
+          ? {
+              from: copyCameraState(state.current),
+              to: (aspect) => createCameraState(poseFor('presentation', aspect)),
+              delay: 0,
+              duration: reducedMotion ? 0.001 : TIMINGS.boardMove,
+              elapsed: 0,
+              onDone: () => undefined,
+            }
+          : null;
         break;
 
       case 'entering-monitor': {
@@ -105,7 +128,6 @@ export function CameraRig() {
           tween.current = {
             from: copyCameraState(state.current),
             to: focus,
-            path: 'linear',
             delay: 0,
             duration: TIMINGS.enterMonitor,
             elapsed: 0,
@@ -116,9 +138,10 @@ export function CameraRig() {
       }
 
       default:
-        // exploring / desktop / fallback are handled per frame.
+        // desktop / fallback are handled per frame.
         tween.current = null;
     }
+    previousPhase.current = phase;
   }, [phase, reducedMotion]); // eslint-disable-line react-hooks/exhaustive-deps -- aspectNow reads live state
 
   useFrame((three, delta) => {
@@ -132,11 +155,28 @@ export function CameraRig() {
       const screen = useSceneLayout.getState().screen;
       if (held === 'monitorFocus' && screen) setCameraState(current, monitorFocusPose(screen, aspect));
       else if (held === 'introSide' || held === 'presentation') setCameraState(current, poseFor(held, aspect));
+    } else if (currentPhase === 'intro' && !reducedMotion) {
+      introElapsed.current += delta;
+      const progress = clamp((introElapsed.current - TIMINGS.introHold) / TIMINGS.introMove, 0, 1);
+      useExperience.getState().setIntroProgress(progress);
+      const segment = progress < 0.15
+        ? ['introSide', 'introSide', 0]
+        : progress < 0.45
+          ? ['introSide', 'chairReach', (progress - 0.15) / 0.30]
+          : progress < 0.72
+            ? ['chairReach', 'chairPass', (progress - 0.45) / 0.27]
+            : ['chairPass', 'presentation', (progress - 0.72) / 0.28];
+      const [from, to, part] = segment as [
+        'introSide' | 'chairReach' | 'chairPass' | 'presentation',
+        'introSide' | 'chairReach' | 'chairPass' | 'presentation',
+        number,
+      ];
+      blendLinear(createCameraState(poseFor(from, aspect)), createCameraState(poseFor(to, aspect)), easeInOutCubic(part), current);
+      if (progress >= 1) useExperience.getState().finishIntro();
     } else if (active) {
       active.elapsed += delta;
       const progress = clamp((active.elapsed - active.delay) / active.duration, 0, 1);
-      const blend = active.path === 'orbit' ? blendOrbit : blendLinear;
-      blend(active.from, active.to(aspect), easeInOutCubic(progress), current);
+      blendLinear(active.from, active.to(aspect), easeInOutCubic(progress), current);
       if (progress >= 1) {
         tween.current = null;
         active.onDone();
@@ -153,6 +193,9 @@ export function CameraRig() {
       if (screen) setCameraState(current, monitorFocusPose(screen, aspect));
     } else if (currentPhase === 'loading') {
       setCameraState(current, poseFor('introSide', aspect));
+    } else if (currentPhase === 'viewing-board') {
+      const board = useSceneLayout.getState().board;
+      if (board) setCameraState(current, boardFocusPose(board, aspect));
     }
 
     camera.position.copy(current.position);

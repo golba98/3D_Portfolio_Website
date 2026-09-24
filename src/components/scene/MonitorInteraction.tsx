@@ -19,7 +19,7 @@ export function MonitorInteraction() {
   const hovered = useMonitorHover((s) => s.hovered);
   const setHovered = useMonitorHover((s) => s.setHovered);
 
-  const interactive = phase === 'exploring' || phase === 'intro';
+  const interactive = phase === 'exploring';
   const highlighted = interactive && hovered;
   useCursor(highlighted);
 
