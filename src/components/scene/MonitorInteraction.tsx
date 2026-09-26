@@ -1,16 +1,13 @@
 import { useMemo } from 'react';
 import { useCursor } from '@react-three/drei';
 import { useFrame, type ThreeEvent } from '@react-three/fiber';
-import { Vector3 } from 'three';
 import { SCREEN } from '../../config/scene';
 import { useEntryDevice } from '../../hooks/useEntryDevice';
 import { isTap } from '../../lib/touchLook';
 import { useExperience } from '../../store/experience';
-import { monitorLabelElement, useMonitorHover } from '../../store/monitorHover';
+import { pinLabel, useSceneHover } from '../../store/sceneHover';
 import { useSceneLayout } from '../../store/sceneLayout';
 import { ScreenSurface } from './ScreenSurface';
-
-const projected = new Vector3();
 
 /** The centre monitor: preview surface, hover feedback, and the click that enters the desktop. */
 export function MonitorInteraction() {
@@ -19,8 +16,8 @@ export function MonitorInteraction() {
   const phase = useExperience((s) => s.phase);
   const enterMonitor = useExperience((s) => s.enterMonitor);
   const askToEnter = useExperience((s) => s.askToEnter);
-  const hovered = useMonitorHover((s) => s.hovered);
-  const setHovered = useMonitorHover((s) => s.setHovered);
+  const hovered = useSceneHover((s) => s.hovered === 'monitor');
+  const setHovered = useSceneHover((s) => s.setHovered);
 
   // Phones enter through the phone on the desk (PhoneInteraction); there a tap on
   // the monitor asks first (ui/DevicePrompt.tsx), and it gets no hover treatment.
@@ -38,12 +35,7 @@ export function MonitorInteraction() {
 
   // Pin the DOM label above the monitor.
   useFrame(({ camera, size }) => {
-    const label = monitorLabelElement.current;
-    if (!label || !hitArea || !entersHere) return;
-    projected.set(...hitArea.labelAt).project(camera);
-    const x = (projected.x * 0.5 + 0.5) * size.width;
-    const y = (-projected.y * 0.5 + 0.5) * size.height;
-    label.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) translate(-50%, -100%)`;
+    if (hitArea && entersHere) pinLabel('monitor', hitArea.labelAt, camera, size);
   });
 
   if (!screen || !hitArea) return null;
@@ -51,14 +43,14 @@ export function MonitorInteraction() {
   const onOver = (event: ThreeEvent<PointerEvent>): void => {
     if (!entersHere) return;
     event.stopPropagation();
-    setHovered(true);
+    setHovered('monitor', true);
   };
-  const onOut = (): void => setHovered(false);
+  const onOut = (): void => setHovered('monitor', false);
   const onClick = (event: ThreeEvent<MouseEvent>): void => {
     event.stopPropagation();
     // The end of a drag across the desk isn't a tap on the screen.
     if (!interactive || !isTap(event.delta)) return;
-    setHovered(false);
+    setHovered('monitor', false);
     if (entersHere) enterMonitor();
     else askToEnter('monitor');
   };
