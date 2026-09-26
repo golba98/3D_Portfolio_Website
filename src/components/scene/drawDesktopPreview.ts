@@ -3,7 +3,7 @@ import { DESKTOP_THEME } from '../../config/theme';
 import { MONITOR_FOCUS } from '../../config/cameraPoses';
 import { SCREEN } from '../../config/scene';
 import { APPS } from '../../apps/registry';
-import { monitorFocusPose } from '../../lib/cameraMath';
+import { monitorFocusPose, type CameraState } from '../../lib/cameraMath';
 import { formatTopBarClock } from '../../lib/format';
 import type { ScreenRect } from '../../types/scene';
 import { ICON_PATHS } from '../icons/paths';
@@ -27,25 +27,29 @@ export interface PreviewLayout {
   plane: Size;
 }
 
-/** Stand-in for windows too narrow to show the floating desktop (they get the mobile shell). */
+/** Stand-in for tall windows that still get the floating desktop (a portrait tablet, say). */
 const REFERENCE_VIEWPORT: Size = { width: 1920, height: 1080 };
 
 /**
- * Where the preview plane lands on the window at the end of the camera move,
- * from the same maths the camera uses (lib/cameraMath.ts#monitorFocusPose).
+ * How big (in the window's CSS pixels) a display's preview plane is once the
+ * camera has arrived at `pose`, square-on to it.
+ */
+export function planeOnScreen(viewport: Size, screen: ScreenRect, pose: CameraState): Size {
+  const distance = pose.position.distanceTo(new Vector3(...screen.center)) - SCREEN.surfaceOffset;
+  const pxPerMetre = viewport.height / (2 * distance * Math.tan((pose.fov * Math.PI) / 360));
+  return {
+    width: (screen.width - SCREEN.inset * 2) * pxPerMetre,
+    height: (screen.height - SCREEN.inset * 2) * pxPerMetre,
+  };
+}
+
+/**
+ * Where the monitor's preview plane lands on the window at the end of the
+ * camera move, from the same maths the camera uses (lib/cameraMath.ts#monitorFocusPose).
  */
 export function previewLayout(viewport: Size, screen: ScreenRect): PreviewLayout {
-  const vp = viewport.width / Math.max(viewport.height, 1) < 1.2 ? REFERENCE_VIEWPORT : viewport;
-  const pose = monitorFocusPose(screen, vp.width / vp.height);
-  const distance = pose.position.distanceTo(new Vector3(...screen.center)) - SCREEN.surfaceOffset;
-  const pxPerMetre = vp.height / (2 * distance * Math.tan((MONITOR_FOCUS.fov * Math.PI) / 360));
-  return {
-    viewport: vp,
-    plane: {
-      width: (screen.width - SCREEN.inset * 2) * pxPerMetre,
-      height: (screen.height - SCREEN.inset * 2) * pxPerMetre,
-    },
-  };
+  const vp = viewport.width / Math.max(viewport.height, 1) >= 1.2 ? viewport : REFERENCE_VIEWPORT;
+  return { viewport: vp, plane: planeOnScreen(vp, screen, monitorFocusPose(screen, vp.width / vp.height)) };
 }
 
 /**
@@ -80,6 +84,7 @@ export function drawDesktopPreview(
     const h = (wallpaper.naturalHeight / wallpaper.naturalWidth) * w;
     ctx.drawImage(wallpaper, (vp.width - w) / 2, (vp.height - h) / 2, w, h);
   }
+
 
   // Top bar (TopBar.module.css): 32px tall, 6px side padding, 13px bold text.
   const mid = 16;
@@ -161,7 +166,7 @@ export function drawDesktopPreview(
   ctx.setTransform(1, 0, 0, 1, 0, 0);
 }
 
-function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number): void {
+export function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number): void {
   ctx.beginPath();
   ctx.moveTo(x + r, y);
   ctx.arcTo(x + w, y, x + w, y + h, r);

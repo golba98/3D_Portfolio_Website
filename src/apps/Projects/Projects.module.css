@@ -143,3 +143,52 @@
   color: var(--desk-fg-subtle);
   font-size: var(--text-xs);
 }
+
+/* Touch screens: list rows sized for a thumb. */
+@media (pointer: coarse) {
+  .navItem {
+    min-height: 60px;
+    padding: 10px 12px;
+  }
+
+  .navItem:not([aria-current='page']):hover {
+    background: transparent;
+  }
+
+  .navItem:active {
+    background: var(--desk-active);
+  }
+}
+
+/* On the phone shell: iOS table rows with a disclosure chevron, grey section headers. */
+:global([data-platform='ios']) .navItem {
+  position: relative;
+  min-height: 60px;
+  padding: 10px 36px 10px 16px;
+  border-radius: 0;
+  color: var(--desk-fg);
+}
+
+:global([data-platform='ios']) .navItem::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 18px;
+  width: 8px;
+  height: 8px;
+  border-top: 2px solid var(--desk-fg-subtle);
+  border-right: 2px solid var(--desk-fg-subtle);
+  transform: translateY(-50%) rotate(45deg);
+}
+
+:global([data-platform='ios']) .navItem[aria-current='page'] {
+  background: transparent;
+}
+
+:global([data-platform='ios']) .sidebarLabel {
+  padding: 22px 16px 7px;
+  color: var(--desk-fg-muted);
+  font-size: 13px;
+  font-weight: 400;
+  text-transform: uppercase;
+}

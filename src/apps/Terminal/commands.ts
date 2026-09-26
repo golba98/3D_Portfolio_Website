@@ -28,6 +28,8 @@ export interface ShellContext {
   clear: () => void;
   /** Seconds since the terminal opened, for `uptime`-like output. */
   uptime: () => number;
+  /** How many characters fit on a line. */
+  columns: number;
 }
 
 export interface Command {
@@ -46,6 +48,9 @@ const error = (message: string): OutputLine[] => [[t(message, 'error')]];
 /** The banner from my real ~/.zshrc (via the previous site). */
 /** The banner from my real ~/.zshrc. */
 export const BANNER = ['  ▄▀▄ ▄▀▄    Developer Environment', '  █▄███▄█', '   ▀▄▄▄▀     Ready to Ship'];
+
+/** Width of the banner column in `neofetch`. */
+const LOGO_COLUMNS = 38;
 
 function formatUptime(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -134,10 +139,12 @@ export const COMMANDS: Record<string, Command> = {
         [t('Uptime: ', 'accent'), formatUptime(ctx.uptime())],
         [t('Site: ', 'accent'), siteInfo.stack.slice(0, 4).join(', ')],
       ];
+      // Like the real neofetch, a terminal too narrow for both side by side gets the logo on top.
+      if (ctx.columns < LOGO_COLUMNS + 30) return [...BANNER.map((row) => [row]), [''], ...info];
       const rows = Math.max(BANNER.length, info.length);
       const out: OutputLine[] = [];
       for (let i = 0; i < rows; i += 1) {
-        out.push([(BANNER[i] ?? '').padEnd(38), ...(info[i] ?? [])]);
+        out.push([(BANNER[i] ?? '').padEnd(LOGO_COLUMNS), ...(info[i] ?? [])]);
       }
       return out;
     },

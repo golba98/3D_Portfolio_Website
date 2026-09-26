@@ -24,6 +24,8 @@ export const MODEL_NODES = {
   board: 'Whiteboard',
   boardSurface: 'Whiteboard_Surface',
   boardTray: 'Whiteboard_Tray',
+  phone: 'Phone',
+  phoneScreen: 'Phone_Screen',
 } as const;
 
 /**
@@ -84,5 +86,9 @@ export const SCREEN = {
   brightness: { idle: 0.78, hover: 1 },
   /** Label shown above the monitor on hover, and its height above the monitor's top (m). */
   hoverLabel: 'Enter System',
+  /** The same cue on touch screens, where it stays visible. */
+  tapLabel: 'Tap the screen to enter',
+  /** Phones enter through the phone on the desk instead. */
+  phoneTapLabel: 'Tap the phone to enter',
   labelLift: 0.012,
 } as const;

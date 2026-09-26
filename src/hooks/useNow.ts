@@ -1,12 +1,9 @@
 import { useEffect, useState } from 'react';
+import { onEveryMinute } from '../lib/minuteTicker';
 
-/** Current time, refreshed on the minute boundary (plus every `intervalMs` as a safety net). */
-export function useNow(intervalMs = 15_000): Date {
+/** The current time, updated the moment each minute starts (the clocks only show minutes). */
+export function useNow(): Date {
   const [now, setNow] = useState(() => new Date());
-  useEffect(() => {
-    const tick = (): void => setNow(new Date());
-    const id = window.setInterval(tick, intervalMs);
-    return () => window.clearInterval(id);
-  }, [intervalMs]);
+  useEffect(() => onEveryMinute(() => setNow(new Date())), []);
   return now;
 }

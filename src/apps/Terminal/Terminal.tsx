@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { formatPath, HOME_PATH } from '../../data/filesystem';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
 import type { AppProps } from '../../types/apps';
 import type { FsPath } from '../../types/filesystem';
 import { COMMANDS, complete, tokenize, WELCOME, type OutputLine, type ShellContext } from './commands';
@@ -17,6 +18,9 @@ interface Entry {
 }
 
 const MAX_ENTRIES = 600;
+
+/** One-tap commands for touch screens, where typing into a shell is a chore. */
+const QUICK_COMMANDS = ['help', 'about', 'projects', 'skills', 'neofetch', 'ls', 'contact', 'clear'] as const;
 
 let entryId = 0;
 const makeEntries = (kind: Entry['kind'], rows: OutputLine[], cwd?: FsPath, status?: number): Entry[] =>
@@ -64,6 +68,14 @@ function Line({ line }: { line: OutputLine }) {
   );
 }
 
+/** Characters per line: JetBrains Mono's advance is 0.6em. */
+function measureColumns(element: HTMLElement | null): number {
+  if (!element) return 80;
+  const style = getComputedStyle(element);
+  const width = element.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+  return Math.floor(width / (parseFloat(style.fontSize) * 0.6));
+}
+
 export default function Terminal({ openApp, setTitle }: AppProps) {
   const [entries, setEntries] = useState<Entry[]>(() => makeEntries('output', WELCOME));
   const [cwd, setCwd] = useState<FsPath>(HOME_PATH);
@@ -72,8 +84,11 @@ export default function Terminal({ openApp, setTitle }: AppProps) {
   const [history, setHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState<number | null>(null);
   const [openedAt] = useState(() => Date.now());
+  const terminalRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
+  // On a phone the on-screen keyboard only opens when asked for, and chips do the typing.
+  const touch = useMediaQuery('(pointer: coarse)');
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: 'end' });
@@ -112,6 +127,7 @@ export default function Terminal({ openApp, setTitle }: AppProps) {
         cleared = true;
       },
       uptime: () => (Date.now() - openedAt) / 1000,
+      columns: measureColumns(terminalRef.current),
     };
 
     const handler = COMMANDS[name];
@@ -125,36 +141,52 @@ export default function Terminal({ openApp, setTitle }: AppProps) {
     }
   };
 
-  const onKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      run(input);
-      setInput('');
-      setHistoryIndex(null);
-    } else if (event.key === 'ArrowUp') {
-      event.preventDefault();
+  const historyStep = (direction: -1 | 1): void => {
+    if (direction === -1) {
       if (history.length === 0) return;
       const index = historyIndex === null ? history.length - 1 : Math.max(0, historyIndex - 1);
       setHistoryIndex(index);
       setInput(history[index] ?? '');
+      return;
+    }
+    if (historyIndex === null) return;
+    const index = historyIndex + 1;
+    if (index >= history.length) {
+      setHistoryIndex(null);
+      setInput('');
+    } else {
+      setHistoryIndex(index);
+      setInput(history[index] ?? '');
+    }
+  };
+
+  const completeInput = (): void => {
+    const result = complete(input, cwd);
+    setInput(result.value);
+    if (result.options.length > 0) {
+      append([...makeEntries('input', [[input]], cwd, status), ...makeEntries('output', [[result.options.join('  ')]])]);
+    }
+  };
+
+  const submit = (command: string): void => {
+    run(command);
+    setInput('');
+    setHistoryIndex(null);
+  };
+
+  const onKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      submit(input);
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      historyStep(-1);
     } else if (event.key === 'ArrowDown') {
       event.preventDefault();
-      if (historyIndex === null) return;
-      const index = historyIndex + 1;
-      if (index >= history.length) {
-        setHistoryIndex(null);
-        setInput('');
-      } else {
-        setHistoryIndex(index);
-        setInput(history[index] ?? '');
-      }
+      historyStep(1);
     } else if (event.key === 'Tab') {
       event.preventDefault();
-      const result = complete(input, cwd);
-      setInput(result.value);
-      if (result.options.length > 0) {
-        append([...makeEntries('input', [[input]], cwd, status), ...makeEntries('output', [[result.options.join('  ')]])]);
-      }
+      completeInput();
     } else if (event.key === 'l' && event.ctrlKey) {
       event.preventDefault();
       clearScreen();
@@ -166,11 +198,14 @@ export default function Terminal({ openApp, setTitle }: AppProps) {
   };
 
   return (
-    // Clicking anywhere in the terminal focuses the prompt (unless selecting text).
+    // Clicking anywhere in the terminal focuses the prompt (unless selecting text,
+    // or on a touch screen, where that would throw up the keyboard on every tap).
     <div
+      ref={terminalRef}
       className={styles.terminal}
+      data-touch={touch}
       onClick={() => {
-        if (!window.getSelection()?.toString()) inputRef.current?.focus();
+        if (!touch && !window.getSelection()?.toString()) inputRef.current?.focus();
       }}
     >
       <div className={styles.log} role="log" aria-live="polite" aria-label="Terminal output">
@@ -182,7 +217,7 @@ export default function Terminal({ openApp, setTitle }: AppProps) {
           </div>
         ))}
       </div>
-      <div className={styles.inputRow}>
+      <div className={styles.inputRow} onClick={() => inputRef.current?.focus()}>
         <Prompt cwd={cwd} status={status} />
         <input
           ref={inputRef}
@@ -198,9 +233,26 @@ export default function Terminal({ openApp, setTitle }: AppProps) {
           autoCapitalize="off"
           autoCorrect="off"
           spellCheck={false}
-          autoFocus
+          enterKeyHint="send"
+          autoFocus={!touch}
         />
       </div>
+      {touch && (
+        <div className={styles.keys} role="toolbar" aria-label="Quick commands">
+          {QUICK_COMMANDS.map((command) => (
+            <button key={command} type="button" className={styles.key} onClick={() => submit(command)}>
+              {command}
+            </button>
+          ))}
+          <span className={styles.keySeparator} aria-hidden="true" />
+          <button type="button" className={styles.key} aria-label="Previous command" onClick={() => historyStep(-1)}>
+            ↑
+          </button>
+          <button type="button" className={styles.key} aria-label="Complete" onClick={completeInput}>
+            ⇥
+          </button>
+        </div>
+      )}
       <div ref={endRef} />
     </div>
   );

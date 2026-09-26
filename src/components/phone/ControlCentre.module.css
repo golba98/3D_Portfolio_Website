@@ -1,0 +1,100 @@
+/* iOS Control Centre: the whole screen blurred and dimmed, modules on top. */
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  padding: calc(env(safe-area-inset-top) + 56px) max(20px, env(safe-area-inset-right)) 0 max(20px, env(safe-area-inset-left));
+  background: rgb(0 0 0 / 0.38);
+  backdrop-filter: blur(32px) saturate(1.6);
+  touch-action: none;
+}
+
+.panel {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.module {
+  aspect-ratio: 1;
+  border-radius: 24px;
+  background: rgb(255 255 255 / 0.1);
+}
+
+/* Four round buttons in one square, like iOS's connectivity module. */
+.buttons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  place-items: center;
+  padding: 10px;
+}
+
+.button {
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  text-decoration: none;
+}
+
+.round {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.18);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.round[data-accent] {
+  background: var(--ios-tint);
+}
+
+.button:active .round {
+  transform: scale(0.9);
+}
+
+.label {
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Me: avatar, name and role, like a contact card. */
+.me {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 2px;
+  padding: 12px;
+  text-align: center;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 8px;
+  border-radius: 50%;
+  background: linear-gradient(160deg, #3aaec2, #2190a4);
+  font-weight: 800;
+}
+
+.name {
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.sub {
+  color: rgb(235 235 245 / 0.6);
+  font-size: 12px;
+  line-height: 1.3;
+}

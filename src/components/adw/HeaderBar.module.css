@@ -159,3 +159,92 @@
 .control:active {
   background: rgb(255 255 255 / 0.3);
 }
+
+/* Touch screens: fingers need 44px targets, and there's no hover to hint at them. */
+@media (pointer: coarse) {
+  .headerbar {
+    min-height: 52px;
+    padding: 4px;
+  }
+
+  .button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .button:hover {
+    background: transparent;
+  }
+
+  .button:active {
+    background: var(--desk-active);
+  }
+}
+
+/*
+  On the phone shell the header bar is an iOS navigation bar: translucent and
+  blurred, a hairline underneath, a 17px semibold title, and plain tinted
+  buttons (the back button a chevron with the previous page's name).
+*/
+.headerbar[data-platform='ios'] {
+  /* iOS centres the title whatever the buttons either side are. */
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  min-height: 44px;
+  padding: 0 6px;
+  background: var(--ios-bar);
+  backdrop-filter: blur(20px) saturate(1.8);
+  box-shadow: inset 0 -0.5px var(--ios-separator);
+}
+
+.headerbar[data-platform='ios'][data-variant='sidebar'] {
+  background: var(--ios-bar);
+  box-shadow: inset 0 -0.5px var(--ios-separator);
+}
+
+.headerbar[data-platform='ios'] .title {
+  padding: 0 8px;
+}
+
+.headerbar[data-platform='ios'] .titleText {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.headerbar[data-platform='ios'] .button {
+  gap: 2px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 6px;
+  background: transparent;
+  color: var(--ios-tint);
+  font-size: 17px;
+  font-weight: 400;
+  transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+.headerbar[data-platform='ios'] .button:hover {
+  background: transparent;
+}
+
+.headerbar[data-platform='ios'] .button:active {
+  background: transparent;
+  opacity: 0.35;
+}
+
+.headerbar[data-platform='ios'] .button svg {
+  width: 22px;
+  height: 22px;
+  stroke-width: 2.4;
+}
+
+/* iOS nav bars don't use filled buttons; the main action is just tinted and bold. */
+.headerbar[data-platform='ios'] .button[data-suggested] {
+  background: transparent;
+  color: var(--ios-tint);
+  font-weight: 600;
+}
+
+.headerbar[data-platform='ios'] .button[data-suggested]:hover {
+  background: transparent;
+}

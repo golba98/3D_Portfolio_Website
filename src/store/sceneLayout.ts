@@ -12,6 +12,9 @@ interface SceneLayoutState {
   pcCaseCenter: Vec3 | null;
   /** Desk-space bounds of the centre monitor (hit area + hover label). */
   monitorBounds: { min: Vec3; max: Vec3 } | null;
+  /** The phone lying on the desk: its display, and its bounds (hit area + label). */
+  phoneScreen: ScreenRect | null;
+  phoneBounds: { min: Vec3; max: Vec3 } | null;
   setLayout: (layout: Omit<SceneLayoutState, 'setLayout'>) => void;
 }
 
@@ -20,5 +23,7 @@ export const useSceneLayout = create<SceneLayoutState>()((set) => ({
   board: null,
   pcCaseCenter: null,
   monitorBounds: null,
+  phoneScreen: null,
+  phoneBounds: null,
   setLayout: (layout) => set(layout),
 }));

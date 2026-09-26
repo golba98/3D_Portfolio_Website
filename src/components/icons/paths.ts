@@ -32,6 +32,11 @@ export const ICON_PATHS = {
   graduation: 'M2 9l10-5 10 5-10 5L2 9Zm4 2v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5',
   copy: 'M9 9h10v10H9V9Zm-4 6V5h10',
   check: 'M5 12.5l4.5 4.5L19 7',
+  film: 'M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm0 4h16M4 15h16M8 5v4m0 6v4m8-14v4m0 6v4',
+  /** iOS status bar Wi-Fi. */
+  wifi: 'M2.5 9.5a14 14 0 0 1 19 0M5.8 13a9 9 0 0 1 12.4 0M9 16.4a4.4 4.4 0 0 1 6 0M12 19.6h.01',
+  /** sidebar-show-symbolic */
+  sidebar: 'M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm5 0v14M5.5 9h2M5.5 12h2',
   home: 'M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1v-8Z',
   'arrow-up': 'M12 19V5m-6 6 6-6 6 6',
 } as const;

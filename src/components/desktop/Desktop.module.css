@@ -6,3 +6,19 @@
   font-size: var(--text-md);
   background: var(--desk-wallpaper-a) url('/wallpaper.webp') center / cover no-repeat;
 }
+
+/* The phone OS on a computer: a phone-sized screen, centred on black. */
+.desktop[data-framed] {
+  display: grid;
+  place-items: center;
+  background: #000;
+}
+
+.phoneFrame {
+  height: var(--phone-frame-height);
+  aspect-ratio: var(--phone-aspect);
+  overflow: hidden;
+  /* An iPhone 15 Pro's display corners: about 14% of its width. */
+  border-radius: calc(var(--phone-frame-height) * var(--phone-aspect) * 0.14);
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08);
+}

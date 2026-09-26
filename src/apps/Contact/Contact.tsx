@@ -39,7 +39,7 @@ export default function Contact(_props: AppProps) {
               icon="mail"
               title={
                 <a className={ui.link} href={`mailto:${profile.email}`}>
-                  {profile.email}
+                  <EmailAddress address={profile.email} />
                 </a>
               }
               subtitle="Email"
@@ -80,5 +80,21 @@ export default function Contact(_props: AppProps) {
         </section>
       </article>
     </ToolbarView>
+  );
+}
+
+/**
+ * An email address that only ever wraps after the "@" (row text otherwise
+ * breaks anywhere, which left "gmail.co" / "m" on a phone).
+ */
+function EmailAddress({ address }: { address: string }) {
+  const at = address.indexOf('@');
+  if (at < 0) return <span className={ui.nowrap}>{address}</span>;
+  return (
+    <>
+      <span className={ui.nowrap}>{address.slice(0, at + 1)}</span>
+      <wbr />
+      <span className={ui.nowrap}>{address.slice(at + 1)}</span>
+    </>
   );
 }

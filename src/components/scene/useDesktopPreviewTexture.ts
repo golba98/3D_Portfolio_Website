@@ -5,15 +5,16 @@ import { SCREEN } from '../../config/scene';
 import { APPS } from '../../apps/registry';
 import { useDeviceTier } from '../../hooks/useDeviceTier';
 import { clamp } from '../../lib/math';
+import { onEveryMinute } from '../../lib/minuteTicker';
 import type { ScreenRect } from '../../types/scene';
 import { drawDesktopPreview, previewLayout, type PreviewImages, type Size } from './drawDesktopPreview';
 
 const WALLPAPER_URL = '/wallpaper.webp';
 const RESIZE_DEBOUNCE_MS = 250;
 
-const readViewport = (): Size => ({ width: window.innerWidth, height: window.innerHeight });
+export const readViewport = (): Size => ({ width: window.innerWidth, height: window.innerHeight });
 
-function loadImage(src: string): Promise<HTMLImageElement> {
+export function loadImage(src: string): Promise<HTMLImageElement> {
   const image = new Image();
   image.decoding = 'async';
   image.src = src;
@@ -24,7 +25,7 @@ function loadImage(src: string): Promise<HTMLImageElement> {
  * Canvas texture of the desktop preview. It is as many pixels wide as the
  * screen will be on the display when the camera arrives, so it never looks
  * softer than the DOM desktop that replaces it. Rebuilt when the window is
- * resized; redrawn when fonts/images arrive and every 30s for the clock.
+ * resized; redrawn when fonts/images arrive and as each minute starts, for the clock.
  */
 export function useDesktopPreviewTexture(screen: ScreenRect): CanvasTexture {
   const tier = useDeviceTier();
@@ -91,8 +92,8 @@ export function useDesktopPreviewTexture(screen: ScreenRect): CanvasTexture {
       texture.needsUpdate = true;
     };
     redraw();
-    const clock = window.setInterval(redraw, 30_000);
-    return () => window.clearInterval(clock);
+    // Redraw as each minute starts, so the painted clock matches the real one.
+    return onEveryMinute(redraw);
   }, [texture, images, layout]);
 
   return texture;

@@ -13,7 +13,9 @@ const TARGET = 'public/models/pc-setup.glb';
 
 // Tiny repeated parts whose individual names the site never needs. Clearing
 // their names lets join() merge them into one draw call per material.
-const MERGEABLE = /^Monitor_Right_Neck_Pleat/;
+// The phone's many small parts merge the same way; only the group and its
+// screen (which the site measures) keep their names.
+const MERGEABLE = /^(Monitor_Right_Neck_Pleat|Phone_(?!Screen$))/;
 
 await Promise.all([MeshoptEncoder.ready, MeshoptDecoder.ready]);
 const io = new NodeIO().registerExtensions(ALL_EXTENSIONS).registerDependencies({

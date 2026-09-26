@@ -3,6 +3,8 @@
 A 3D model of my desk (Blender → glTF). Visitors approach the desk, pull out the
 chair, and can draw on the whiteboard before entering the centre monitor. The
 monitor becomes a simulated Fedora/GNOME-style desktop holding the portfolio.
+On a phone, visitors go into the iPhone on the desk instead, which becomes an
+iOS-style phone holding the same apps.
 
 ```bash
 npm install
@@ -50,3 +52,11 @@ Both flags are stripped from production builds. Poses are in
 `src/data/hardware.ts` only contains facts the previous site stated. Fill in the
 `null` fields (CPU, GPU model, RAM, …) and they appear in System Info,
 `neofetch` and `hardware`.
+
+## Credits
+
+- Desktop wallpaper: Windows 11 "Bloom" (dark), © Microsoft — `public/wallpaper.webp`.
+- Phone wallpapers: iPhone 15 Pro "Black Titanium" (Home Screen and Lock Screen
+  variants), © Apple, via iClarified — `public/wallpaper-iphone.webp`,
+  `public/wallpaper-iphone-lock.webp`.
+- App icons: see `public/icons/apps/README.md`.

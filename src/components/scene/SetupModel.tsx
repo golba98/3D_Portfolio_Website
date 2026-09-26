@@ -25,6 +25,7 @@ export function SetupModel() {
     const toDesk = (v: Vector3): Vec3 => [v.x * s + offset.x, v.y * s + offset.y, v.z * s + offset.z];
 
     const monitor = boundsInModel(scene, requireNode(scene, MODEL_NODES.monitorCenter));
+    const phone = boundsInModel(scene, requireNode(scene, MODEL_NODES.phone));
     const pcCase = boundsInModel(scene, requireNode(scene, MODEL_NODES.pcCase));
     const chair = requireNode(scene, MODEL_NODES.chair);
     return {
@@ -32,6 +33,9 @@ export function SetupModel() {
       screen: measureScreen(scene, requireNode(scene, MODEL_NODES.centerScreen), toDesk, s),
       board: measureScreen(scene, requireNode(scene, MODEL_NODES.boardSurface), toDesk, s),
       monitorBounds: { min: toDesk(monitor.min), max: toDesk(monitor.max) },
+      // The phone lies face up with its top towards the monitor.
+      phoneScreen: measureScreen(scene, requireNode(scene, MODEL_NODES.phoneScreen), toDesk, s, PHONE_AXES),
+      phoneBounds: { min: toDesk(phone.min), max: toDesk(phone.max) },
       pcCaseCenter: toDesk(pcCase.getCenter(new Vector3())),
       chair,
       chairPosition: chair.position.clone(),
@@ -40,7 +44,14 @@ export function SetupModel() {
   }, [scene]);
 
   useLayoutEffect(() => {
-    setLayout({ screen: layout.screen, board: layout.board, monitorBounds: layout.monitorBounds, pcCaseCenter: layout.pcCaseCenter });
+    setLayout({
+      screen: layout.screen,
+      board: layout.board,
+      monitorBounds: layout.monitorBounds,
+      pcCaseCenter: layout.pcCaseCenter,
+      phoneScreen: layout.phoneScreen,
+      phoneBounds: layout.phoneBounds,
+    });
   }, [layout, setLayout]);
 
   // The visitor pulls the chair out, turns it, then eases it back into place.
@@ -114,17 +125,35 @@ function boundsInModel(root: Object3D, node: Object3D): Box3 {
   return new Box3().setFromPoints(cornersInModel(root, node));
 }
 
+/** A display's own axes, in its node's local space. */
+interface ScreenAxes {
+  right: Vector3;
+  up: Vector3;
+  normal: Vector3;
+}
+
+/** Monitors and the board stand upright, facing +Z. */
+const UPRIGHT_AXES: ScreenAxes = { right: new Vector3(1, 0, 0), up: new Vector3(0, 1, 0), normal: new Vector3(0, 0, 1) };
+/** The phone lies flat facing +Y, its top (earpiece) towards -Z. */
+const PHONE_AXES: ScreenAxes = { right: new Vector3(1, 0, 0), up: new Vector3(0, 0, -1), normal: new Vector3(0, 1, 0) };
+
 /**
- * Measures the centre display in desk space along its own axes, so it stays
- * correct if the monitor is ever rotated in Blender.
+ * Measures a display in desk space along its own axes, so it stays correct if
+ * it is ever rotated in Blender.
  */
-function measureScreen(root: Object3D, node: Object3D, toDesk: (v: Vector3) => Vec3, scale: number): ScreenRect {
+function measureScreen(
+  root: Object3D,
+  node: Object3D,
+  toDesk: (v: Vector3) => Vec3,
+  scale: number,
+  axes: ScreenAxes = UPRIGHT_AXES,
+): ScreenRect {
   // decompose() rather than setFromRotationMatrix(): quantised meshes carry a scale.
   const quaternion = new Quaternion();
   matrixInModel(root, node).decompose(new Vector3(), quaternion, new Vector3());
-  const right = new Vector3(1, 0, 0).applyQuaternion(quaternion);
-  const up = new Vector3(0, 1, 0).applyQuaternion(quaternion);
-  const normal = new Vector3(0, 0, 1).applyQuaternion(quaternion);
+  const right = axes.right.clone().applyQuaternion(quaternion);
+  const up = axes.up.clone().applyQuaternion(quaternion);
+  const normal = axes.normal.clone().applyQuaternion(quaternion);
 
   const corners = cornersInModel(root, node);
   const span = (axis: Vector3): [number, number] => {

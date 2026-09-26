@@ -1,6 +1,7 @@
 import { useEffect, useRef, type CSSProperties, type KeyboardEvent } from 'react';
 import { BOARD_COLORS, useBoardDrawing, type BoardTool } from '../../store/boardDrawing';
 import { useExperience } from '../../store/experience';
+import { Icon } from '../icons/Icon';
 import styles from './BoardToolbar.module.css';
 
 const MARKERS: Exclude<BoardTool, 'eraser'>[] = ['black', 'red', 'blue', 'green'];
@@ -40,7 +41,9 @@ export function BoardToolbar() {
     <div className={styles.boardUi}>
       <div className={styles.top}>
         <span className={styles.title}>Your scratchpad</span>
-        <button type="button" className={styles.close} onClick={closeBoard}>Back to desk <span aria-hidden="true">×</span></button>
+        <button type="button" className={styles.close} onClick={closeBoard}>
+          Back to desk <Icon name="close" size={14} strokeWidth={2.2} />
+        </button>
       </div>
       <div className={styles.bottom}>
         <div className={styles.toolbar} role="toolbar" aria-label="Whiteboard drawing tools">

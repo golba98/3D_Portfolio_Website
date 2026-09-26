@@ -29,3 +29,19 @@
   opacity: 1;
   transform: none;
 }
+
+/* Touch: a gentle pulse so the always-on cue reads as "tap here". */
+.label[data-touch='true'][data-visible='true'] {
+  border-color: rgb(123 223 244 / 0.45);
+  animation: pulse 2.4s var(--ease-in-out) infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(123 223 244 / 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgb(123 223 244 / 0);
+  }
+}

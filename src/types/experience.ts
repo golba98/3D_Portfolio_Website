@@ -19,3 +19,10 @@ export type ExperiencePhase =
   | 'fallback';
 
 export type SceneStatus = 'idle' | 'loading' | 'ready' | 'failed';
+
+/**
+ * The device on the desk a visitor goes into: the phone (phone OS) or the
+ * monitor (GNOME desktop). Each screen size has its own; the other one can
+ * still be chosen, with a warning (see ui/DevicePrompt.tsx).
+ */
+export type EntryDevice = 'phone' | 'monitor';

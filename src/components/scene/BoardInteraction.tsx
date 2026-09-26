@@ -3,6 +3,7 @@ import { useCursor } from '@react-three/drei';
 import { type ThreeEvent } from '@react-three/fiber';
 import { CanvasTexture, DoubleSide, Matrix4, Quaternion, SRGBColorSpace, Vector3 } from 'three';
 import { clamp } from '../../lib/math';
+import { isTap } from '../../lib/touchLook';
 import { BOARD_COLORS, useBoardDrawing, type BoardPoint, type BoardStroke } from '../../store/boardDrawing';
 import { useExperience } from '../../store/experience';
 import { useSceneLayout } from '../../store/sceneLayout';
@@ -96,12 +97,14 @@ export function BoardInteraction() {
   const point = (event: ThreeEvent<PointerEvent>): BoardPoint | null =>
     event.uv ? [clamp(event.uv.x, 0, 1), clamp(1 - event.uv.y, 0, 1)] : null;
 
+  // Exploring, a tap opens the board; on click, so a drag across it slides the view instead.
+  const onClick = (event: ThreeEvent<MouseEvent>): void => {
+    event.stopPropagation();
+    if (phase === 'exploring' && isTap(event.delta)) openBoard();
+  };
+
   const onDown = (event: ThreeEvent<PointerEvent>): void => {
     event.stopPropagation();
-    if (phase === 'exploring') {
-      openBoard();
-      return;
-    }
     if (phase !== 'viewing-board' || !boardReady || pointer.current !== null) return;
     const p = point(event);
     if (!p) return;
@@ -130,7 +133,7 @@ export function BoardInteraction() {
   return (
     <group position={placement.center} quaternion={placement.quaternion}>
       <mesh onPointerOver={() => setHovered(true)} onPointerOut={() => setHovered(false)}
-        onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onEnd} onPointerCancel={onEnd}>
+        onClick={onClick} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onEnd} onPointerCancel={onEnd}>
         <planeGeometry args={[board.width * 0.997, board.height * 0.997]} />
         <meshBasicMaterial map={drawing.texture} transparent depthWrite={false} side={DoubleSide} toneMapped={false} />
       </mesh>

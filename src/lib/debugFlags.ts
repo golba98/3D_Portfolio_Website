@@ -14,6 +14,6 @@ function flagValue(name: string): string | null {
 
 export const debugFlags = {
   forceFallback: (): boolean => hasFlag('fallback'),
-  /** `?pose=introSide|presentation|monitorFocus` holds the camera there, for tuning config/cameraPoses.ts. */
+  /** `?pose=introSide|presentation|monitorFocus|phoneFocus` holds the camera there, for tuning config/cameraPoses.ts. */
   heldPose: (): string | null => flagValue('pose'),
 };
