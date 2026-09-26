@@ -2,16 +2,15 @@ import { useId, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { profile } from '../../data/profile';
 import { usePopover } from '../../hooks/usePopover';
-import { useExperience } from '../../store/experience';
 import { Icon } from '../icons/Icon';
+import { useSystemActions } from '../shell/systemActions';
 import styles from './StatusMenu.module.css';
 
 /** GNOME-style quick settings: identity, CV download, and the way back to the 3D desk. */
 export function StatusMenu() {
   const root = useRef<HTMLDivElement>(null);
   const [open, setOpen] = usePopover(root);
-  const sceneStatus = useExperience((s) => s.sceneStatus);
-  const leaveDesktop = useExperience((s) => s.leaveDesktop);
+  const actions = useSystemActions();
   const menuId = useId();
 
   return (
@@ -48,30 +47,32 @@ export function StatusMenu() {
               </div>
             </div>
             <ul className={styles.items}>
-              <li>
-                <a className={styles.item} href={profile.resumeUrl} download>
-                  <Icon name="download" /> Download CV
-                </a>
-              </li>
-              <li>
-                <a className={styles.item} href={profile.github} target="_blank" rel="noreferrer">
-                  <Icon name="github" /> GitHub
-                </a>
-              </li>
-              {sceneStatus !== 'failed' && (
-                <li>
-                  <button
-                    type="button"
-                    className={styles.item}
-                    onClick={() => {
-                      setOpen(false);
-                      leaveDesktop();
-                    }}
-                  >
-                    <Icon name="power" /> Back to the 3D desk
-                  </button>
+              {actions.map((action) => (
+                <li key={action.id}>
+                  {action.href ? (
+                    <a
+                      className={styles.item}
+                      href={action.href}
+                      download={action.download || undefined}
+                      target={action.download ? undefined : '_blank'}
+                      rel={action.download ? undefined : 'noreferrer'}
+                    >
+                      <Icon name={action.icon} /> {action.label}
+                    </a>
+                  ) : (
+                    <button
+                      type="button"
+                      className={styles.item}
+                      onClick={() => {
+                        setOpen(false);
+                        action.onSelect?.();
+                      }}
+                    >
+                      <Icon name={action.icon} /> {action.label}
+                    </button>
+                  )}
                 </li>
-              )}
+              ))}
             </ul>
           </motion.div>
         )}

@@ -297,6 +297,11 @@
   background: var(--desk-hover);
 }
 
+/* Text that must not break inside (an email address's halves, say). */
+.nowrap {
+  white-space: nowrap;
+}
+
 .link {
   color: var(--desk-accent);
   text-underline-offset: 3px;
@@ -341,4 +346,35 @@
 /* A boxed list that is itself a group (no title) still sits 24px below the last one. */
 .list.section {
   margin-top: 24px;
+}
+
+/* Touch screens: taller rows, and pressed states rather than hover ones. */
+@media (pointer: coarse) {
+  .actionRow,
+  .list > li > .actionRow[data-activatable] {
+    min-height: 56px;
+  }
+
+  .actionRow[data-activatable]:hover {
+    background: transparent;
+  }
+
+  .actionRow[data-activatable]:active {
+    background: rgb(255 255 255 / 0.08);
+  }
+
+  .button {
+    min-height: 44px;
+  }
+}
+
+/* On the phone shell: iOS inset grouped lists, flat with hairline separators. */
+:global([data-platform='ios']) .list,
+:global([data-platform='ios']) .card {
+  border-radius: 10px;
+  box-shadow: none;
+}
+
+:global([data-platform='ios']) .list > * + * {
+  border-top: 0.5px solid var(--ios-separator);
 }

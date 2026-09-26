@@ -1,0 +1,120 @@
+.switcher {
+  /* Sized against the phone's own screen (on a computer it sits in a frame), not the window. */
+  container-type: size;
+  position: absolute;
+  inset: 0;
+  z-index: 35;
+  display: grid;
+  align-items: center;
+  background: rgb(0 0 0 / 0.5);
+  backdrop-filter: blur(18px);
+}
+
+/* Cards side by side, snapping to the centre, flicked up to close. */
+.cards {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 0;
+  padding: 0 14cqw;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  list-style: none;
+}
+
+.card {
+  display: grid;
+  gap: 8px;
+  flex: none;
+  width: 72cqw;
+  scroll-snap-align: center;
+  touch-action: pan-x;
+  transition:
+    transform var(--duration-base) var(--ease-out),
+    opacity var(--duration-base) var(--ease-out);
+}
+
+.cardLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 4px;
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.cardClose {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.16);
+}
+
+.cardBody {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  width: 100%;
+  height: 62cqh;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 28px;
+  background: var(--desk-window);
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08), 0 16px 40px rgb(0 0 0 / 0.5);
+  text-align: left;
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.cardBody:active {
+  transform: scale(0.97);
+}
+
+.cardHeader {
+  padding: 14px 16px;
+  overflow: hidden;
+  background: var(--desk-headerbar);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cardPreview {
+  display: grid;
+  place-items: center;
+}
+
+.cardHeader[data-chrome='kitty'] {
+  background: var(--term-titlebar);
+  font-family: var(--font-mono);
+  font-weight: 400;
+}
+
+.cardBody[data-chrome='kitty'],
+.cardPreview[data-chrome='kitty'] {
+  background: var(--term-bg);
+}
+
+.empty {
+  color: var(--desk-fg-muted);
+  font-weight: 600;
+  text-align: center;
+  pointer-events: none;
+}
+
+@container (orientation: landscape) {
+  .card {
+    width: 40cqw;
+  }
+
+  .cardBody {
+    height: 58cqh;
+  }
+}

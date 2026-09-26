@@ -1,0 +1,79 @@
+/* Bottom-centre stack over the scene: hint or caption above the jump buttons. */
+.nav {
+  position: absolute;
+  right: 0;
+  bottom: max(20px, env(safe-area-inset-bottom));
+  left: 0;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  pointer-events: none;
+}
+
+.hint,
+.caption {
+  grid-area: 1 / 1;
+  padding: 7px 14px;
+  border: 1px solid rgb(255 255 255 / 0.14);
+  border-radius: var(--radius-pill);
+  background: rgb(10 10 12 / 0.7);
+  color: var(--world-fg);
+  font-size: var(--text-sm);
+  text-align: center;
+  backdrop-filter: blur(8px);
+}
+
+.hint {
+  animation: nudge 1.8s var(--ease-in-out) infinite;
+}
+
+.hintArrows {
+  color: var(--world-muted);
+}
+
+@keyframes nudge {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 6px 0;
+  }
+}
+
+.caption strong {
+  font-weight: 700;
+}
+
+.chips {
+  grid-area: 2 / 1;
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid rgb(255 255 255 / 0.14);
+  border-radius: var(--radius-pill);
+  background: rgb(10 10 12 / 0.72);
+  backdrop-filter: blur(8px);
+}
+
+.chip {
+  min-width: 76px;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--world-muted);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.chip[aria-pressed='true'] {
+  background: rgb(255 255 255 / 0.16);
+  color: var(--world-fg);
+}

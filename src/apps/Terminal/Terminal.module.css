@@ -92,3 +92,51 @@
 .bold {
   font-weight: 700;
 }
+
+/* Touch screens: a smaller font so 40-odd columns fit, and a key row for the chips. */
+.terminal[data-touch='true'] {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 0;
+  font-size: 13px;
+  cursor: default;
+}
+
+.terminal[data-touch='true'] .log {
+  flex: 1;
+}
+
+.keys {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  gap: 6px;
+  margin: 10px -14px 0;
+  padding: 8px 14px calc(8px + env(safe-area-inset-bottom));
+  overflow-x: auto;
+  background: var(--term-titlebar);
+  scrollbar-width: none;
+}
+
+.key {
+  flex: none;
+  min-width: 40px;
+  height: 36px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--radius-button);
+  background: rgb(255 255 255 / 0.1);
+  color: var(--term-fg);
+  font: inherit;
+}
+
+.key:active {
+  background: rgb(255 255 255 / 0.22);
+}
+
+.keySeparator {
+  flex: none;
+  width: 1px;
+  margin: 6px 2px;
+  background: rgb(255 255 255 / 0.15);
+}

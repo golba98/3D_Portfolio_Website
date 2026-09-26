@@ -73,3 +73,11 @@
 @media (max-width: 600px) {
   .draw { bottom: max(18px, env(safe-area-inset-bottom)); right: max(16px, env(safe-area-inset-right)); }
 }
+
+/* Touch: centred above the look-around buttons (TouchNav), in the caption's slot. */
+.draw[data-touch='true'] {
+  right: 50%;
+  bottom: calc(max(20px, env(safe-area-inset-bottom)) + 56px);
+  translate: 50% 0;
+  z-index: 1;
+}

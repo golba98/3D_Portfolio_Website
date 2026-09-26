@@ -1,0 +1,100 @@
+/* The iPhone status bar: clear over the home screen, the app's bar colour over apps. */
+.bar {
+  flex: none;
+  padding-top: env(safe-area-inset-top);
+  color: #fff;
+  touch-action: none;
+  user-select: none;
+  transition: background var(--duration-base) var(--ease-out);
+}
+
+.bar[data-app-open='true'] {
+  background: var(--ios-bar-solid);
+}
+
+.button {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  width: 100%;
+  height: 36px;
+  padding: 0 max(24px, env(safe-area-inset-right)) 0 max(28px, env(safe-area-inset-left));
+  border: 0;
+  background: transparent;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.button:focus-visible {
+  outline-offset: -2px;
+}
+
+.clock {
+  justify-self: start;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Where the Dynamic Island sits on a real iPhone; empty here, the phone has its own. */
+.island {
+  width: 110px;
+}
+
+.indicators {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+/* The iOS battery: an outlined pill; with the percentage shown, a filled pill with the number in it. */
+.battery {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  /* Even, so it centres on whole pixels in the 36px bar (13px left the body and tip snapping apart). */
+  height: 12px;
+  padding: 2px;
+  border: 1px solid rgb(255 255 255 / 0.5);
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.battery[data-level='true'] {
+  padding: 0;
+  /* No border at all (not a transparent one), so the digits centre in the full height. */
+  border: 0;
+  background: #fff;
+  color: #000;
+  letter-spacing: -0.02em;
+}
+
+/* Trimmed to the digits themselves (cap height to baseline), so centring them is exact; the font's line box sits them low. */
+.level {
+  display: block;
+  text-box: trim-both cap alphabetic;
+}
+
+/* The tip, centred on the body's height. */
+.battery::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -4px;
+  width: 2px;
+  height: 4px;
+  border-radius: 0 1px 1px 0;
+  background: rgb(255 255 255 / 0.5);
+  translate: 0 -50%;
+}
+
+.charge {
+  justify-self: stretch;
+  height: 100%;
+  border-radius: 2px;
+  background: #fff;
+}

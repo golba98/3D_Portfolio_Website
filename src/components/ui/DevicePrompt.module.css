@@ -1,0 +1,66 @@
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
+  background: rgb(0 0 0 / 0.45);
+  pointer-events: auto;
+}
+
+.card {
+  width: min(100%, 340px);
+  padding: 20px;
+  border: 1px solid rgb(255 255 255 / 0.14);
+  border-radius: 20px;
+  background: rgb(14 15 18 / 0.92);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 20px 50px rgb(0 0 0 / 0.5);
+  color: var(--world-fg);
+  text-align: center;
+}
+
+.title {
+  font-size: var(--text-lg);
+  font-weight: 700;
+}
+
+.body {
+  margin-top: 8px;
+  color: var(--world-muted);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.actions {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.primary,
+.secondary {
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+}
+
+.primary {
+  border: 0;
+  background: var(--world-fg);
+  color: #0b0b0d;
+}
+
+.secondary {
+  border: 1px solid rgb(255 255 255 / 0.2);
+  background: transparent;
+  color: var(--world-fg);
+}
+
+.primary:active,
+.secondary:active {
+  transform: scale(0.98);
+}

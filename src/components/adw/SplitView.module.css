@@ -50,3 +50,30 @@
   overflow-y: auto;
   container-type: inline-size;
 }
+
+/* On the phone shell the sidebar is an iOS inset grouped list. */
+:global([data-platform='ios']) .sidebar {
+  padding: 0 16px 20px;
+}
+
+:global([data-platform='ios']) .sidebar ul {
+  gap: 0;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--ios-grouped);
+}
+
+/* Separators start where the text does, as in iOS table views. */
+:global([data-platform='ios']) .sidebar li + li {
+  position: relative;
+}
+
+:global([data-platform='ios']) .sidebar li + li::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 16px;
+  height: 0.5px;
+  background: var(--ios-separator);
+}

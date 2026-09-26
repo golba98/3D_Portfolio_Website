@@ -1,0 +1,238 @@
+/*
+  Jordan's iPhone home screen, rebuilt: a grid of icon-sized cells (--icon
+  and --gap come from HomeScreen.tsx), widgets spanning whole cells, then the
+  Search pill and the dock at the bottom. Dark glass everywhere, no labels.
+*/
+.home {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 0 8px;
+  transform-origin: 50% 40%;
+}
+
+.page {
+  flex: 1;
+  min-height: 0;
+  padding: 6px var(--margin) 12px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+
+/* Four icon cells across; widgets are placed on it like iOS places them. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, var(--icon));
+  grid-auto-rows: var(--icon);
+  gap: var(--gap);
+  justify-content: center;
+}
+
+/* Widget glass: darker and softer than the icons, as on iOS 26. */
+.widget {
+  border: 0;
+  border-radius: calc(var(--icon) * 0.3);
+  background: rgb(38 38 42 / 0.55);
+  backdrop-filter: blur(24px) saturate(1.6);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.1),
+    inset 0 0 0 0.5px rgb(255 255 255 / 0.08);
+  color: #fff;
+}
+
+/* Me: a contact-card widget, 2×2 in the top-left. */
+.me {
+  grid-column: 1 / span 2;
+  grid-row: 1 / span 2;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 2px;
+  padding: 10px;
+  text-align: center;
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.me:active {
+  transform: scale(0.96);
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: calc(var(--icon) * 0.86);
+  height: calc(var(--icon) * 0.86);
+  margin-bottom: 8px;
+  border-radius: 50%;
+  background: linear-gradient(160deg, #6e6e76, #3a3a40);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.2);
+  font-size: calc(var(--icon) * 0.3);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.meName {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.meRole {
+  color: rgb(235 235 245 / 0.6);
+  font-size: 12px;
+}
+
+/* Now building: 4×2 under the icons, laid out like the ChatGPT widget. */
+.building {
+  grid-column: 1 / -1;
+  grid-row: 3 / span 2;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: calc(var(--icon) * 0.14);
+  padding: calc(var(--icon) * 0.18);
+}
+
+.prompt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  height: calc(var(--icon) * 0.6);
+  padding: 0 14px 0 8px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: rgb(255 255 255 / 0.1);
+  color: rgb(235 235 245 / 0.6);
+  font-size: 15px;
+  text-align: left;
+}
+
+.prompt:active {
+  background: rgb(255 255 255 / 0.16);
+}
+
+.promptMark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: calc(var(--icon) * 0.42);
+  height: calc(var(--icon) * 0.42);
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.14);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.promptText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.projects {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.project {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+}
+
+.circle {
+  display: grid;
+  place-items: center;
+  width: calc(var(--icon) * 0.72);
+  height: calc(var(--icon) * 0.72);
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.12);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.project:active .circle {
+  transform: scale(0.9);
+}
+
+.projectName {
+  color: rgb(235 235 245 / 0.6);
+  font-size: 10px;
+  font-weight: 500;
+}
+
+/* The Search pill above the dock, as on iOS 18+. */
+.searchPill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  flex: none;
+  align-self: center;
+  width: var(--pill-width);
+  height: var(--pill-height);
+  margin-bottom: var(--pill-gap);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: rgb(38 38 42 / 0.55);
+  backdrop-filter: blur(20px);
+  box-shadow: inset 0 0 0 0.5px rgb(255 255 255 / 0.12);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.searchPill:active {
+  background: rgb(60 60 66 / 0.7);
+}
+
+/* The dock: a big frosted pill of four icons, the same size as the grid's. */
+.dock {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  justify-items: center;
+  flex: none;
+  margin: 0 max(10px, env(safe-area-inset-right)) 0 max(10px, env(safe-area-inset-left));
+  padding: calc(var(--gap) * 0.75) calc(var(--gap) * 0.5);
+  border-radius: calc(var(--icon) * 0.46);
+  background: rgb(38 38 42 / 0.5);
+  backdrop-filter: blur(24px) saturate(1.6);
+  box-shadow: inset 0 0 0 0.5px rgb(255 255 255 / 0.12);
+}
+
+/*
+  Phone on its side: everything in one row of eight cells (Me, the four
+  icons, Now building), with a compact dock centred underneath.
+*/
+.home[data-landscape] .page {
+  padding-inline: max(var(--margin), env(safe-area-inset-left)) max(var(--margin), env(safe-area-inset-right));
+}
+
+.home[data-landscape] .grid {
+  grid-template-columns: repeat(8, var(--icon));
+}
+
+.home[data-landscape] .building {
+  grid-column: 5 / span 4;
+  grid-row: 1 / span 2;
+}
+
+.home[data-landscape] .dock {
+  grid-template-columns: repeat(4, var(--icon));
+  column-gap: calc(var(--gap) * 1.5);
+  align-self: center;
+  margin: 0;
+  padding: calc(var(--gap) * 0.6) var(--gap);
+}

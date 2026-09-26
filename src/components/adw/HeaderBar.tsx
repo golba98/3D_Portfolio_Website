@@ -12,14 +12,12 @@ interface HeaderBarProps {
   end?: ReactNode;
   /** Sidebar header bars take the sidebar's colour. */
   variant?: 'default' | 'sidebar';
-  /** First header bar in the window: on the phone shell it gets the way home. */
-  leading?: boolean;
   /** Last header bar in the window: in a floating window it gets the close button. */
   trailing?: boolean;
 }
 
 /** AdwHeaderBar: the app's title bar, drag handle and toolbar in one. */
-export function HeaderBar({ title, subtitle, start, end, variant = 'default', leading = true, trailing = true }: HeaderBarProps) {
+export function HeaderBar({ title, subtitle, start, end, variant = 'default', trailing = true }: HeaderBarProps) {
   const frame = useAppFrame();
   const win = frame?.kind === 'window' ? frame : null;
   const mobile = frame?.kind === 'mobile' ? frame : null;
@@ -34,12 +32,13 @@ export function HeaderBar({ title, subtitle, start, end, variant = 'default', le
       className={styles.headerbar}
       data-variant={variant}
       data-backdrop={win ? !win.focused : undefined}
+      // On the phone shell it becomes an iOS navigation bar (HeaderBar.module.css).
+      data-platform={mobile ? 'ios' : undefined}
       onPointerDown={win?.startDrag}
       onDoubleClick={win ? onDoubleClick : undefined}
       onContextMenu={win?.openMenu}
     >
       <div className={styles.start}>
-        {mobile && leading && <HeaderButton icon="back" label="Back to home" onClick={mobile.goHome} />}
         {start}
       </div>
       {title !== undefined && (

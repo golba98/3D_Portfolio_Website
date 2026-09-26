@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { formatPath, getNode, HOME, HOME_PATH, isSamePath } from '../../data/filesystem';
 import { HeaderButton } from '../../components/adw/HeaderBar';
 import { SplitView } from '../../components/adw/SplitView';
+import { useAppFrame, useBackHandler } from '../../components/adw/frame';
 import { Icon, type IconName } from '../../components/icons/Icon';
 import { useElementWidth } from '../../hooks/useElementWidth';
 import type { AppProps } from '../../types/apps';
@@ -22,6 +23,11 @@ const SPLIT_MIN_WIDTH = 560;
 function iconFor(node: FsNode): string {
   if (node.kind === 'dir') return '/icons/files/folder.svg';
   return node.binary ? '/icons/files/x-office-document.svg' : '/icons/files/text-x-generic.svg';
+}
+
+/** A folder's name as a back button shows it: its last segment, or "Home". */
+function folderName(path: FsPath): string {
+  return isSamePath(path, HOME_PATH) ? 'Home' : (path[path.length - 1] ?? 'Back');
 }
 
 /** Files deep links arrive as "home/jordan/Projects". */
@@ -71,6 +77,14 @@ export default function Files({ arg, openApp }: AppProps) {
     setPath(next);
     setPreview(null);
   };
+
+  // On the phone there's an iOS back button (and the edge swipe) instead of a back/forward pair.
+  const onPhone = useAppFrame()?.kind === 'mobile';
+  const previous = back[back.length - 1];
+  // On the phone, Back closes the preview, then walks back up the folders; from Places it returns to the folder.
+  useBackHandler(back.length > 0, goBack);
+  useBackHandler(collapsed && showPlaces, () => setShowPlaces(false));
+  useBackHandler(preview !== null, () => setPreview(null));
 
   const activate = (child: FsNode): void => {
     if (child.kind === 'dir') navigate([...path, child.name]);
@@ -176,13 +190,18 @@ export default function Files({ arg, openApp }: AppProps) {
       showContent={!showPlaces}
       onBack={() => setShowPlaces(true)}
       backLabel="Show places"
+      backIcon="sidebar"
+      gestureBack={false}
       sidebarLabel="Places"
       sidebarWidth={200}
       sidebarHeader={{ title: 'Files' }}
       sidebar={places}
       contentHeader={{
         title: pathBar,
-        start: (
+        start: onPhone ? (
+          // iOS: one back button, named after the folder it returns to.
+          previous && <HeaderButton icon="back" label="Back" text={folderName(previous)} onClick={goBack} />
+        ) : (
           <>
             <HeaderButton icon="back" label="Back" onClick={goBack} disabled={back.length === 0} />
             <HeaderButton icon="chevron" label="Forward" onClick={goForward} disabled={forward.length === 0} />
