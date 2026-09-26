@@ -2,7 +2,7 @@ import { useLayoutEffect, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import { Box3, Matrix4, Mesh, MeshPhysicalMaterial, MeshStandardMaterial, Quaternion, Vector3, type Object3D } from 'three';
-import { LED_MATERIALS, MODEL_NODES, MODEL_PLACEMENT, MODEL_URL, RENDER } from '../../config/scene';
+import { LED_MATERIALS, MODEL_NODES, MODEL_PLACEMENT, MODEL_URL, PHONE_PLACEMENT, RENDER } from '../../config/scene';
 import { useSceneLayout } from '../../store/sceneLayout';
 import { useExperience } from '../../store/experience';
 import { clamp, easeInOutCubic } from '../../lib/math';
@@ -24,8 +24,14 @@ export function SetupModel() {
     const offset = new Vector3(-(desk.min.x + desk.max.x) / 2, -desk.max.y, -(desk.min.z + desk.max.z) / 2).multiplyScalar(s);
     const toDesk = (v: Vector3): Vec3 => [v.x * s + offset.x, v.y * s + offset.y, v.z * s + offset.z];
 
+    // Slide the phone out from behind the chair. Measured from its current
+    // bounds, so a remount with the cached scene leaves it where it is.
+    const phoneNode = requireNode(scene, MODEL_NODES.phone);
+    const phoneCenterX = boundsInModel(scene, phoneNode).getCenter(new Vector3()).x;
+    phoneNode.position.x += (PHONE_PLACEMENT.centerX - offset.x) / s - phoneCenterX;
+
     const monitor = boundsInModel(scene, requireNode(scene, MODEL_NODES.monitorCenter));
-    const phone = boundsInModel(scene, requireNode(scene, MODEL_NODES.phone));
+    const phone = boundsInModel(scene, phoneNode);
     const pcCase = boundsInModel(scene, requireNode(scene, MODEL_NODES.pcCase));
     const chair = requireNode(scene, MODEL_NODES.chair);
     return {
