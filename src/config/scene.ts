@@ -41,6 +41,13 @@ export const MODEL_PLACEMENT = {
   anchorNode: MODEL_NODES.desk,
 } as const;
 
+/**
+ * Where the phone lies on the desk: the desk-space x of its centre, in the gap
+ * between the keyboard and the mouse. Overrides the Blender export, which puts
+ * it left of the keyboard where the chair hides it; drop this once it's moved there.
+ */
+export const PHONE_PLACEMENT = { centerX: 0.448 } as const;
+
 export const RENDER = {
   /** Device-pixel-ratio clamps. Nobody needs a 3× render of a dark desk. */
   dpr: {
