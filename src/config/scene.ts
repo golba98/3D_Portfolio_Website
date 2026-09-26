@@ -97,5 +97,10 @@ export const SCREEN = {
   tapLabel: 'Tap the screen to enter',
   /** Phones enter through the phone on the desk instead. */
   phoneTapLabel: 'Tap the phone to enter',
+  /** On screens that enter through the monitor, the phone opens the phone version instead. */
+  phoneHoverLabel: 'Try the phone version',
+  /** The whiteboard's cue, in place of a "Draw" button. */
+  boardHoverLabel: 'Want to draw?',
+  boardTapLabel: 'Tap the board to draw',
   labelLift: 0.012,
 } as const;

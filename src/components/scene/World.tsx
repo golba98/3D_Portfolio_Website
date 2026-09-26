@@ -7,7 +7,7 @@ import { RENDER } from '../../config/scene';
 import { useDeviceTier } from '../../hooks/useDeviceTier';
 import { useExperience } from '../../store/experience';
 import { LoadingScreen } from '../ui/LoadingScreen';
-import { MonitorLabel } from '../ui/MonitorLabel';
+import { SceneLabels } from '../ui/SceneLabels';
 import { WorldOverlay } from '../ui/WorldOverlay';
 import { SetupScene } from './SetupScene';
 import styles from './World.module.css';
@@ -49,7 +49,7 @@ export default function World() {
           </Suspense>
         </Canvas>
       </ErrorBoundary>
-      <MonitorLabel />
+      <SceneLabels />
       <LoadingScreen />
       <WorldOverlay />
     </div>

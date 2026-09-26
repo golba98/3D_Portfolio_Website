@@ -1,11 +1,13 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useCursor } from '@react-three/drei';
-import { type ThreeEvent } from '@react-three/fiber';
+import { useFrame, type ThreeEvent } from '@react-three/fiber';
 import { CanvasTexture, DoubleSide, Matrix4, Quaternion, SRGBColorSpace, Vector3 } from 'three';
+import { SCREEN } from '../../config/scene';
 import { clamp } from '../../lib/math';
 import { isTap } from '../../lib/touchLook';
 import { BOARD_COLORS, useBoardDrawing, type BoardPoint, type BoardStroke } from '../../store/boardDrawing';
 import { useExperience } from '../../store/experience';
+import { pinLabel, useSceneHover } from '../../store/sceneHover';
 import { useSceneLayout } from '../../store/sceneLayout';
 
 const WIDTH = 1024;
@@ -44,7 +46,8 @@ export function BoardInteraction() {
   const openBoard = useExperience((s) => s.openBoard);
   const keyboardCursor = useBoardDrawing((s) => s.keyboardCursor);
   const keyboardFocused = useBoardDrawing((s) => s.keyboardFocused);
-  const [hovered, setHovered] = useState(false);
+  const hovered = useSceneHover((s) => s.hovered === 'board');
+  const setHovered = useSceneHover((s) => s.setHovered);
   const pointer = useRef<number | null>(null);
   useCursor(hovered && phase === 'exploring');
 
@@ -89,8 +92,14 @@ export function BoardInteraction() {
     const right = up.clone().cross(normal).normalize();
     const quaternion = new Quaternion().setFromRotationMatrix(new Matrix4().makeBasis(right, up, normal));
     const center = new Vector3(...board.center).addScaledVector(normal, 0.004);
-    return { center, quaternion };
+    // The "Want to draw?" label sits just above the board's top edge.
+    const labelAt = new Vector3(...board.center).addScaledVector(up, board.height / 2 + SCREEN.labelLift);
+    return { center, quaternion, labelAt: [labelAt.x, labelAt.y, labelAt.z] as const };
   }, [board]);
+
+  useFrame(({ camera, size }) => {
+    if (placement) pinLabel('board', [...placement.labelAt], camera, size);
+  });
 
   if (!board || !placement) return null;
 
@@ -100,7 +109,9 @@ export function BoardInteraction() {
   // Exploring, a tap opens the board; on click, so a drag across it slides the view instead.
   const onClick = (event: ThreeEvent<MouseEvent>): void => {
     event.stopPropagation();
-    if (phase === 'exploring' && isTap(event.delta)) openBoard();
+    if (phase !== 'exploring' || !isTap(event.delta)) return;
+    setHovered('board', false);
+    openBoard();
   };
 
   const onDown = (event: ThreeEvent<PointerEvent>): void => {
@@ -132,7 +143,7 @@ export function BoardInteraction() {
 
   return (
     <group position={placement.center} quaternion={placement.quaternion}>
-      <mesh onPointerOver={() => setHovered(true)} onPointerOut={() => setHovered(false)}
+      <mesh onPointerOver={() => setHovered('board', true)} onPointerOut={() => setHovered('board', false)}
         onClick={onClick} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onEnd} onPointerCancel={onEnd}>
         <planeGeometry args={[board.width * 0.997, board.height * 0.997]} />
         <meshBasicMaterial map={drawing.texture} transparent depthWrite={false} side={DoubleSide} toneMapped={false} />

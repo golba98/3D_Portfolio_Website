@@ -4,7 +4,6 @@ import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { useExperience } from '../../store/experience';
 import styles from './WorldOverlay.module.css';
 import { BoardToolbar } from './BoardToolbar';
-import { useLookStops } from '../../lib/touchLook';
 import { DevicePrompt } from './DevicePrompt';
 import { TouchNav } from './TouchNav';
 
@@ -19,9 +18,6 @@ export function WorldOverlay() {
   const openBoard = useExperience((s) => s.openBoard);
   const closeBoard = useExperience((s) => s.closeBoard);
   const touch = useMediaQuery('(pointer: coarse)');
-  const nearest = useLookStops((s) => s.nearest);
-  // On touch screens the board has its own jump button, so "Draw" only shows once you're looking at it.
-  const drawVisible = phase === 'exploring' && (!touch || nearest === 'board');
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent): void => {
@@ -49,10 +45,13 @@ export function WorldOverlay() {
         Skip intro {!touch && <kbd>Esc</kbd>}
       </button>
 
-      <button type="button" className={styles.draw} data-visible={drawVisible} data-touch={touch}
-        tabIndex={drawVisible ? 0 : -1} onClick={openBoard}>
-        Draw on board <span aria-hidden="true">↗</span>
-      </button>
+      {/* Pointers open the board by clicking it (its "Want to draw?" label is the cue);
+          this is the keyboard's way in, shown only while focused. */}
+      {phase === 'exploring' && (
+        <button type="button" className={styles.draw} onClick={openBoard}>
+          Draw on board <span aria-hidden="true">↗</span>
+        </button>
+      )}
       {touch && <TouchNav visible={phase === 'exploring'} />}
       <BoardToolbar />
       <DevicePrompt />
