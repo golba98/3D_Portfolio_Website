@@ -76,7 +76,7 @@ export const projects: readonly Project[] = [
     proof:
       'On npm as ubume, now v0.1.0 — renamed from @golba98/codexa, which shipped 27 releases from May to September 2026 (1.0.1 to 1.0.28). Six provider routes work — those five CLIs plus any OpenAI-compatible local server — with two Codexa Native runtimes held behind a dev build.',
     technologies: ['TypeScript', 'Bun', 'Ink', 'npm'],
-    github: 'https://github.com/golba98/Ubume',
+    github: 'https://github.com/golba98/Ubume-cli',
     npm: {
       name: 'ubume',
       version: '0.1.0',
@@ -143,7 +143,7 @@ export const projects: readonly Project[] = [
     proof:
       'The base run completed 10,000 optimizer steps and 655,360,000 tokens on CUDA with bf16 and AdamW8bit. Conversational SFT v2 then completed 6,000 steps and 103,459,920 tokens, reaching 1.5768 training loss and 2.0316 validation loss.',
     technologies: ['PyTorch', 'Python', 'bf16', 'BPE tokenizer', 'CUDA'],
-    github: 'https://github.com/golba98/LLM-Codexa-v1',
+    github: 'https://github.com/golba98/LLM-Codexa-v1-PyTorch',
     active: true,
   },
 ];
