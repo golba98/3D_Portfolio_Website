@@ -34,7 +34,7 @@ export const CAMERA_POSES: PoseSet = {
     introSide: { position: [0.24, 1.18, 2.95], target: [0.24, 0.24, 0.10], fov: 56 },
     chairReach: { position: [0.12, 0.82, 2.45], target: [0.18, 0.13, 0.78], fov: 59 },
     chairPass: { position: [0.42, 0.82, 1.80], target: [0.22, 0.28, -0.22], fov: 58 },
-    presentation: { position: [0.02, 0.98, 1.72], target: [0.0, 0.20, -0.20], fov: 56 },
+    presentation: { position: [0.22, 0.98, 1.72], target: [0.20, 0.20, -0.20], fov: 56 },
   },
 };
 
