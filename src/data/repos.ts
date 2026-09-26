@@ -14,8 +14,8 @@ export const reposSection = {
  */
 const blurbs: ReadonlyArray<readonly [name: string, description: string]> = [
   ['SyncroEdit', 'Collaborative document workspace with in-document chat. Yjs CRDTs over WebSockets, coordinated by Cloudflare Durable Objects.'],
-  ['Ubume', 'Ubume, a terminal UI for coding agents — the Codex, Claude Code, Gemini, Mistral Vibe, and Antigravity CLIs, and local models. Published on npm as ubume.'],
-  ['LLM-Codexa-v1', 'A 934M-parameter decoder-only transformer trained from scratch in PyTorch, with native conversational SFT inference.'],
+  ['Ubume-cli', 'Ubume, a terminal UI for coding agents — the Codex, Claude Code, Gemini, Mistral Vibe, and Antigravity CLIs, and local models. Published on npm as ubume.'],
+  ['LLM-Codexa-v1-PyTorch', 'A 934M-parameter decoder-only transformer trained from scratch in PyTorch, with native conversational SFT inference.'],
   ['Movie_App', 'Account-based movie and TV app. React 19 and a Cloudflare Worker proxying TMDB, with D1-backed accounts.'],
   ['Game_Development', 'Top-down RPG engine in p5.js and PixiJS. Perlin-noise terrain, carved rivers, cellular-automata hills, and a flood fill that checks the world is playable.'],
   ['Cue-Helper', 'Fedora-first desktop assistant driving already-authenticated coding CLIs, with local whisper.cpp transcription.'],

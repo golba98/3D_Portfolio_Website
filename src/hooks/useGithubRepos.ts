@@ -49,7 +49,8 @@ function writeCache(data: GithubApiRepo[]): void {
  * (no token) only adds language, stars and dates, plus any repos made since.
  */
 function merge(api: GithubApiRepo[]): Repo[] {
-  const own = api.filter((repo) => !repo.fork);
+  // The repo named after the account only holds the GitHub profile README.
+  const own = api.filter((repo) => !repo.fork && repo.name !== profile.githubUsername);
   const byName = new Map(own.map((repo) => [repo.name, repo]));
   const toRepo = (repo: GithubApiRepo): Repo => ({
     name: repo.name,
