@@ -1,6 +1,6 @@
 /**
  * The machine behind the desk model. The previous site never listed hardware,
- * so only facts it states are filled in; every `null` is a slot to fill in
+ * so only facts it states or the owner has confirmed are filled in; every `null` is a slot to fill in
  * later. Unset rows are hidden from visitors (System Info, neofetch, Files).
  */
 export interface HardwareSpec {
@@ -44,7 +44,7 @@ export const hardware: Hardware = {
   cooling: { label: 'Cooling', value: null },
   case: { label: 'Case', value: null },
   displays: { label: 'Displays', value: null },
-  keyboard: { label: 'Keyboard', value: null },
+  keyboard: { label: 'Keyboard', value: 'Keychron K2 HE Black', source: 'Owner confirmation and reference photographs, 2026-10-15' },
   mouse: { label: 'Mouse', value: null },
 };
 

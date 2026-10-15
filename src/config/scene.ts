@@ -29,10 +29,10 @@ export const MODEL_NODES = {
 } as const;
 
 /**
- * The PC's red LED materials. They skip tone mapping so ACES doesn't shift
+ * The PC and keyboard's red LED materials. They skip tone mapping so ACES doesn't shift
  * them towards orange; they are light sources, so clamping to pure red is the look we want.
  */
-export const LED_MATERIALS = /^(PC3_LED_Red|PC3_Fan_Diffuser|PC3_TopFan_Blades|PC5_Pump_Ring_\d+|PC7_ROG_Outline)$/;
+export const LED_MATERIALS = /^(PC3_LED_Red|PC3_Fan_Diffuser|PC3_TopFan_Blades|PC5_Pump_Ring_\d+|PC7_ROG_Outline|Keychron30_Switch_LED)$/;
 
 export const MODEL_PLACEMENT = {
   /** The Blender export is already in metres. */

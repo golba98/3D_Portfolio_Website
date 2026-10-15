@@ -49,13 +49,21 @@ Both flags are stripped from production builds. Poses are in
 
 ## Hardware
 
-`src/data/hardware.ts` only contains facts the previous site stated. Fill in the
+`src/data/hardware.ts` contains hardware facts from the previous site and owner
+confirmations. Fill in the
 `null` fields (CPU, GPU model, RAM, …) and they appear in System Info,
 `neofetch` and `hardware`.
 
+The keyboard is a Keychron K2 HE Black, confirmed by the owner. Its 3D model
+matches the supplied photographs: black case and keycaps, red backlighting,
+and a left-side USB cable.
+
 ## Credits
 
-- Desktop wallpaper: Windows 11 "Bloom" (dark), © Microsoft — `public/wallpaper.webp`.
+- Linux desktop wallpaper: black abstract wallpaper supplied by the owner as
+  `tester1.png` on 2026-10-15; original authorship unspecified — `public/wallpaper.webp`.
+  The same image is embedded in all three monitors in the Blender export and
+  used by the website's live monitor preview and Linux desktop.
 - Phone wallpapers: iPhone 15 Pro "Black Titanium" (Home Screen and Lock Screen
   variants), © Apple, via iClarified — `public/wallpaper-iphone.webp`,
   `public/wallpaper-iphone-lock.webp`.

@@ -15,7 +15,7 @@ interface ScreenSurfaceProps {
 
 /**
  * The desktop preview, on a plane fitted over the physical panel. (The
- * exported screen mesh has no UVs, so it can't carry a texture itself.)
+ * exported screen carries the static wallpaper; this adds the live GNOME UI.)
  */
 export function ScreenSurface({ screen, brightness }: ScreenSurfaceProps) {
   const texture = useDesktopPreviewTexture(screen);
