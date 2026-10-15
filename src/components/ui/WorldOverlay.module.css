@@ -66,18 +66,12 @@
   color: var(--world-fg);
   font-weight: 600;
   backdrop-filter: blur(8px);
+  /* Keyboard only: off-screen until tabbed to (pointers click the board itself). */
+  transform: translateY(calc(100% + 48px));
+  transition: transform var(--duration-base) var(--ease-out);
 }
 
-.draw:hover { border-color: rgb(255 255 255 / 0.55); }
-
-@media (max-width: 600px) {
-  .draw { bottom: max(18px, env(safe-area-inset-bottom)); right: max(16px, env(safe-area-inset-right)); }
-}
-
-/* Touch: centred above the look-around buttons (TouchNav), in the caption's slot. */
-.draw[data-touch='true'] {
-  right: 50%;
-  bottom: calc(max(20px, env(safe-area-inset-bottom)) + 56px);
-  translate: 50% 0;
-  z-index: 1;
+.draw:focus-visible {
+  transform: none;
+  pointer-events: auto;
 }
