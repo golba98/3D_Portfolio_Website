@@ -1,5 +1,5 @@
 import { useLayoutEffect, useMemo } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import { Box3, Matrix4, Mesh, MeshPhysicalMaterial, MeshStandardMaterial, Quaternion, Vector3, type Object3D } from 'three';
 import { LED_MATERIALS, MODEL_NODES, MODEL_PLACEMENT, MODEL_URL, PHONE_PLACEMENT, RENDER } from '../../config/scene';
@@ -14,6 +14,7 @@ useGLTF.preload(MODEL_URL, false, true);
 /** Loads the Blender export and places it so the desk top sits at the origin. */
 export function SetupModel() {
   const { scene } = useGLTF(MODEL_URL, false, true);
+  const gl = useThree((state) => state.gl);
   const setLayout = useSceneLayout((s) => s.setLayout);
 
   // All measurements are taken relative to the glTF root, so they don't depend
@@ -79,6 +80,16 @@ export function SetupModel() {
       const materials: unknown[] = Array.isArray(object.material) ? object.material : [object.material];
       for (const material of materials) {
         if (!(material instanceof MeshStandardMaterial)) continue;
+        // Printed legends are seen at a grazing angle from the desk camera.
+        // Respect the device limit while retaining detail in their mipmaps.
+        for (const texture of [material.map, material.emissiveMap]) {
+          if (!texture?.name.startsWith('Keychron_Legends_')) continue;
+          const anisotropy = Math.min(8, gl.capabilities.getMaxAnisotropy());
+          if (texture.anisotropy !== anisotropy) {
+            texture.anisotropy = anisotropy;
+            texture.needsUpdate = true;
+          }
+        }
         if (LED_MATERIALS.test(material.name)) {
           material.toneMapped = false;
           material.needsUpdate = true;
@@ -90,7 +101,7 @@ export function SetupModel() {
         material.needsUpdate = true;
       }
     });
-  }, [scene]);
+  }, [scene, gl]);
 
   return (
     <group position={layout.offset} scale={MODEL_PLACEMENT.scale}>

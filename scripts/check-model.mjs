@@ -68,4 +68,24 @@ if (missing.length) {
   console.error(`\nMISSING required nodes: ${missing.join(', ')}`);
   process.exit(1);
 }
-console.log('\nOK — all required nodes present.');
+// The rebuilt keyboard uses separate colour and emissive legend atlases.
+// A generic 1K texture resize makes these small glyphs unreadable.
+const keyboardErrors = [];
+for (const name of ['Keychron_Legends_Base', 'Keychron_Legends_Emission']) {
+  const texture = root.listTextures().find((t) => t.getName() === name);
+  const size = texture?.getSize();
+  if (!size || size[0] < 2048 || size[1] < 2048) {
+    keyboardErrors.push(`${name} must retain at least 2048×2048 pixels`);
+  }
+  const attached = root.listMaterials().some((material) =>
+    material.getBaseColorTexture() === texture || material.getEmissiveTexture() === texture);
+  if (texture && !attached) keyboardErrors.push(`${name} is not attached to a material`);
+}
+if (!root.listMaterials().some((m) => m.getName() === 'Keychron30_Switch_LED')) {
+  keyboardErrors.push('Missing keyboard switch LED material');
+}
+if (keyboardErrors.length) {
+  console.error(`\nKeyboard validation failed: ${keyboardErrors.join('; ')}`);
+  process.exit(1);
+}
+console.log('\nOK — required nodes and keyboard textures present.');
