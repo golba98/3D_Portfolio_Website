@@ -13,6 +13,34 @@ npm run build        # typecheck + production build
 npm run lint
 ```
 
+## Deployment and security
+
+The current deployment uses Cloudflare Workers static assets, configured in
+`wrangler.jsonc`. Build with `npm ci && npm run build`; the output is `dist`.
+For Cloudflare Pages, use build command `npm run build` and output directory
+`dist`. Deploy only the build output, never the repository or `assets-src`.
+
+`public/_headers` is copied into the build and supplies CSP, framing and MIME
+protections, referrer and permissions policies, and HSTS. The CSP allows inline
+styles for React/Framer Motion, embedded fonts, blob textures, and WebAssembly
+for the 3D model decoder. GitHub's public API is the only external connection.
+Vite preview does not apply Cloudflare's `_headers` rules.
+
+In Cloudflare's dashboard, select `jordanvorsterwebsite.online`, then **SSL/TLS →
+Edge Certificates → Always Use HTTPS** and enable it. HSTS does not replace the
+HTTP redirect for first-time visitors. After deployment, verify that HTTP
+requests redirect to HTTPS while preserving paths and queries, and that HTTPS
+responses include the headers in `_headers`.
+
+Before a release, run `npm run lint`, `npm run build`, `npm run model:check`, and
+`npm audit`. Check the desktop, phone interface, 3D scene, and CV download on the
+deployed site. When replacing the public CV, purge its URL from Cloudflare's
+cache and verify the downloaded PDF contains no phone number. Older versions
+remain accessible in public Git history; replacing the file does not erase them.
+
+Keep credentials out of `public/` and frontend code: everything in the built
+site is public, including any Vite `VITE_*` environment variables used by code.
+
 ## Structure
 
 | Path | What lives there |
