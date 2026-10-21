@@ -311,7 +311,8 @@ export function complete(input: string, cwd: FsPath): Completion {
     return { value: commonPrefix(matches) || current, options: matches.length > 1 ? matches : [] };
   }
 
-  const command = COMMANDS[parts[0] ?? ''];
+  const name = parts[0] ?? '';
+  const command = Object.hasOwn(COMMANDS, name) ? COMMANDS[name] : undefined;
   const slash = current.lastIndexOf('/');
   const dirPart = slash >= 0 ? current.slice(0, slash + 1) : '';
   const namePart = slash >= 0 ? current.slice(slash + 1) : current;

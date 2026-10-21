@@ -130,7 +130,7 @@ export default function Terminal({ openApp, setTitle }: AppProps) {
       columns: measureColumns(terminalRef.current),
     };
 
-    const handler = COMMANDS[name];
+    const handler = Object.hasOwn(COMMANDS, name) ? COMMANDS[name] : undefined;
     const output = handler ? handler.run(args, ctx) : [[{ text: `zsh: command not found: ${name}`, tone: 'error' as const }]];
     setStatus(handler ? (failed(output) ? 1 : 0) : 127);
     setCwd(nextCwd);
