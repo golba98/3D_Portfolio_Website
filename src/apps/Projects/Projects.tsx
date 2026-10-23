@@ -84,7 +84,7 @@ export default function Projects({ arg }: AppProps) {
       sidebar={sidebar}
       contentHeader={{
         title: shown ? titleFor(shown) : '',
-        end: project ? <HeaderLink icon="github" label="View source on GitHub" href={project.github} /> : undefined,
+        end: project?.github ? <HeaderLink icon="github" label="View source on GitHub" href={project.github} /> : undefined,
       }}
       content={shown && renderDetail(shown)}
       contentRef={contentRef}

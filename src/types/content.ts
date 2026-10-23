@@ -64,7 +64,8 @@ export interface Project {
   /** Technical details that back up the summary. */
   proof: string;
   technologies: readonly string[];
-  github: string;
+  /** Repository URL. Omitted when the source is not public. */
+  github?: string;
   demo?: string;
   image?: ProjectImage;
   npm?: NpmPackage;

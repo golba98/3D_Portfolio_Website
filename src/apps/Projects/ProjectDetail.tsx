@@ -120,12 +120,16 @@ export function ProjectDetail({ project, compact }: ProjectDetailProps) {
         </section>
       )}
 
-      <section className={ui.section} aria-label="Links">
-        <ul className={ui.list}>
-          <ActionRow icon="github" title="View Source" subtitle={project.github.replace(/^https:\/\//, '')} href={project.github} />
-          {project.demo && <ActionRow icon="external" title="Live Demo" subtitle={project.demo.replace(/^https:\/\//, '')} href={project.demo} />}
-        </ul>
-      </section>
+      {(project.github || project.demo) && (
+        <section className={ui.section} aria-label="Links">
+          <ul className={ui.list}>
+            {project.github && (
+              <ActionRow icon="github" title="View Source" subtitle={project.github.replace(/^https:\/\//, '')} href={project.github} />
+            )}
+            {project.demo && <ActionRow icon="external" title="Live Demo" subtitle={project.demo.replace(/^https:\/\//, '')} href={project.demo} />}
+          </ul>
+        </section>
+      )}
 
       {project.id === 'llm' && <ModelSection />}
     </article>
