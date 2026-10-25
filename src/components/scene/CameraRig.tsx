@@ -20,6 +20,7 @@ import {
   type CameraState,
 } from '../../lib/cameraMath';
 import { debugFlags } from '../../lib/debugFlags';
+import { shelfFocusPose } from '../../lib/poemPaper';
 import { clamp, easeInOutCubic, lerp } from '../../lib/math';
 import { clampLook, look, nearestStop, resetLook, useLookStops, type LookStops } from '../../lib/touchLook';
 import { useExperience } from '../../store/experience';
@@ -137,7 +138,7 @@ export function CameraRig() {
   const previousPhase = useRef(phase);
 
   useEffect(() => {
-    const { finishIntro, arriveAtMonitor, boardArrived } = useExperience.getState();
+    const { finishIntro, arriveAtMonitor, boardArrived, shelfArrived } = useExperience.getState();
     const cut = (onDone: () => void, delay: number): Tween => ({
       from: copyCameraState(state.current),
       to: () => state.current,
@@ -181,8 +182,28 @@ export function CameraRig() {
         };
         break;
 
+      case 'viewing-shelf':
+        look.velocity = 0;
+        tween.current = {
+          from: copyCameraState(state.current),
+          to: (aspect) => {
+            const shelf = useSceneLayout.getState().bottomShelf;
+            return shelf ? createCameraState(shelfFocusPose(shelf, aspect)) : state.current;
+          },
+          delay: 0,
+          duration: reducedMotion ? 0.001 : TIMINGS.poemMove,
+          onDone: shelfArrived,
+          elapsed: 0,
+        };
+        break;
+
+      case 'viewing-poem':
+        // The paper comes to the visitor; hold the shelf camera still.
+        tween.current = null;
+        break;
+
       case 'exploring':
-        tween.current = previousPhase.current === 'viewing-board'
+        tween.current = previousPhase.current === 'viewing-board' || previousPhase.current === 'viewing-shelf'
           ? {
               from: copyCameraState(state.current),
               to: (aspect) => createCameraState(lookedAtPose(aspect)),
@@ -291,6 +312,9 @@ export function CameraRig() {
     } else if (currentPhase === 'viewing-board') {
       const board = useSceneLayout.getState().board;
       if (board) setCameraState(current, boardFocusPose(board, aspect));
+    } else if (currentPhase === 'viewing-shelf' || currentPhase === 'viewing-poem') {
+      const shelf = useSceneLayout.getState().bottomShelf;
+      if (shelf) setCameraState(current, shelfFocusPose(shelf, aspect));
     }
 
     camera.position.copy(current.position);

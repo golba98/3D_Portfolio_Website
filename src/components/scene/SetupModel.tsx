@@ -34,9 +34,26 @@ export function SetupModel() {
     const monitor = boundsInModel(scene, requireNode(scene, MODEL_NODES.monitorCenter));
     const phone = boundsInModel(scene, phoneNode);
     const pcCase = boundsInModel(scene, requireNode(scene, MODEL_NODES.pcCase));
+    // Both slabs were merged by model optimization. Split actual vertices,
+    // not the combined bounding box (which also spans the empty space).
+    const shelfNode = requireNode(scene, MODEL_NODES.shelfSlabs);
+    const shelves = boundsInModel(scene, shelfNode);
+    const shelfVertices: Vector3[] = [];
+    shelfNode.traverse((child) => {
+      if (!(child instanceof Mesh)) return;
+      const positions = child.geometry.getAttribute('position');
+      const matrix = matrixInModel(scene, child);
+      for (let i = 0; i < positions.count; i++) {
+        const vertex = new Vector3().fromBufferAttribute(positions, i).applyMatrix4(matrix);
+        if (vertex.y < (shelves.min.y + shelves.max.y) / 2) shelfVertices.push(vertex);
+      }
+    });
+    const bottomShelf = new Box3().setFromPoints(shelfVertices);
+    if (bottomShelf.isEmpty()) throw new Error('The bottom shelf could not be measured.');
     const chair = requireNode(scene, MODEL_NODES.chair);
     return {
       offset,
+      bottomShelf: { min: toDesk(bottomShelf.min), max: toDesk(bottomShelf.max) },
       screen: measureScreen(scene, requireNode(scene, MODEL_NODES.centerScreen), toDesk, s),
       board: measureScreen(scene, requireNode(scene, MODEL_NODES.boardSurface), toDesk, s),
       monitorBounds: { min: toDesk(monitor.min), max: toDesk(monitor.max) },
@@ -54,6 +71,7 @@ export function SetupModel() {
     setLayout({
       screen: layout.screen,
       board: layout.board,
+      bottomShelf: layout.bottomShelf,
       monitorBounds: layout.monitorBounds,
       pcCaseCenter: layout.pcCaseCenter,
       phoneScreen: layout.phoneScreen,

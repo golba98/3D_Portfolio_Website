@@ -1,5 +1,7 @@
 /** All experience timings, in seconds. */
 export const TIMINGS = {
+  /** Inspect the shelf, then lift the discovered page. */
+  poemMove: 0.9,
   /** Fade from black once the model is ready. */
   introFade: 1.1,
   /** Pause while the opening fade reveals the setup. */

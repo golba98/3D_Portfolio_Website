@@ -14,6 +14,8 @@ export type ExperiencePhase =
   | 'intro'
   | 'exploring'
   | 'viewing-board'
+  | 'viewing-shelf'
+  | 'viewing-poem'
   | 'entering-monitor'
   | 'desktop'
   | 'fallback';

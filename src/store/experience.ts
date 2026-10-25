@@ -5,8 +5,10 @@ import type { EntryDevice, ExperiencePhase, SceneStatus } from '../types/experie
 const TRANSITIONS: Readonly<Record<ExperiencePhase, readonly ExperiencePhase[]>> = {
   loading: ['intro', 'desktop', 'fallback'],
   intro: ['exploring', 'entering-monitor', 'desktop', 'fallback'],
-  exploring: ['viewing-board', 'entering-monitor', 'desktop', 'fallback'],
+  exploring: ['viewing-board', 'viewing-shelf', 'entering-monitor', 'desktop', 'fallback'],
   'viewing-board': ['exploring', 'desktop', 'fallback'],
+  'viewing-shelf': ['viewing-poem', 'exploring', 'desktop', 'fallback'],
+  'viewing-poem': ['viewing-shelf', 'desktop', 'fallback'],
   'entering-monitor': ['desktop', 'exploring', 'fallback'],
   desktop: ['loading', 'exploring', 'fallback'],
   fallback: ['desktop'],
@@ -24,6 +26,15 @@ interface ExperienceState {
   introSkipped: boolean;
   introProgress: number;
   boardReady: boolean;
+  poemDiscovered: boolean;
+  shelfReady: boolean;
+  poemReady: boolean;
+  inspectShelf: () => void;
+  shelfArrived: () => void;
+  openPoem: () => void;
+  poemArrived: () => void;
+  closePoem: () => void;
+  leaveShelf: () => void;
   /** The visitor chose the other device's version anyway; cleared when they leave it. */
   entryOverride: EntryDevice | null;
   /** The other device they tapped, while its "made for …" pop-up is up. */
@@ -72,6 +83,30 @@ export const useExperience = create<ExperienceState>()((set, get) => {
     introSkipped: false,
     introProgress: 0,
     boardReady: false,
+    poemDiscovered: false,
+    shelfReady: false,
+    poemReady: false,
+    inspectShelf: () => {
+      if (get().phase !== 'exploring' || get().devicePrompt) return;
+      go('viewing-shelf', { poemDiscovered: true, shelfReady: false, poemReady: false });
+    },
+    shelfArrived: () => {
+      if (get().phase === 'viewing-shelf') set({ shelfReady: true });
+    },
+    openPoem: () => {
+      if (get().phase === 'viewing-shelf' && get().shelfReady) {
+        go('viewing-poem', { poemReady: false, shelfReady: false });
+      }
+    },
+    poemArrived: () => {
+      if (get().phase === 'viewing-poem') set({ poemReady: true });
+    },
+    closePoem: () => {
+      if (get().phase === 'viewing-poem') go('viewing-shelf', { poemReady: false, shelfReady: false });
+    },
+    leaveShelf: () => {
+      if (get().phase === 'viewing-shelf') go('exploring', { shelfReady: false, poemReady: false });
+    },
     entryOverride: null,
     devicePrompt: null,
 

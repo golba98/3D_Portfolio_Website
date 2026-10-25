@@ -9,6 +9,7 @@ import { MonitorInteraction } from './MonitorInteraction';
 import { PhoneInteraction } from './PhoneInteraction';
 import { SceneLighting } from './SceneLighting';
 import { SetupModel } from './SetupModel';
+import { ShelfInteraction } from './ShelfInteraction';
 
 interface SetupSceneProps {
   tier: DeviceTier;
@@ -49,6 +50,7 @@ export function SetupScene({ tier }: SetupSceneProps) {
       <CameraRig />
       <SceneLighting tier={tier} />
       <SetupModel />
+      <ShelfInteraction />
       <BoardInteraction />
       <MonitorInteraction />
       <PhoneInteraction />

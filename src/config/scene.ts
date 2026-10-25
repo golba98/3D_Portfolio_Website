@@ -26,6 +26,18 @@ export const MODEL_NODES = {
   boardTray: 'Whiteboard_Tray',
   phone: 'Phone',
   phoneScreen: 'Phone_Screen',
+  shelfSlabs: 'Shelves_Structure_Furniture_Cream_Shelves',
+} as const;
+
+export const POEM_PAPER = {
+  width: 0.18,
+  height: 0.254,
+  surfaceOffset: 0.002,
+  color: '#f4ebd7',
+  ink: '#38322d',
+  fontFamily: 'Caveat',
+  textureWidth: 1536,
+  readDistance: 0.65,
 } as const;
 
 /**
