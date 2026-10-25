@@ -21,6 +21,7 @@ const REQUIRED_NODES = [
   'Whiteboard_Tray',
   'Phone',
   'Phone_Screen',
+  'Shelves_Structure_Furniture_Cream_Shelves',
   ...[1, 2, 3, 4, 5, 6].map((i) => `Whiteboard_Marker_${String(i).padStart(2, '0')}_${['Black', 'Red', 'Blue', 'Black', 'Green', 'Red'][i - 1]}`),
 ];
 

@@ -160,6 +160,12 @@ In local development, the app supports URL query parameters for fast inspection:
 
 *(Note: Debug parameters are automatically ignored in production builds).*
 
+### Shelf note
+
+Click or tap the bottom shelf to reveal a handwritten page, then select the page to read it. Close (or Escape) returns it to the shelf; Back to room (or Escape again) restores the room view. Keyboard users can Tab to **Inspect bottom shelf**, then **Read note**. The note stays discovered until the page is refreshed.
+
+The paper is generated in Three.js. Its original text lives in `src/data/poem.ts`; the reading surface supports text selection and scrolling on smaller screens. Camera and paper movement respect reduced-motion preferences.
+
 ---
 
 ## 3D Asset & Model Optimization Pipeline
@@ -204,6 +210,8 @@ The production site is deployed as static assets through **Cloudflare Workers / 
 ---
 
 ## Attribution & Credits
+
+- **Handwritten Poem Font**: Caveat by The Caveat Project Authors, bundled locally under the [SIL Open Font License](public/fonts/caveat/OFL.txt).
 
 - **App Icons**: Standard full-colour GNOME icons ([GNOME Design Team](https://gitlab.gnome.org/GNOME)) and kitty terminal icon by Kovid Goyal. See [public/icons/apps/README.md](public/icons/apps/README.md).
 - **Desktop Wallpaper**: Abstract black Fedora wallpaper (`public/wallpaper.webp`).

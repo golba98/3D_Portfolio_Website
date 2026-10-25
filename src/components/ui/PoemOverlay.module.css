@@ -1,0 +1,95 @@
+@font-face {
+  font-family: Caveat;
+  src: url('/fonts/caveat/Caveat.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.close,
+.read {
+  position: absolute;
+  pointer-events: auto;
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid rgb(255 255 255 / 0.2);
+  border-radius: var(--radius-pill);
+  background: rgb(12 13 16 / 0.88);
+  color: var(--world-fg);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+}
+
+.close {
+  top: max(16px, env(safe-area-inset-top));
+  right: max(18px, env(safe-area-inset-right));
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.read {
+  bottom: max(20px, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translate(-50%, calc(100% + 48px));
+}
+
+.read:focus-visible { transform: translate(-50%, 0); }
+.overlay:has(.read:focus-visible) .hint { visibility: hidden; }
+.read:disabled { pointer-events: none; }
+.close:hover { border-color: rgb(255 255 255 / 0.5); }
+
+.hint {
+  position: absolute;
+  bottom: max(22px, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  color: var(--world-muted);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+}
+
+.paper {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  color: #38322d;
+}
+
+.poem {
+  position: absolute;
+  inset: 7.5% 8%;
+  overflow: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  font-family: Caveat, cursive;
+  font-size: var(--poem-font-size);
+  font-weight: 400;
+  line-height: 1.45;
+  scrollbar-width: thin;
+  scrollbar-color: #a8997c transparent;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.poem:focus-visible {
+  outline: 1px solid #8b7c61;
+  outline-offset: 8px;
+}
+
+.close:focus-visible,
+.read:focus-visible {
+  outline: 2px solid var(--world-fg);
+  outline-offset: 4px;
+}

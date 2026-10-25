@@ -75,3 +75,8 @@
   transform: none;
   pointer-events: auto;
 }
+
+.shelf {
+  left: max(24px, env(safe-area-inset-left));
+  right: auto;
+}

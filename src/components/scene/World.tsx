@@ -40,7 +40,7 @@ export default function World() {
           onCreated={({ gl }) => {
             gl.toneMappingExposure = RENDER.toneMappingExposure;
           }}
-          aria-label="3D model of Jordan's desk, chair and drawable whiteboard"
+          aria-label="3D model of Jordan's desk, chair, shelves and drawable whiteboard"
           role="img"
         >
           <PerformanceMonitor onDecline={() => setDpr(dprMin)} onIncline={() => setDpr(dprMax)} flipflops={3} />

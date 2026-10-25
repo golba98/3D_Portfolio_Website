@@ -1,5 +1,10 @@
 export type Vec3 = readonly [number, number, number];
 
+export interface SceneBounds {
+  min: Vec3;
+  max: Vec3;
+}
+
 /** The centre display, measured from the model in desk space. */
 export interface ScreenRect {
   center: Vec3;
