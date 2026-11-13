@@ -8,6 +8,7 @@ dist
 .dev.vars*
 .wrangler/
 .idea/
+/test-results/
 
 # Private notes and local agent entrypoints; never force-add.
 /.agents/scratch/

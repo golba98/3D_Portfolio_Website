@@ -1,7 +1,8 @@
 import { defineConfig } from '@playwright/test';
 export default defineConfig({
   testDir: './tests/e2e',
-  timeout: 180_000,
+  // Software WebGL on hosted runners is slower than the local graphics stack.
+  timeout: process.env.CI ? 300_000 : 180_000,
   workers: 1,
   outputDir: '.private/playwright-results',
   reporter: [['list']],
