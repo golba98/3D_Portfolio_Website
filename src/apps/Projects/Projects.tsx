@@ -52,7 +52,12 @@ export default function Projects({ arg }: AppProps) {
 
   const navRow = (id: Selection, title: string, subtitle: string) => (
     <li key={id}>
-      <button type="button" className={styles.navItem} aria-current={shown === id ? 'page' : undefined} onClick={() => select(id)}>
+      <button
+        type="button"
+        className={styles.navItem}
+        aria-current={shown === id ? 'page' : undefined}
+        onClick={() => select(id)}
+      >
         <span className={styles.navTitle}>{title}</span>
         <span className={styles.navSub}>{subtitle}</span>
       </button>
@@ -84,7 +89,9 @@ export default function Projects({ arg }: AppProps) {
       sidebar={sidebar}
       contentHeader={{
         title: shown ? titleFor(shown) : '',
-        end: project?.github ? <HeaderLink icon="github" label="View source on GitHub" href={project.github} /> : undefined,
+        end: project?.github ? (
+          <HeaderLink icon="github" label="View source on GitHub" href={project.github} />
+        ) : undefined,
       }}
       content={shown && renderDetail(shown)}
       contentRef={contentRef}

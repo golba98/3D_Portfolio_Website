@@ -225,7 +225,11 @@ function HomeBar() {
       >
         <span aria-hidden="true" />
       </button>
-      <button type="button" className={styles.switcherButton} onClick={() => usePhone.getState().setOverlay('switcher')}>
+      <button
+        type="button"
+        className={styles.switcherButton}
+        onClick={() => usePhone.getState().setOverlay('switcher')}
+      >
         Show open apps
       </button>
     </div>

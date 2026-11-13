@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useRef, useState, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
+} from 'react';
 import { motion } from 'framer-motion';
 import { getApp } from '../../apps/registry';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
@@ -38,8 +45,20 @@ interface WindowProps {
 export function Window({ win }: WindowProps) {
   const app = getApp(win.appId);
   const focused = useWindows((s) => s.focusedId === win.id);
-  const { focus, close, minimize, toggleMaximize, toggleFullscreen, tile, restore, snap, setSnapPreview, move, resize, open } =
-    useWindows.getState();
+  const {
+    focus,
+    close,
+    minimize,
+    toggleMaximize,
+    toggleFullscreen,
+    tile,
+    restore,
+    snap,
+    setSnapPreview,
+    move,
+    resize,
+    open,
+  } = useWindows.getState();
   const setTitle = useCallback((title: string) => useWindows.getState().setTitle(win.id, title), [win.id]);
   const title = win.title ?? app.title;
   const kitty = app.chrome === 'kitty';
@@ -121,37 +140,39 @@ export function Window({ win }: WindowProps) {
     close: () => close(win.id),
   };
 
-  const startResize = (edge: Edge) => (event: ReactPointerEvent<HTMLElement>): void => {
-    if (event.button !== 0) return;
-    event.stopPropagation();
-    const handle = event.currentTarget;
-    handle.setPointerCapture(event.pointerId);
-    const start = { x: event.clientX, y: event.clientY };
-    const origin = win.bounds;
-    setInteracting(true);
-    const onMove = (e: PointerEvent): void => {
-      const dx = e.clientX - start.x;
-      const dy = e.clientY - start.y;
-      const next: Bounds = { ...origin };
-      if (edge.includes('e')) next.width = origin.width + dx;
-      if (edge.includes('s')) next.height = origin.height + dy;
-      if (edge.includes('w')) {
-        const width = Math.max(MIN_WINDOW_SIZE.width, origin.width - dx);
-        next.x = origin.x + origin.width - width;
-        next.width = width;
-      }
-      resize(win.id, next);
+  const startResize =
+    (edge: Edge) =>
+    (event: ReactPointerEvent<HTMLElement>): void => {
+      if (event.button !== 0) return;
+      event.stopPropagation();
+      const handle = event.currentTarget;
+      handle.setPointerCapture(event.pointerId);
+      const start = { x: event.clientX, y: event.clientY };
+      const origin = win.bounds;
+      setInteracting(true);
+      const onMove = (e: PointerEvent): void => {
+        const dx = e.clientX - start.x;
+        const dy = e.clientY - start.y;
+        const next: Bounds = { ...origin };
+        if (edge.includes('e')) next.width = origin.width + dx;
+        if (edge.includes('s')) next.height = origin.height + dy;
+        if (edge.includes('w')) {
+          const width = Math.max(MIN_WINDOW_SIZE.width, origin.width - dx);
+          next.x = origin.x + origin.width - width;
+          next.width = width;
+        }
+        resize(win.id, next);
+      };
+      const onUp = (): void => {
+        setInteracting(false);
+        handle.removeEventListener('pointermove', onMove);
+        handle.removeEventListener('pointerup', onUp);
+        handle.removeEventListener('pointercancel', onUp);
+      };
+      handle.addEventListener('pointermove', onMove);
+      handle.addEventListener('pointerup', onUp);
+      handle.addEventListener('pointercancel', onUp);
     };
-    const onUp = (): void => {
-      setInteracting(false);
-      handle.removeEventListener('pointermove', onMove);
-      handle.removeEventListener('pointerup', onUp);
-      handle.removeEventListener('pointercancel', onUp);
-    };
-    handle.addEventListener('pointermove', onMove);
-    handle.addEventListener('pointerup', onUp);
-    handle.addEventListener('pointercancel', onUp);
-  };
 
   const geometry =
     mode === 'maximized'
@@ -161,7 +182,12 @@ export function Window({ win }: WindowProps) {
         : mode === 'tiled-right'
           ? { left: '50%', top: 0, width: '50%', height: '100%' }
           : fullscreen
-            ? { left: 0, top: 'calc(-1 * var(--topbar-height))', width: '100%', height: 'calc(100% + var(--topbar-height))' }
+            ? {
+                left: 0,
+                top: 'calc(-1 * var(--topbar-height))',
+                width: '100%',
+                height: 'calc(100% + var(--topbar-height))',
+              }
             : { left: win.bounds.x, top: win.bounds.y, width: win.bounds.width, height: win.bounds.height };
 
   const duration = reducedMotion ? 0 : 0.2;
@@ -204,7 +230,13 @@ export function Window({ win }: WindowProps) {
           >
             <Icon name={restorable ? 'restore' : 'maximize'} size={15} strokeWidth={1.6} />
           </button>
-          <button type="button" className={styles.control} aria-label={`Close ${app.title}`} title="Close" onClick={() => close(win.id)}>
+          <button
+            type="button"
+            className={styles.control}
+            aria-label={`Close ${app.title}`}
+            title="Close"
+            onClick={() => close(win.id)}
+          >
             <Icon name="close" size={16} strokeWidth={1.6} />
           </button>
         </header>
@@ -216,7 +248,13 @@ export function Window({ win }: WindowProps) {
       </div>
       {!docked &&
         EDGES.map((edge) => (
-          <div key={edge} className={styles.resize} data-edge={edge} onPointerDown={startResize(edge)} aria-hidden="true" />
+          <div
+            key={edge}
+            className={styles.resize}
+            data-edge={edge}
+            onPointerDown={startResize(edge)}
+            aria-hidden="true"
+          />
         ))}
       {menu && (
         <WindowMenu

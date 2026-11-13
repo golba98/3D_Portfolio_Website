@@ -36,8 +36,20 @@ await doc.transform(
   weld(),
   prune({ keepLeaves: true }),
   // Keep small printed key legends sharp in close views.
-  textureCompress({ encoder: sharp, pattern: /^Keychron_Legends_/, targetFormat: 'webp', resize: [2048, 2048], quality: 95 }),
-  textureCompress({ encoder: sharp, pattern: /^(?!Keychron_Legends_).+/, targetFormat: 'webp', resize: [1024, 1024], quality: 85 }),
+  textureCompress({
+    encoder: sharp,
+    pattern: /^Keychron_Legends_/,
+    targetFormat: 'webp',
+    resize: [2048, 2048],
+    quality: 95,
+  }),
+  textureCompress({
+    encoder: sharp,
+    pattern: /^(?!Keychron_Legends_).+/,
+    targetFormat: 'webp',
+    resize: [1024, 1024],
+    quality: 85,
+  }),
   meshopt({ encoder: MeshoptEncoder, level: 'medium' }),
 );
 

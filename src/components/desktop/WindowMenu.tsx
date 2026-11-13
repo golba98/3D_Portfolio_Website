@@ -57,18 +57,48 @@ export function WindowMenu({ x, y, mode, actions, onDismiss }: WindowMenuProps) 
     };
   }, [onDismiss]);
 
-  const items: ReadonlyArray<{ label: string; icon: IconName; run: () => void; shortcut?: string; checked?: boolean } | 'separator'> = [
-    { label: restorable ? 'Restore' : 'Maximise', icon: restorable ? 'restore' : 'maximize', run: actions.maximize, shortcut: 'Super+↑' },
-    { label: 'Tile Left', icon: 'tile-left', run: actions.tileLeft, shortcut: 'Super+←', checked: mode === 'tiled-left' },
-    { label: 'Tile Right', icon: 'tile-right', run: actions.tileRight, shortcut: 'Super+→', checked: mode === 'tiled-right' },
-    { label: mode === 'fullscreen' ? 'Leave Fullscreen' : 'Fullscreen', icon: mode === 'fullscreen' ? 'unfullscreen' : 'fullscreen', run: actions.fullscreen, shortcut: 'F11' },
+  const items: ReadonlyArray<
+    { label: string; icon: IconName; run: () => void; shortcut?: string; checked?: boolean } | 'separator'
+  > = [
+    {
+      label: restorable ? 'Restore' : 'Maximise',
+      icon: restorable ? 'restore' : 'maximize',
+      run: actions.maximize,
+      shortcut: 'Super+↑',
+    },
+    {
+      label: 'Tile Left',
+      icon: 'tile-left',
+      run: actions.tileLeft,
+      shortcut: 'Super+←',
+      checked: mode === 'tiled-left',
+    },
+    {
+      label: 'Tile Right',
+      icon: 'tile-right',
+      run: actions.tileRight,
+      shortcut: 'Super+→',
+      checked: mode === 'tiled-right',
+    },
+    {
+      label: mode === 'fullscreen' ? 'Leave Fullscreen' : 'Fullscreen',
+      icon: mode === 'fullscreen' ? 'unfullscreen' : 'fullscreen',
+      run: actions.fullscreen,
+      shortcut: 'F11',
+    },
     'separator',
     { label: 'Minimise', icon: 'minimize', run: actions.minimize, shortcut: 'Super+↓' },
     { label: 'Close', icon: 'close', run: actions.close },
   ];
 
   return createPortal(
-    <div ref={root} className={styles.menu} role="menu" aria-label="Window menu" style={{ left: position.x, top: position.y }}>
+    <div
+      ref={root}
+      className={styles.menu}
+      role="menu"
+      aria-label="Window menu"
+      style={{ left: position.x, top: position.y }}
+    >
       {items.map((item, i) =>
         item === 'separator' ? (
           <div key={`sep-${i}`} className={styles.separator} role="separator" />

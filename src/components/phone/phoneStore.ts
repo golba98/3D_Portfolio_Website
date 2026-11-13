@@ -119,7 +119,11 @@ export const usePhone = create<PhoneState>()((set, get) => ({
     handlers.set(id, [...list, handler]);
     return () => {
       const current = handlers.get(id);
-      if (current) handlers.set(id, current.filter((h) => h !== handler));
+      if (current)
+        handlers.set(
+          id,
+          current.filter((h) => h !== handler),
+        );
     };
   },
 

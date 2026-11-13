@@ -87,7 +87,9 @@
   padding: 5px 12px;
   border-radius: var(--radius-pill);
   background: rgb(30 30 30 / 0.92);
-  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08), 0 4px 12px rgb(0 0 0 / 0.4);
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.08),
+    0 4px 12px rgb(0 0 0 / 0.4);
   color: var(--desk-fg);
   font-size: var(--text-sm);
   font-weight: 700;

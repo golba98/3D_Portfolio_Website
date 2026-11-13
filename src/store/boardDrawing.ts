@@ -16,36 +16,53 @@ export const BOARD_COLORS: Record<Exclude<BoardTool, 'eraser'>, string> = {
 };
 
 const KEY = 'jordan-whiteboard-v2';
+const MAX_STROKES = 200;
+const MAX_SEGMENTS = 500;
+const MAX_POINTS_PER_SEGMENT = 500;
+const MIN_POINT_DISTANCE = 0.001;
 const TOOLS: BoardTool[] = ['black', 'red', 'blue', 'green', 'eraser'];
-export const validBoardPoint = (point: unknown): point is BoardPoint =>
-  Array.isArray(point) && point.length === 2 && point.every(v =>
-    typeof v === 'number' && Number.isFinite(v) && v >= 0 && v <= 1);
+
+function isBoardTool(value: unknown): value is BoardTool {
+  return TOOLS.some((tool) => tool === value);
+}
+
+const validBoardPoint = (point: unknown): point is BoardPoint =>
+  Array.isArray(point) &&
+  point.length === 2 &&
+  point.every((v) => typeof v === 'number' && Number.isFinite(v) && v >= 0 && v <= 1);
 
 export function parseBoardStrokes(value: unknown): BoardStroke[] {
   if (!Array.isArray(value)) return [];
-  return value.slice(-200).flatMap((entry: unknown) => {
+  return value.slice(-MAX_STROKES).flatMap((entry: unknown) => {
     if (!entry || typeof entry !== 'object') return [];
     const stroke = entry as { tool?: unknown; points?: unknown; segments?: unknown };
-    if (!TOOLS.includes(stroke.tool as BoardTool)) return [];
+    if (!isBoardTool(stroke.tool)) return [];
     const input = Array.isArray(stroke.segments) ? stroke.segments : [stroke.points];
     const segments: BoardPoint[][] = [];
-    for (const candidate of input.slice(0, 500)) {
+    for (const candidate of input.slice(0, MAX_SEGMENTS)) {
       if (!Array.isArray(candidate)) continue;
       let segment: BoardPoint[] = [];
-      for (const point of candidate.slice(0, 500)) {
+      for (const point of candidate.slice(0, MAX_POINTS_PER_SEGMENT)) {
         if (validBoardPoint(point)) segment.push(point);
-        else { if (segment.length) segments.push(segment); segment = []; }
+        else {
+          if (segment.length) segments.push(segment);
+          segment = [];
+        }
       }
       if (segment.length) segments.push(segment);
     }
-    return segments.length ? [{ tool: stroke.tool as BoardTool, segments }] : [];
+    return segments.length ? [{ tool: stroke.tool, segments }] : [];
   });
 }
 
 function readSaved(): BoardStroke[] {
   try {
-    return parseBoardStrokes(JSON.parse(localStorage.getItem(KEY) ?? localStorage.getItem('jordan-whiteboard-v1') ?? '[]'));
-  } catch { return []; }
+    return parseBoardStrokes(
+      JSON.parse(localStorage.getItem(KEY) ?? localStorage.getItem('jordan-whiteboard-v1') ?? '[]'),
+    );
+  } catch {
+    return [];
+  }
 }
 
 function save(strokes: BoardStroke[]): void {
@@ -95,18 +112,27 @@ export const useBoardDrawing = create<BoardDrawingState>()((set, get) => ({
   extend: (point) => {
     const { current, segmentBroken } = get();
     if (!current) return;
-    if (!validBoardPoint(point)) { set({ segmentBroken: true }); return; }
+    if (!validBoardPoint(point)) {
+      set({ segmentBroken: true });
+      return;
+    }
     const segments = [...current.segments];
     if (segmentBroken) {
-      if (segments.length >= 500) { get().end(); return; }
+      if (segments.length >= MAX_SEGMENTS) {
+        get().end();
+        return;
+      }
       segments.push([point]);
     } else {
       const points = [...(segments.at(-1) ?? [])];
       const last = points.at(-1);
-      if (last && Math.hypot(point[0] - last[0], point[1] - last[1]) < 0.001) return;
-      if (points.length >= 500 && last) {
+      if (last && Math.hypot(point[0] - last[0], point[1] - last[1]) < MIN_POINT_DISTANCE) return;
+      if (points.length >= MAX_POINTS_PER_SEGMENT && last) {
         // Chunk long paths without repeatedly decimating old curves into diagonals.
-        if (segments.length >= 500) { get().end(); return; }
+        if (segments.length >= MAX_SEGMENTS) {
+          get().end();
+          return;
+        }
         segments.push([last, point]);
       } else {
         points.push(point);
@@ -118,7 +144,7 @@ export const useBoardDrawing = create<BoardDrawingState>()((set, get) => ({
   end: () => {
     const { current, strokes } = get();
     if (!current) return;
-    const next = [...strokes, current].slice(-200);
+    const next = [...strokes, current].slice(-MAX_STROKES);
     set({ current: null, strokes: next, keyboardDrawing: false });
     save(next);
   },

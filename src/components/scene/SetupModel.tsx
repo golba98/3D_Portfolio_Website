@@ -1,7 +1,16 @@
 import { useLayoutEffect, useMemo } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
-import { Box3, Matrix4, Mesh, MeshPhysicalMaterial, MeshStandardMaterial, Quaternion, Vector3, type Object3D } from 'three';
+import {
+  Box3,
+  Matrix4,
+  Mesh,
+  MeshPhysicalMaterial,
+  MeshStandardMaterial,
+  Quaternion,
+  Vector3,
+  type Object3D,
+} from 'three';
 import { LED_MATERIALS, MODEL_NODES, MODEL_PLACEMENT, MODEL_URL, PHONE_PLACEMENT, RENDER } from '../../config/scene';
 import { useSceneLayout } from '../../store/sceneLayout';
 import { useExperience } from '../../store/experience';
@@ -22,7 +31,11 @@ export function SetupModel() {
   const layout = useMemo(() => {
     const s = MODEL_PLACEMENT.scale;
     const desk = boundsInModel(scene, requireNode(scene, MODEL_PLACEMENT.anchorNode));
-    const offset = new Vector3(-(desk.min.x + desk.max.x) / 2, -desk.max.y, -(desk.min.z + desk.max.z) / 2).multiplyScalar(s);
+    const offset = new Vector3(
+      -(desk.min.x + desk.max.x) / 2,
+      -desk.max.y,
+      -(desk.min.z + desk.max.z) / 2,
+    ).multiplyScalar(s);
     const toDesk = (v: Vector3): Vec3 => [v.x * s + offset.x, v.y * s + offset.y, v.z * s + offset.z];
 
     // Slide the phone out from behind the chair. Measured from its current
@@ -84,8 +97,7 @@ export function SetupModel() {
   useFrame(() => {
     const { phase, introProgress } = useExperience.getState();
     const p = phase === 'intro' ? introProgress : 0;
-    const pull = easeInOutCubic(clamp((p - 0.22) / 0.22, 0, 1))
-      * (1 - easeInOutCubic(clamp((p - 0.70) / 0.25, 0, 1)));
+    const pull = easeInOutCubic(clamp((p - 0.22) / 0.22, 0, 1)) * (1 - easeInOutCubic(clamp((p - 0.7) / 0.25, 0, 1)));
     layout.chair.position.copy(layout.chairPosition);
     layout.chair.position.x += pull * 0.06;
     layout.chair.position.z += pull * 0.43;
@@ -130,7 +142,8 @@ export function SetupModel() {
 
 function requireNode(root: Object3D, name: string): Object3D {
   const node = root.getObjectByName(name);
-  if (!node) throw new Error(`Model is missing the "${name}" node. Re-export from Blender and run npm run model:check.`);
+  if (!node)
+    throw new Error(`Model is missing the "${name}" node. Re-export from Blender and run npm run model:check.`);
   return node;
 }
 
@@ -168,7 +181,11 @@ interface ScreenAxes {
 }
 
 /** Monitors and the board stand upright, facing +Z. */
-const UPRIGHT_AXES: ScreenAxes = { right: new Vector3(1, 0, 0), up: new Vector3(0, 1, 0), normal: new Vector3(0, 0, 1) };
+const UPRIGHT_AXES: ScreenAxes = {
+  right: new Vector3(1, 0, 0),
+  up: new Vector3(0, 1, 0),
+  normal: new Vector3(0, 0, 1),
+};
 /** The phone lies flat facing +Y, its top (earpiece) towards -Z. */
 const PHONE_AXES: ScreenAxes = { right: new Vector3(1, 0, 0), up: new Vector3(0, 0, -1), normal: new Vector3(0, 1, 0) };
 

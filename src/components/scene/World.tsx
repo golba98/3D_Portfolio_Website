@@ -25,7 +25,9 @@ export default function World() {
   // whatever the tier cap or the performance monitor says. It stays that way
   // while paused: resizing the buffer would blank the frozen frame.
   const canvasDpr: number | [number, number] =
-    phase === 'entering-monitor' || paused ? Math.min(window.devicePixelRatio || 1, 2) : [dprMin, Math.min(dpr, dprMax)];
+    phase === 'entering-monitor' || paused
+      ? Math.min(window.devicePixelRatio || 1, 2)
+      : [dprMin, Math.min(dpr, dprMax)];
   const initialPose = poseFor('introSide', window.innerWidth / Math.max(window.innerHeight, 1));
 
   return (

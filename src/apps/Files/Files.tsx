@@ -152,7 +152,13 @@ export default function Files({ arg, openApp }: AppProps) {
           return (
             <li key={child.name}>
               {child.kind === 'file' && child.href && !child.opens ? (
-                <a className={styles.item} href={child.href} target="_blank" rel="noreferrer" aria-label={`${child.name} (opens in a new tab)`}>
+                <a
+                  className={styles.item}
+                  href={child.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={`${child.name} (opens in a new tab)`}
+                >
                   {content}
                 </a>
               ) : (

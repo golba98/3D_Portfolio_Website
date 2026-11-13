@@ -69,7 +69,12 @@ export function HomeScreen({ hidden }: { hidden: boolean }) {
     >
       <div className={styles.page}>
         <div className={styles.grid}>
-          <button type="button" className={`${styles.widget} ${styles.me}`} aria-label={`${profile.name}: contact`} onClick={launch('contact')}>
+          <button
+            type="button"
+            className={`${styles.widget} ${styles.me}`}
+            aria-label={`${profile.name}: contact`}
+            onClick={launch('contact')}
+          >
             <span className={styles.avatar} aria-hidden="true">
               JV
             </span>
@@ -79,10 +84,28 @@ export function HomeScreen({ hidden }: { hidden: boolean }) {
 
           {GRID_TILES.map((tile) => {
             if (tile.kind === 'link') {
-              return <AppTile key={tile.key} icon={tile.icon} title={tile.title} size={icon} href={tile.href} download={tile.download} />;
+              return (
+                <AppTile
+                  key={tile.key}
+                  icon={tile.icon}
+                  title={tile.title}
+                  size={icon}
+                  href={tile.href}
+                  download={tile.download}
+                />
+              );
             }
             const app = getApp(tile.id);
-            return <AppTile key={app.id} app={app} title={app.title} description={app.description} size={icon} onOpen={launch(app.id)} />;
+            return (
+              <AppTile
+                key={app.id}
+                app={app}
+                title={app.title}
+                description={app.description}
+                size={icon}
+                onOpen={launch(app.id)}
+              />
+            );
           })}
 
           <section className={`${styles.widget} ${styles.building}`} aria-label="Now building">
@@ -116,7 +139,16 @@ export function HomeScreen({ hidden }: { hidden: boolean }) {
       <nav className={styles.dock} aria-label="Dock">
         {DOCK_APPS.map((id) => {
           const app = getApp(id);
-          return <AppTile key={id} app={app} title={app.title} description={app.description} size={icon} onOpen={launch(id)} />;
+          return (
+            <AppTile
+              key={id}
+              app={app}
+              title={app.title}
+              description={app.description}
+              size={icon}
+              onOpen={launch(id)}
+            />
+          );
         })}
       </nav>
     </motion.main>

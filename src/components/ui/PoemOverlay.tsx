@@ -41,7 +41,11 @@ export function PoemOverlay() {
   } as CSSProperties;
 
   return (
-    <div ref={container} className={styles.overlay} role="dialog" aria-modal="true"
+    <div
+      ref={container}
+      className={styles.overlay}
+      role="dialog"
+      aria-modal="true"
       aria-label={reading ? 'Handwritten poem' : 'A note on the bottom shelf'}
       onKeyDown={(event) => {
         if (event.key !== 'Escape') return;
@@ -49,18 +53,33 @@ export function PoemOverlay() {
         event.stopPropagation();
         if (reading) useExperience.getState().closePoem();
         else useExperience.getState().leaveShelf();
-      }}>
-      <button ref={close} type="button" className={styles.close} onClick={() => {
-        if (reading) useExperience.getState().closePoem();
-        else useExperience.getState().leaveShelf();
-      }}>
+      }}
+    >
+      <button
+        ref={close}
+        type="button"
+        className={styles.close}
+        onClick={() => {
+          if (reading) useExperience.getState().closePoem();
+          else useExperience.getState().leaveShelf();
+        }}
+      >
         {reading ? 'Close' : 'Back to room'} <span aria-hidden="true">↩</span>
       </button>
       {!reading && (
         <>
-          <p className={styles.hint} role="status">{shelfReady ? 'A page, waiting to be read.' : 'Something on the shelf…'}</p>
-          <button ref={read} type="button" className={styles.read} disabled={!shelfReady}
-            onClick={() => useExperience.getState().openPoem()}>Read note</button>
+          <p className={styles.hint} role="status">
+            {shelfReady ? 'A page, waiting to be read.' : 'Something on the shelf…'}
+          </p>
+          <button
+            ref={read}
+            type="button"
+            className={styles.read}
+            disabled={!shelfReady}
+            onClick={() => useExperience.getState().openPoem()}
+          >
+            Read note
+          </button>
         </>
       )}
       {reading && ready && (

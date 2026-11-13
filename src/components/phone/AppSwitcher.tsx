@@ -94,11 +94,22 @@ function Card({ app, onOpen }: { app: RunningApp; onOpen: (event: MouseEvent<HTM
       <div className={styles.cardLabel}>
         <AppIcon app={def} size={24} />
         <span>{def.title}</span>
-        <button type="button" className={styles.cardClose} aria-label={`Close ${def.title}`} onClick={() => close(app.id)}>
+        <button
+          type="button"
+          className={styles.cardClose}
+          aria-label={`Close ${def.title}`}
+          onClick={() => close(app.id)}
+        >
           <Icon name="close" size={14} strokeWidth={2.2} />
         </button>
       </div>
-      <button type="button" className={styles.cardBody} data-chrome={chrome} aria-label={`Switch to ${def.title}`} onClick={onOpen}>
+      <button
+        type="button"
+        className={styles.cardBody}
+        data-chrome={chrome}
+        aria-label={`Switch to ${def.title}`}
+        onClick={onOpen}
+      >
         <span className={styles.cardHeader} data-chrome={chrome}>
           {app.title ?? def.title}
         </span>

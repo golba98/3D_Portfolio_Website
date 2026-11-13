@@ -21,7 +21,9 @@ export function SearchSheet() {
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return APPS;
-    return APPS.filter((app) => [app.title, app.description, ...app.keywords].some((text) => text.toLowerCase().includes(q)));
+    return APPS.filter((app) =>
+      [app.title, app.description, ...app.keywords].some((text) => text.toLowerCase().includes(q)),
+    );
   }, [query]);
 
   const close = (): void => setOverlay('none');
@@ -70,7 +72,11 @@ export function SearchSheet() {
         <ul className={styles.results} aria-label="Apps">
           {results.map((app) => (
             <li key={app.id}>
-              <button type="button" className={styles.result} onClick={(event) => open(app.id, undefined, originOf(event))}>
+              <button
+                type="button"
+                className={styles.result}
+                onClick={(event) => open(app.id, undefined, originOf(event))}
+              >
                 <AppIcon app={app} size={40} />
                 <span className={styles.text}>
                   <span className={styles.title}>{app.title}</span>

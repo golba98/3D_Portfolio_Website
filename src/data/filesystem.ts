@@ -12,7 +12,12 @@ import { cvSkillGroups, skillGroups } from './skills';
  * no second copy of any text to keep in sync.
  */
 
-const file = (name: string, content: string, extra: Partial<FsFile> = {}): FsFile => ({ kind: 'file', name, content, ...extra });
+const file = (name: string, content: string, extra: Partial<FsFile> = {}): FsFile => ({
+  kind: 'file',
+  name,
+  content,
+  ...extra,
+});
 const dir = (name: string, children: FsNode[]): FsDir => ({ kind: 'dir', name, children });
 
 /** Project files are named after the project, e.g. "hp-prime-emulator.md". */
@@ -25,16 +30,30 @@ export const slugify = (text: string): string =>
 const aboutDir = dir('About', [
   file(
     'about.txt',
-    [profile.name, `${profile.role} · ${profile.location}`, profile.education, '', profile.headline.join(' '), profile.lede].join('\n'),
+    [
+      profile.name,
+      `${profile.role} · ${profile.location}`,
+      profile.education,
+      '',
+      profile.headline.join(' '),
+      profile.lede,
+    ].join('\n'),
     { opens: { app: 'about' } },
   ),
   file('background.txt', background.map((e) => `${e.title}\n  ${e.detail}`).join('\n\n')),
   file('education.txt', [`${education.institution} — ${education.degree}`, education.mode, education.note].join('\n')),
   file(
     'experience.txt',
-    workHistory.map((job) => [`${job.title} (${job.period})`, ...job.points.map((p) => `  - ${p}`)].join('\n')).join('\n\n'),
+    workHistory
+      .map((job) => [`${job.title} (${job.period})`, ...job.points.map((p) => `  - ${p}`)].join('\n'))
+      .join('\n\n'),
   ),
-  file('certifications.txt', certifications.map((c) => [`${c.title} — ${c.issuer}`, c.note ? `  ${c.note}` : ''].filter(Boolean).join('\n')).join('\n\n')),
+  file(
+    'certifications.txt',
+    certifications
+      .map((c) => [`${c.title} — ${c.issuer}`, c.note ? `  ${c.note}` : ''].filter(Boolean).join('\n'))
+      .join('\n\n'),
+  ),
   file('leadership.txt', leadership.map((l) => `${l.title}\n  ${l.detail}`).join('\n\n')),
   file('interests.txt', interests.map((i) => `- ${i}`).join('\n')),
 ]);
@@ -45,7 +64,7 @@ const projectsDir = dir('Projects', [
       `${slugify(p.title)}.md`,
       [
         `# ${p.title}`,
-        `${p.role} · ${p.year}`,
+        p.role,
         '',
         p.summary,
         ...(p.note ? ['', p.note] : []),
@@ -60,25 +79,44 @@ const projectsDir = dir('Projects', [
       { opens: { app: 'projects', arg: p.id } },
     ),
   ),
-  file('earlier-projects.txt', ['Earlier projects:', '', ...earlierProjects.map((p) => `- ${p.title}: ${p.description}`)].join('\n'), {
-    opens: { app: 'projects', arg: 'earlier' },
-  }),
+  file(
+    'earlier-projects.txt',
+    ['Earlier projects:', '', ...earlierProjects.map((p) => `- ${p.title}: ${p.description}`)].join('\n'),
+    {
+      opens: { app: 'projects', arg: 'earlier' },
+    },
+  ),
 ]);
 
 const skillsDir = dir('Skills', [
-  file('toolkit.txt', [profile.toolkitLede, '', ...skillGroups.map((g) => `${g.label}:\n  ${g.items.join(', ')}`)].join('\n')),
+  file(
+    'toolkit.txt',
+    [profile.toolkitLede, '', ...skillGroups.map((g) => `${g.label}:\n  ${g.items.join(', ')}`)].join('\n'),
+  ),
   file('cv-skills.txt', cvSkillGroups.map((g) => `${g.label}:\n  ${g.items.join(', ')}`).join('\n')),
 ]);
 
 const contactDir = dir('Contact', [
-  file('contact.txt', [`Email:  ${profile.email}`, `GitHub: ${profile.github}`, `CV:     ~/Resume.pdf`, '', `Based in ${profile.location}.`].join('\n'), {
-    opens: { app: 'contact' },
-  }),
+  file(
+    'contact.txt',
+    [
+      `Email:  ${profile.email}`,
+      `GitHub: ${profile.github}`,
+      `CV:     ~/Resume.pdf`,
+      '',
+      `Based in ${profile.location}.`,
+    ].join('\n'),
+    {
+      opens: { app: 'contact' },
+    },
+  ),
 ]);
 
 const developmentDir = dir(
   'Development',
-  repos.map((repo) => dir(repo.name, [file('README.md', `# ${repo.name}\n\n${repo.description}\n\n${repo.url}`, { href: repo.url })])),
+  repos.map((repo) =>
+    dir(repo.name, [file('README.md', `# ${repo.name}\n\n${repo.description}\n\n${repo.url}`, { href: repo.url })]),
+  ),
 );
 
 const hardwareFile = file(

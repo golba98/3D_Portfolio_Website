@@ -11,7 +11,12 @@ interface UbumeScreenProps {
 export function UbumeScreen({ screen, compact, caption }: UbumeScreenProps) {
   return (
     <figure className={styles.figure}>
-      <div className={styles.screen} data-compact={compact} role="img" aria-label={`Ubume startup screen: ${screen.meta.join(', ')}`}>
+      <div
+        className={styles.screen}
+        data-compact={compact}
+        role="img"
+        aria-label={`Ubume startup screen: ${screen.meta.join(', ')}`}
+      >
         <div className={styles.head}>
           <pre className={styles.logo} aria-hidden="true">
             {screen.logo.map((row, i) => (

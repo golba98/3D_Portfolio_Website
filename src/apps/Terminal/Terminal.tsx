@@ -53,7 +53,13 @@ function Line({ line }: { line: OutputLine }) {
         if (segment.href) {
           const external = /^https?:/.test(segment.href);
           return (
-            <a key={i} className={styles.link} href={segment.href} target={external ? '_blank' : undefined} rel={external ? 'noreferrer' : undefined}>
+            <a
+              key={i}
+              className={styles.link}
+              href={segment.href}
+              target={external ? '_blank' : undefined}
+              rel={external ? 'noreferrer' : undefined}
+            >
               {segment.text}
             </a>
           );
@@ -131,7 +137,9 @@ export default function Terminal({ openApp, setTitle }: AppProps) {
     };
 
     const handler = Object.hasOwn(COMMANDS, name) ? COMMANDS[name] : undefined;
-    const output = handler ? handler.run(args, ctx) : [[{ text: `zsh: command not found: ${name}`, tone: 'error' as const }]];
+    const output = handler
+      ? handler.run(args, ctx)
+      : [[{ text: `zsh: command not found: ${name}`, tone: 'error' as const }]];
     setStatus(handler ? (failed(output) ? 1 : 0) : 127);
     setCwd(nextCwd);
     if (cleared) {
@@ -164,7 +172,10 @@ export default function Terminal({ openApp, setTitle }: AppProps) {
     const result = complete(input, cwd);
     setInput(result.value);
     if (result.options.length > 0) {
-      append([...makeEntries('input', [[input]], cwd, status), ...makeEntries('output', [[result.options.join('  ')]])]);
+      append([
+        ...makeEntries('input', [[input]], cwd, status),
+        ...makeEntries('output', [[result.options.join('  ')]]),
+      ]);
     }
   };
 

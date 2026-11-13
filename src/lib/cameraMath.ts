@@ -1,7 +1,15 @@
 import { MathUtils, Spherical, Vector3 } from 'three';
-import { CAMERA_POSES, MONITOR_FOCUS, PHONE_CONTAIN, PHONE_FOCUS, POSE_ASPECT_RANGE, type CameraPose, type PoseName } from '../config/cameraPoses';
+import {
+  CAMERA_POSES,
+  MONITOR_FOCUS,
+  PHONE_CONTAIN,
+  PHONE_FOCUS,
+  POSE_ASPECT_RANGE,
+  type CameraPose,
+  type PoseName,
+} from '../config/cameraPoses';
 import type { BoardRect, ScreenRect } from '../types/scene';
-import { angleDelta, clamp, lerp } from './math';
+import { clamp, lerp } from './math';
 
 /** Mutable camera state the rig animates. */
 export interface CameraState {
@@ -95,7 +103,8 @@ export function screenFocusPose(screen: ScreenRect, aspect: number, lens: FocusL
   const halfTan = Math.tan(MathUtils.degToRad(lens.fov) / 2);
   const fitHeight = screen.height / (2 * halfTan);
   const fitWidth = screen.width / (2 * halfTan * aspect);
-  const distance = lens.fit === 'contain' ? Math.max(fitHeight, fitWidth) / lens.fill : Math.min(fitHeight, fitWidth) * lens.fill;
+  const distance =
+    lens.fit === 'contain' ? Math.max(fitHeight, fitWidth) / lens.fill : Math.min(fitHeight, fitWidth) * lens.fill;
   const target = new Vector3(...screen.center);
   return {
     position: target.clone().addScaledVector(new Vector3(...screen.normal), distance),
@@ -135,7 +144,6 @@ export function boardFocusPose(board: BoardRect, aspect: number): CameraState {
 }
 
 const sphericalA = new Spherical();
-const sphericalB = new Spherical();
 const offset = new Vector3();
 
 /** A pose orbited around its own target by small yaw/pitch angles (degrees). */
@@ -164,17 +172,4 @@ function blendUp(from: Vector3, to: Vector3, k: number, out: Vector3): void {
   out.lerpVectors(from, to, k);
   if (out.lengthSq() < 1e-6) out.copy(to);
   out.normalize();
-}
-
-/** Sweeping blend around the moving target: used for the cinematic intro. */
-export function blendOrbit(from: CameraState, to: CameraState, k: number, out: CameraState): void {
-  out.target.lerpVectors(from.target, to.target, k);
-  sphericalA.setFromVector3(offset.copy(from.position).sub(from.target));
-  sphericalB.setFromVector3(offset.copy(to.position).sub(to.target));
-  const radius = lerp(sphericalA.radius, sphericalB.radius, k);
-  const phi = lerp(sphericalA.phi, sphericalB.phi, k);
-  const theta = sphericalA.theta + angleDelta(sphericalA.theta, sphericalB.theta) * k;
-  out.position.setFromSpherical(sphericalA.set(radius, phi, theta)).add(out.target);
-  out.fov = lerp(from.fov, to.fov, k);
-  blendUp(from.up, to.up, k, out.up);
 }

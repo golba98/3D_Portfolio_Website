@@ -44,12 +44,7 @@ export function TouchNav({ visible }: { visible: boolean }) {
       <p className={styles.caption} data-visible={visible && nearest === 'pc'}>
         <strong>My PC</strong> · {specs.join(' · ')}
       </p>
-      <div
-        className={styles.chips}
-        role="group"
-        aria-label="Look at"
-        data-visible={visible && ready}
-      >
+      <div className={styles.chips} role="group" aria-label="Look at" data-visible={visible && ready}>
         {STOPS.filter((stop) => stop.id !== hidden).map((stop) => (
           <button
             key={stop.id}

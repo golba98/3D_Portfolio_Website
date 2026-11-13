@@ -57,7 +57,11 @@ function initialBounds(appId: AppId, index: number): Bounds {
   const width = Math.min(defaultSize.width, area.width - WORKSPACE_INSETS.side * 2);
   const height = Math.min(defaultSize.height, area.height - 16);
   const cascade = (index % 6) * CASCADE_STEP;
-  const x = clamp((area.width - width) / 2 - 60 + cascade, WORKSPACE_INSETS.side, area.width - width - WORKSPACE_INSETS.side);
+  const x = clamp(
+    (area.width - width) / 2 - 60 + cascade,
+    WORKSPACE_INSETS.side,
+    area.width - width - WORKSPACE_INSETS.side,
+  );
   const y = clamp((area.height - height) / 2 - 20 + cascade, 8, Math.max(8, area.height - height));
   return { x: Math.round(x), y: Math.round(y), width: Math.round(width), height: Math.round(height) };
 }
@@ -82,9 +86,7 @@ export const useWindows = create<WindowsState>()((set, get) => {
 
   /** The frontmost window that isn't minimised. */
   const nextFocus = (windows: DesktopWindow[], except: AppId): AppId | null =>
-    windows
-      .filter((w) => w.id !== except && w.mode !== 'minimized')
-      .sort((a, b) => b.z - a.z)[0]?.id ?? null;
+    windows.filter((w) => w.id !== except && w.mode !== 'minimized').sort((a, b) => b.z - a.z)[0]?.id ?? null;
 
   return {
     windows: [],

@@ -30,7 +30,11 @@ export function MonitorInteraction() {
     if (!bounds) return null;
     const size = bounds.max.map((max, i) => max - (bounds.min[i] ?? 0)) as [number, number, number];
     const center = bounds.max.map((max, i) => (max + (bounds.min[i] ?? 0)) / 2) as [number, number, number];
-    return { size, center, labelAt: [center[0], bounds.max[1] + SCREEN.labelLift, center[2]] as [number, number, number] };
+    return {
+      size,
+      center,
+      labelAt: [center[0], bounds.max[1] + SCREEN.labelLift, center[2]] as [number, number, number],
+    };
   }, [bounds]);
 
   // Pin the DOM label above the monitor.

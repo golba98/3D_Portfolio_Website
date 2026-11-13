@@ -50,8 +50,13 @@ export function ShelfInteraction() {
       const start = pointers.get(event.pointerId);
       if (start && Math.hypot(event.clientX - start.x, event.clientY - start.y) > 10) gestureBlocked.current = true;
     };
-    const up = (event: PointerEvent) => { pointers.delete(event.pointerId); };
-    const cancel = (event: PointerEvent) => { gestureBlocked.current = true; up(event); };
+    const up = (event: PointerEvent) => {
+      pointers.delete(event.pointerId);
+    };
+    const cancel = (event: PointerEvent) => {
+      gestureBlocked.current = true;
+      up(event);
+    };
     canvas.addEventListener('pointerdown', down, true);
     window.addEventListener('pointermove', move, true);
     window.addEventListener('pointerup', up, true);
@@ -128,16 +133,34 @@ export function ShelfInteraction() {
   return (
     <>
       {canInspect && (
-        <mesh position={placement.center} visible={false} onClick={onShelfClick}
-          onPointerOver={(event) => { event.stopPropagation(); setHovered(true); }} onPointerOut={() => setHovered(false)}>
+        <mesh
+          position={placement.center}
+          visible={false}
+          onClick={onShelfClick}
+          onPointerOver={(event) => {
+            event.stopPropagation();
+            setHovered(true);
+          }}
+          onPointerOut={() => setHovered(false)}
+        >
           <boxGeometry args={placement.size} />
         </mesh>
       )}
       <group ref={paper} visible={discovered}>
-        <mesh geometry={geometry} onClick={onPageClick}
-          onPointerOver={(event) => { event.stopPropagation(); setHovered(true); }} onPointerOut={() => setHovered(false)}>
-          <meshBasicMaterial map={poemReady && phase === 'viewing-poem' ? textures.blank : textures.written}
-            side={DoubleSide} toneMapped={false} />
+        <mesh
+          geometry={geometry}
+          onClick={onPageClick}
+          onPointerOver={(event) => {
+            event.stopPropagation();
+            setHovered(true);
+          }}
+          onPointerOut={() => setHovered(false)}
+        >
+          <meshBasicMaterial
+            map={poemReady && phase === 'viewing-poem' ? textures.blank : textures.written}
+            side={DoubleSide}
+            toneMapped={false}
+          />
         </mesh>
         {/* A second layer gives the lifted sheet a visible, fine paper edge. */}
         <mesh geometry={geometry} position-z={-0.0004}>

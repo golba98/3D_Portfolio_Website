@@ -17,8 +17,10 @@ const Y_DOMAIN: readonly [number, number] = [1.98, 2.34];
 const X_TICKS = [0, 2000, 4000, 6000] as const;
 const X_DOMAIN: readonly [number, number] = [0, 6000];
 
-const x = (step: number): number => PAD.left + ((step - X_DOMAIN[0]) / (X_DOMAIN[1] - X_DOMAIN[0])) * (W - PAD.left - PAD.right);
-const y = (loss: number): number => PAD.top + (1 - (loss - Y_DOMAIN[0]) / (Y_DOMAIN[1] - Y_DOMAIN[0])) * (H - PAD.top - PAD.bottom);
+const x = (step: number): number =>
+  PAD.left + ((step - X_DOMAIN[0]) / (X_DOMAIN[1] - X_DOMAIN[0])) * (W - PAD.left - PAD.right);
+const y = (loss: number): number =>
+  PAD.top + (1 - (loss - Y_DOMAIN[0]) / (Y_DOMAIN[1] - Y_DOMAIN[0])) * (H - PAD.top - PAD.bottom);
 
 const fmtStep = (step: number): string => step.toLocaleString('en-GB');
 
@@ -78,12 +80,25 @@ export function LossChart({ points, caption, ariaLabel }: LossChartProps) {
           </text>
 
           {activePoint && (
-            <line className={styles.crosshair} x1={x(activePoint.step)} x2={x(activePoint.step)} y1={PAD.top} y2={H - PAD.bottom} />
+            <line
+              className={styles.crosshair}
+              x1={x(activePoint.step)}
+              x2={x(activePoint.step)}
+              y1={PAD.top}
+              y2={H - PAD.bottom}
+            />
           )}
 
           <path className={styles.line} d={path} />
           {points.map((p, i) => (
-            <circle key={p.step} className={styles.dot} data-active={i === active} cx={x(p.step)} cy={y(p.loss)} r={i === active ? 5.5 : 4} />
+            <circle
+              key={p.step}
+              className={styles.dot}
+              data-active={i === active}
+              cx={x(p.step)}
+              cy={y(p.loss)}
+              r={i === active ? 5.5 : 4}
+            />
           ))}
 
           {last && (

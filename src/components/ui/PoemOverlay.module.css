@@ -40,10 +40,18 @@
   transform: translate(-50%, calc(100% + 48px));
 }
 
-.read:focus-visible { transform: translate(-50%, 0); }
-.overlay:has(.read:focus-visible) .hint { visibility: hidden; }
-.read:disabled { pointer-events: none; }
-.close:hover { border-color: rgb(255 255 255 / 0.5); }
+.read:focus-visible {
+  transform: translate(-50%, 0);
+}
+.overlay:has(.read:focus-visible) .hint {
+  visibility: hidden;
+}
+.read:disabled {
+  pointer-events: none;
+}
+.close:hover {
+  border-color: rgb(255 255 255 / 0.5);
+}
 
 .hint {
   position: absolute;

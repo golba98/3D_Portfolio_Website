@@ -42,7 +42,8 @@ export interface Command {
 
 const t = (text: string, tone?: Tone): Segment => ({ text, tone });
 const link = (text: string, href: string): Segment => ({ text, href });
-const lines = (...rows: (string | OutputLine)[]): OutputLine[] => rows.map((row) => (typeof row === 'string' ? [row] : row));
+const lines = (...rows: (string | OutputLine)[]): OutputLine[] =>
+  rows.map((row) => (typeof row === 'string' ? [row] : row));
 const error = (message: string): OutputLine[] => [[t(message, 'error')]];
 
 /** The banner from my real ~/.zshrc (via the previous site). */
@@ -65,7 +66,10 @@ export const COMMANDS: Record<string, Command> = {
       [t('Available commands', 'bold')],
       ...Object.entries(COMMANDS)
         .filter(([name]) => name !== 'sudo')
-        .map(([name, cmd]): OutputLine => [t(`  ${(cmd.usage ?? name).padEnd(18)}`, 'accent'), t(cmd.summary, 'muted')]),
+        .map(([name, cmd]): OutputLine => [
+          t(`  ${(cmd.usage ?? name).padEnd(18)}`, 'accent'),
+          t(cmd.summary, 'muted'),
+        ]),
       [''],
       [t('Tab completes, ↑/↓ browse history, Ctrl+L clears.', 'muted')],
     ],
@@ -82,14 +86,22 @@ export const COMMANDS: Record<string, Command> = {
         profile.headline.join(' '),
         profile.lede,
         '',
-        [t('More: ', 'muted'), t('open about', 'accent'), t(' or ', 'muted'), t('cat ~/About/background.txt', 'accent')],
+        [
+          t('More: ', 'muted'),
+          t('open about', 'accent'),
+          t(' or ', 'muted'),
+          t('cat ~/About/background.txt', 'accent'),
+        ],
       ),
   },
 
   projects: {
     summary: 'What I built',
     run: () => [
-      ...projects.map((p): OutputLine => [t(p.title.padEnd(Math.max(...projects.map(project => project.title.length)) + 2), 'bold'), t(`${p.year.padEnd(20)}`, 'muted'), p.role]),
+      ...projects.map((p): OutputLine => [
+        t(p.title.padEnd(Math.max(...projects.map((project) => project.title.length)) + 2), 'bold'),
+        p.role,
+      ]),
       [''],
       [t('Details: ', 'muted'), t('open projects', 'accent'), t(' or ', 'muted'), t('ls ~/Projects', 'accent')],
     ],
@@ -251,7 +263,8 @@ export const COMMANDS: Record<string, Command> = {
 
   history: {
     summary: 'Previous commands',
-    run: (_args, ctx) => ctx.history.map((entry, i): OutputLine => [t(`${String(i + 1).padStart(4)}  `, 'muted'), entry]),
+    run: (_args, ctx) =>
+      ctx.history.map((entry, i): OutputLine => [t(`${String(i + 1).padStart(4)}  `, 'muted'), entry]),
   },
 
   clear: {
@@ -327,7 +340,8 @@ export function complete(input: string, cwd: FsPath): Completion {
   const matches = [...new Set(candidates)].filter((c) => c.startsWith(namePart));
   const head = parts.slice(0, -1).join(' ');
   const only = matches[0];
-  if (matches.length === 1 && only) return { value: `${head} ${dirPart}${only}${only.endsWith('/') ? '' : ' '}`, options: [] };
+  if (matches.length === 1 && only)
+    return { value: `${head} ${dirPart}${only}${only.endsWith('/') ? '' : ' '}`, options: [] };
   const prefix = commonPrefix(matches);
   return { value: `${head} ${dirPart}${prefix || namePart}`, options: matches.length > 1 ? matches : [] };
 }

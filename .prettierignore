@@ -1,0 +1,8 @@
+.private/
+.github/
+assets-src/
+public/
+dist/
+node_modules/
+package-lock.json
+**/*.md

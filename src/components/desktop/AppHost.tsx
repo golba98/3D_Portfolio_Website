@@ -14,7 +14,8 @@ interface AppHostProps extends AppProps {
 export function AppHost({ appId, arg, openApp, setTitle }: AppHostProps) {
   const { component: App, title, chrome } = getApp(appId);
   // Until the app draws its own header bar, draw one so the window can still be moved and closed.
-  const frame = (body: ReactNode) => (chrome ? body : <ToolbarView top={<HeaderBar title={title} />}>{body}</ToolbarView>);
+  const frame = (body: ReactNode) =>
+    chrome ? body : <ToolbarView top={<HeaderBar title={title} />}>{body}</ToolbarView>;
   return (
     <ErrorBoundary fallback={frame(<p className={styles.message}>{title} couldn't be opened. Please try again.</p>)}>
       <Suspense

@@ -69,7 +69,12 @@ export function SplitView({
   const transition = { duration: slide ? 0.22 : 0.12, ease: [0.22, 1, 0.36, 1] as const };
 
   return (
-    <div ref={ref} className={styles.split} data-collapsed={collapsed} style={{ '--sidebar-width': `${sidebarWidth}px` } as CSSProperties}>
+    <div
+      ref={ref}
+      className={styles.split}
+      data-collapsed={collapsed}
+      style={{ '--sidebar-width': `${sidebarWidth}px` } as CSSProperties}
+    >
       <AnimatePresence initial={false}>
         {showSidebar && (
           <motion.div
@@ -98,14 +103,18 @@ export function SplitView({
               start={
                 <>
                   {collapsed && (
-                  <HeaderButton
-                    icon={backIcon}
-                    label={backLabel}
-                    // iOS back buttons name the page they return to.
-                    text={onPhone && backIcon === 'back' && typeof sidebarHeader.title === 'string' ? sidebarHeader.title : undefined}
-                    onClick={onBack}
-                  />
-                )}
+                    <HeaderButton
+                      icon={backIcon}
+                      label={backLabel}
+                      // iOS back buttons name the page they return to.
+                      text={
+                        onPhone && backIcon === 'back' && typeof sidebarHeader.title === 'string'
+                          ? sidebarHeader.title
+                          : undefined
+                      }
+                      onClick={onBack}
+                    />
+                  )}
                   {contentHeader.start}
                 </>
               }
