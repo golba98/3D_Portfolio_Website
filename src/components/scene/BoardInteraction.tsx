@@ -1,21 +1,19 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { useCursor } from '@react-three/drei';
-import { useFrame, type ThreeEvent } from '@react-three/fiber';
-import { CanvasTexture, DoubleSide, Matrix4, Quaternion, SRGBColorSpace, Vector3 } from 'three';
+import { useFrame, useThree, type ThreeEvent } from '@react-three/fiber';
+import { CanvasTexture, DoubleSide, Matrix4, Quaternion, SRGBColorSpace, Vector3, type Mesh } from 'three';
 import { SCREEN } from '../../config/scene';
-import { clamp } from '../../lib/math';
+import { boardPointAt } from '../../lib/boardPointer';
 import { isTap } from '../../lib/touchLook';
-import { BOARD_COLORS, useBoardDrawing, type BoardPoint, type BoardStroke } from '../../store/boardDrawing';
+import { BOARD_COLORS, useBoardDrawing, type BoardStroke } from '../../store/boardDrawing';
 import { useExperience } from '../../store/experience';
 import { pinLabel, useSceneHover } from '../../store/sceneHover';
 import { useSceneLayout } from '../../store/sceneLayout';
 
 const WIDTH = 1024;
 const HEIGHT = 760;
-type CaptureTarget = Pick<Element, 'setPointerCapture' | 'hasPointerCapture' | 'releasePointerCapture'>;
 
 function paint(ctx: CanvasRenderingContext2D, stroke: BoardStroke): void {
-  if (!stroke.points.length) return;
   ctx.save();
   ctx.globalCompositeOperation = stroke.tool === 'eraser' ? 'destination-out' : 'source-over';
   ctx.strokeStyle = stroke.tool === 'eraser' ? '#000' : BOARD_COLORS[stroke.tool];
@@ -23,18 +21,21 @@ function paint(ctx: CanvasRenderingContext2D, stroke: BoardStroke): void {
   ctx.lineWidth = stroke.tool === 'eraser' ? 25 : 5;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
-  ctx.beginPath();
-  stroke.points.forEach(([u, v], i) => {
-    const x = u * WIDTH;
-    const y = v * HEIGHT;
-    if (i === 0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
-  });
-  if (stroke.points.length === 1) {
-    const [u, v] = stroke.points[0] ?? [0, 0];
-    ctx.arc(u * WIDTH, v * HEIGHT, ctx.lineWidth / 2, 0, Math.PI * 2);
-    ctx.fill();
-  } else ctx.stroke();
+  for (const points of stroke.segments) {
+    if (!points.length) continue;
+    ctx.beginPath();
+    points.forEach(([u, v], i) => {
+      const x = u * WIDTH;
+      const y = v * HEIGHT;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    if (points.length === 1) {
+      const [u, v] = points[0] ?? [0, 0];
+      ctx.arc(u * WIDTH, v * HEIGHT, ctx.lineWidth / 2, 0, Math.PI * 2);
+      ctx.fill();
+    } else ctx.stroke();
+  }
   ctx.restore();
 }
 
@@ -49,6 +50,8 @@ export function BoardInteraction() {
   const hovered = useSceneHover((s) => s.hovered === 'board');
   const setHovered = useSceneHover((s) => s.setHovered);
   const pointer = useRef<number | null>(null);
+  const mesh = useRef<Mesh>(null);
+  const { camera, gl } = useThree();
   useCursor(hovered && phase === 'exploring');
 
   const drawing = useMemo(() => {
@@ -79,11 +82,55 @@ export function BoardInteraction() {
   }, [drawing]);
 
   useEffect(() => {
-    if (phase !== 'viewing-board') {
+    const canvas = gl.domElement;
+    const finish = (): void => {
+      const id = pointer.current;
       pointer.current = null;
       useBoardDrawing.getState().end();
-    }
-  }, [phase]);
+      if (id !== null && canvas.hasPointerCapture(id)) canvas.releasePointerCapture(id);
+    };
+    if (phase !== 'viewing-board' || !boardReady) { finish(); return; }
+    const move = (event: PointerEvent): void => {
+      if (event.pointerId !== pointer.current) return;
+      if (!(event.buttons & 1)) { finish(); return; }
+      const coalesced = event.getCoalescedEvents?.() ?? [];
+      for (const sample of coalesced.length ? coalesced : [event]) {
+        // Native capture retargets events; hit testing excludes toolbar overlays.
+        const at = document.elementFromPoint(sample.clientX, sample.clientY);
+        const p = mesh.current && at === canvas
+          ? boardPointAt(sample.clientX, sample.clientY, canvas.getBoundingClientRect(), camera, mesh.current)
+          : null;
+        useBoardDrawing.getState().extend(p);
+      }
+    };
+    const end = (event: PointerEvent): void => {
+      if (event.pointerId === pointer.current) finish();
+    };
+    const resize = (): void => { if (pointer.current !== null) useBoardDrawing.getState().extend(null); };
+    const hidden = (): void => { if (document.hidden) finish(); };
+    // Native listeners also receive release/cancel when there is no R3F intersection.
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', end);
+    window.addEventListener('pointercancel', end);
+    canvas.addEventListener('lostpointercapture', end);
+    window.addEventListener('blur', finish);
+    window.addEventListener('resize', resize);
+    document.addEventListener('visibilitychange', hidden);
+    const unsubscribe = useBoardDrawing.subscribe((state, previous) => {
+      if (pointer.current !== null && (!state.current || state.keyboardDrawing || state.tool !== previous.tool)) finish();
+    });
+    return () => {
+      unsubscribe();
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', end);
+      window.removeEventListener('pointercancel', end);
+      canvas.removeEventListener('lostpointercapture', end);
+      window.removeEventListener('blur', finish);
+      window.removeEventListener('resize', resize);
+      document.removeEventListener('visibilitychange', hidden);
+      finish();
+    };
+  }, [phase, boardReady, camera, gl]);
 
   const placement = useMemo(() => {
     if (!board) return null;
@@ -103,9 +150,6 @@ export function BoardInteraction() {
 
   if (!board || !placement) return null;
 
-  const point = (event: ThreeEvent<PointerEvent>): BoardPoint | null =>
-    event.uv ? [clamp(event.uv.x, 0, 1), clamp(1 - event.uv.y, 0, 1)] : null;
-
   // Exploring, a tap opens the board; on click, so a drag across it slides the view instead.
   const onClick = (event: ThreeEvent<MouseEvent>): void => {
     event.stopPropagation();
@@ -116,40 +160,24 @@ export function BoardInteraction() {
 
   const onDown = (event: ThreeEvent<PointerEvent>): void => {
     event.stopPropagation();
-    if (phase !== 'viewing-board' || !boardReady || pointer.current !== null) return;
-    const p = point(event);
+    if (phase !== 'viewing-board' || !boardReady || pointer.current !== null || event.button !== 0 || !event.isPrimary || !mesh.current) return;
+    const canvas = gl.domElement;
+    const p = boardPointAt(event.clientX, event.clientY, canvas.getBoundingClientRect(), camera, mesh.current);
     if (!p) return;
-    pointer.current = event.pointerId;
-    // R3F replaces the DOM target with its own capture proxy at runtime.
-    (event.target as unknown as CaptureTarget).setPointerCapture(event.pointerId);
     useBoardDrawing.getState().begin(p);
-  };
-  const onMove = (event: ThreeEvent<PointerEvent>): void => {
-    if (event.pointerId !== pointer.current) return;
-    event.stopPropagation();
-    const p = point(event);
-    if (p) useBoardDrawing.getState().extend(p);
-  };
-  const onEnd = (event: ThreeEvent<PointerEvent>): void => {
-    if (event.pointerId !== pointer.current) return;
-    event.stopPropagation();
-    pointer.current = null;
-    useBoardDrawing.getState().end();
-    const target = event.target as unknown as CaptureTarget;
-    if (target.hasPointerCapture(event.pointerId)) {
-      target.releasePointerCapture(event.pointerId);
-    }
+    pointer.current = event.pointerId;
+    canvas.setPointerCapture(event.pointerId);
   };
 
   return (
     <group position={placement.center} quaternion={placement.quaternion}>
-      <mesh onPointerOver={() => setHovered('board', true)} onPointerOut={() => setHovered('board', false)}
-        onClick={onClick} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onEnd} onPointerCancel={onEnd}>
+      <mesh ref={mesh} onPointerOver={() => setHovered('board', true)} onPointerOut={() => setHovered('board', false)}
+        onClick={onClick} onPointerDown={onDown}>
         <planeGeometry args={[board.width * 0.997, board.height * 0.997]} />
         <meshBasicMaterial map={drawing.texture} transparent depthWrite={false} side={DoubleSide} toneMapped={false} />
       </mesh>
       {phase === 'viewing-board' && boardReady && keyboardFocused && (
-        <mesh position={[(keyboardCursor[0] - 0.5) * board.width, (0.5 - keyboardCursor[1]) * board.height, 0.004]}>
+        <mesh position={[(keyboardCursor[0] - 0.5) * board.width * 0.997, (0.5 - keyboardCursor[1]) * board.height * 0.997, 0.004]}>
           <ringGeometry args={[0.005, 0.008, 20]} />
           <meshBasicMaterial color="#ff851b" side={DoubleSide} depthTest={false} />
         </mesh>

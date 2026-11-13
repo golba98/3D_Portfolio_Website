@@ -25,7 +25,7 @@ interface GithubRepos {
   publicCount: number | null;
 }
 
-const CACHE_KEY = 'github-repos-v1';
+const CACHE_KEY = 'github-repos-v2';
 const CACHE_TTL_MS = 60 * 60 * 1000;
 
 function isGithubApiRepo(value: unknown): value is GithubApiInput {
@@ -37,7 +37,7 @@ function isGithubApiRepo(value: unknown): value is GithubApiInput {
     repo.name !== '.' && repo.name !== '..' &&
     repo.html_url === `${profile.github}/${repo.name}` &&
     (repo.description === null || typeof repo.description === 'string') &&
-    typeof repo.fork === 'boolean' &&
+    typeof repo.fork === 'boolean' && repo.private !== true &&
     (repo.language === undefined || repo.language === null || typeof repo.language === 'string') &&
     (repo.stargazers_count === undefined || (
       typeof repo.stargazers_count === 'number' &&
@@ -50,7 +50,7 @@ function isGithubApiRepo(value: unknown): value is GithubApiInput {
 }
 
 /** Both the API and browser storage are runtime input, regardless of TypeScript types. */
-function parseRepos(value: unknown): GithubApiRepo[] | null {
+export function parseRepos(value: unknown): GithubApiRepo[] | null {
   if (!Array.isArray(value) || !value.every(isGithubApiRepo)) return null;
   return value.map((repo) => ({
     name: repo.name,
@@ -86,28 +86,24 @@ function writeCache(data: GithubApiRepo[]): void {
   }
 }
 
-/**
- * The previous site's descriptions stay authoritative; the public GitHub API
- * (no token) only adds language, stars and dates, plus any repos made since.
- */
-function merge(api: GithubApiRepo[]): Repo[] {
-  // The repo named after the account only holds the GitHub profile README.
-  const own = api.filter((repo) => !repo.fork && repo.name !== profile.githubUsername);
-  const byName = new Map(own.map((repo) => [repo.name, repo]));
+/** Keep curated ordering; live membership remains authoritative. */
+export function merge(api: GithubApiRepo[]): Repo[] {
+  const own = [...new Map(api.filter(repo => !repo.fork).map(repo => [repo.name.toLowerCase(), repo])).values()];
+  const byName = new Map(own.map((repo) => [repo.name.toLowerCase(), repo]));
   const toRepo = (repo: GithubApiRepo): Repo => ({
     name: repo.name,
     url: repo.html_url,
-    description: repoDescriptions.get(repo.name) ?? repo.description ?? '',
+    description: repoDescriptions.get(repo.name.toLowerCase()) ?? repo.description ?? '',
     language: repo.language,
     stars: repo.stargazers_count,
     updatedAt: repo.pushed_at ?? undefined,
   });
   const known = staticRepos.flatMap((repo) => {
-    const live = byName.get(repo.name);
+    const live = byName.get(repo.name.toLowerCase());
     return live ? [toRepo(live)] : [];
   });
   const extra = own
-    .filter((repo) => !repoDescriptions.has(repo.name))
+    .filter((repo) => !repoDescriptions.has(repo.name.toLowerCase()))
     .sort((a, b) => {
       if (a.pushed_at === null) return b.pushed_at === null ? 0 : 1;
       if (b.pushed_at === null) return -1;
@@ -117,25 +113,38 @@ function merge(api: GithubApiRepo[]): Repo[] {
   return [...known, ...extra];
 }
 
+/** Fetch every page before publishing or caching a complete inventory. */
+export async function fetchPublicRepos(signal: AbortSignal): Promise<GithubApiRepo[]> {
+  const all: GithubApiRepo[] = [];
+  const requestSignal = AbortSignal.any([signal, AbortSignal.timeout(10000)]);
+  for (let page = 1; ; page++) {
+    const response = await fetch(`https://api.github.com/users/${profile.githubUsername}/repos?per_page=100&type=owner&sort=pushed&page=${page}`, {
+      signal: requestSignal, headers: { Accept: 'application/vnd.github+json' },
+    });
+    if (!response.ok) throw new Error(`GitHub responded ${response.status}`);
+    const data = parseRepos(await response.json());
+    if (!data) throw new Error('GitHub returned invalid repository data');
+    all.push(...data);
+    if (data.length < 100) return all;
+  }
+}
+
 export function useGithubRepos(): GithubRepos {
   const [state, setState] = useState<GithubRepos>(() => {
     const cached = readCache();
     return cached
-      ? { repos: merge(cached), source: 'live', publicCount: cached.filter((r) => !r.fork).length }
+      ? { repos: merge(cached), source: 'live', publicCount: merge(cached).length }
       : { repos: staticRepos, source: 'loading', publicCount: null };
   });
 
   useEffect(() => {
     if (state.source !== 'loading') return;
     const controller = new AbortController();
-    const url = `https://api.github.com/users/${profile.githubUsername}/repos?per_page=100&type=owner&sort=pushed`;
-    fetch(url, { signal: controller.signal, headers: { Accept: 'application/vnd.github+json' } })
-      .then(async (response) => {
-        if (!response.ok) throw new Error(`GitHub responded ${response.status}`);
-        const data = parseRepos(await response.json());
-        if (!data) throw new Error('GitHub returned invalid repository data');
+    fetchPublicRepos(controller.signal)
+      .then((data) => {
+        if (controller.signal.aborted) return;
         writeCache(data);
-        setState({ repos: merge(data), source: 'live', publicCount: data.filter((r) => !r.fork).length });
+        setState({ repos: merge(data), source: 'live', publicCount: merge(data).length });
       })
       .catch((error: unknown) => {
         if (error instanceof DOMException && error.name === 'AbortError') return;

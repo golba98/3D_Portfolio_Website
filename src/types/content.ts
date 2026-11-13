@@ -75,8 +75,9 @@ export interface Project {
   active: boolean;
 }
 
-/** Older projects listed only on the CV, without repos. */
+/** Previous public versions and older CV projects. */
 export interface EarlierProject {
+  github?: string;
   title: string;
   description: string;
 }
@@ -143,9 +144,9 @@ export interface LanguageModel {
   lede: string;
   spec: readonly ModelSpecRow[];
   specSource: string;
-  loss: readonly LossPoint[];
-  lossCaption: string;
-  lossAriaLabel: string;
+  loss?: readonly LossPoint[];
+  lossCaption?: string;
+  lossAriaLabel?: string;
   counters: readonly ModelCounter[];
   caveatLabel: string;
   caveat: string;
