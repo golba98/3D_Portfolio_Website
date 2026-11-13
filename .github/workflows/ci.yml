@@ -11,8 +11,12 @@ permissions:
 
 jobs:
   validate:
-    name: Typecheck, lint and build
+    name: Validate portfolio and retain test reports
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -23,14 +27,52 @@ jobs:
           node-version: 22
           cache: npm
 
+      - name: Prepare test reports
+        run: mkdir -p test-results
+
       - name: Install dependencies
-        run: npm ci
+        run: npm ci 2>&1 | tee test-results/dependencies.log
+
+      - name: Check formatting
+        run: npm run format:check 2>&1 | tee test-results/format.log
 
       - name: Typecheck
-        run: npm run typecheck
+        run: npm run typecheck 2>&1 | tee test-results/typecheck.log
 
       - name: Lint
-        run: npm run lint
+        run: npm run lint 2>&1 | tee test-results/lint.log
+
+      - name: Unit tests including public repository inventory
+        env:
+          CHECK_PUBLIC_REPOS: '1'
+        run: npm run test -- --reporter=default --reporter=junit --outputFile=test-results/unit-tests.xml 2>&1 | tee test-results/unit-tests.log
+
+      - name: Documentation policy tests
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: python3 scripts/test_documentation_policy.py 2>&1 | tee test-results/documentation-policy.log
+
+      - name: Validate model
+        run: npm run model:check 2>&1 | tee test-results/model.log
 
       - name: Build
-        run: npm run build
+        run: npm run build 2>&1 | tee test-results/build.log
+
+      - name: Install browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Browser tests
+        env:
+          PLAYWRIGHT_JUNIT_OUTPUT_FILE: test-results/browser-tests.xml
+        run: npm run test:e2e -- --reporter=list,junit 2>&1 | tee test-results/browser-tests.log
+
+      - name: Retain validation reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: validation-results-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            test-results/*.log
+            test-results/*.xml
+          if-no-files-found: error
+          retention-days: 14
