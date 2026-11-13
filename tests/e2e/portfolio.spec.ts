@@ -9,9 +9,11 @@ const state = (page: Page) =>
   });
 async function openBoard(page: Page) {
   await page.goto('/');
-  await page.getByRole('button', { name: /Skip intro/ }).waitFor({ state: 'visible', timeout: 60_000 });
-  await page.keyboard.press('Escape');
+  const skip = page.getByRole('button', { name: /Skip intro/ });
   const draw = page.getByRole('button', { name: /Draw on board/ });
+  // Shader compilation can delay readiness, and the intro can finish between polls.
+  await expect(skip.or(draw).first()).toBeVisible({ timeout: process.env.CI ? 120_000 : 60_000 });
+  if (await skip.isVisible()) await page.keyboard.press('Escape');
   await draw.focus();
   await page.keyboard.press('Enter');
   await expect(page.getByRole('button', { name: 'black marker', exact: true })).toBeEnabled({ timeout: 30_000 });
