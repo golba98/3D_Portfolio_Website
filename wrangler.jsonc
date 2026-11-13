@@ -3,6 +3,7 @@
 {
   "name": "3d-portfolio-website",
   "compatibility_date": "2026-09-21",
+  "previews": {},
   "assets": {
     "directory": "./dist",
     // The app routes with the URL hash, but send any unknown path to index.html anyway.
