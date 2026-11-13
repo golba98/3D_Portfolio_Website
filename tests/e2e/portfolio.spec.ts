@@ -27,6 +27,8 @@ async function move(page: Page, x: number, y: number) {
 }
 
 test('actual board: capture miss, four edges, re-entry, release, undo, tools and persistence', async ({ page }) => {
+  // Many real pointer gestures plus two scene loads are costly on software WebGL.
+  if (process.env.CI) test.setTimeout(600_000);
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.addInitScript(() =>
