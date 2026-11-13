@@ -1,3 +1,4 @@
+import { codexa } from '../../data/model';
 import { useState } from 'react';
 import { Icon } from '../../components/icons/Icon';
 import type { Project } from '../../types/content';
@@ -131,7 +132,7 @@ export function ProjectDetail({ project, compact }: ProjectDetailProps) {
         </section>
       )}
 
-      {project.id === 'llm' && <ModelSection />}
+      {project.id === codexa.projectId && <ModelSection />}
     </article>
   );
 }

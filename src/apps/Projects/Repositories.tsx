@@ -25,7 +25,7 @@ export function Repositories() {
             · {publicCount} public repos.
           </>
         ) : source === 'unreachable' ? (
-          <>{reposSection.unreachable} Showing the saved list.</>
+          <>{reposSection.unreachable}</>
         ) : (
           <>Checking GitHub…</>
         )}

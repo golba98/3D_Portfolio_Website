@@ -187,8 +187,8 @@
   buttons (the back button a chevron with the previous page's name).
 */
 .headerbar[data-platform='ios'] {
-  /* iOS centres the title whatever the buttons either side are. */
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  /* Keep navigation controls visible when a project has a long title. */
+  grid-template-columns: minmax(max-content, 1fr) minmax(0, auto) minmax(max-content, 1fr);
   min-height: 44px;
   padding: 0 6px;
   background: var(--ios-bar);

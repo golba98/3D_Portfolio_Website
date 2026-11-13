@@ -66,7 +66,7 @@ export default function Projects({ arg }: AppProps) {
       <p className={styles.sidebarLabel}>More</p>
       <ul>
         {navRow('repos', 'All Repositories', 'Public code on GitHub')}
-        {navRow('earlier', 'Earlier Projects', 'From my CV')}
+        {navRow('earlier', 'Earlier Projects', 'Previous versions and CV work')}
       </ul>
     </>
   );

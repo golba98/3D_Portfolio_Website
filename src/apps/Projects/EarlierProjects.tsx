@@ -6,11 +6,11 @@ export function EarlierProjects() {
   return (
     <section className={`${ui.page} ${ui.narrow}`} aria-labelledby="earlier-heading">
       <h2 id="earlier-heading" className={ui.groupTitle}>
-        From My CV
+        Earlier Projects
       </h2>
       <ul className={ui.list}>
         {earlierProjects.map((project) => (
-          <ActionRow key={project.title} title={project.title} subtitle={project.description} />
+          <ActionRow key={project.title} title={project.title} subtitle={project.description} href={project.github} />
         ))}
       </ul>
     </section>

@@ -11,7 +11,7 @@ export function BoardToolbar() {
   const boardReady = useExperience((s) => s.boardReady);
   const closeBoard = useExperience((s) => s.closeBoard);
   const tool = useBoardDrawing((s) => s.tool);
-  const strokes = useBoardDrawing((s) => s.strokes.length);
+  const strokes = useBoardDrawing((s) => s.strokes.length + Number(s.current !== null));
   const keyboardDrawing = useBoardDrawing((s) => s.keyboardDrawing);
   const setTool = useBoardDrawing((s) => s.setTool);
   const keyboardArea = useRef<HTMLDivElement>(null);

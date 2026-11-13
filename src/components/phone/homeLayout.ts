@@ -31,7 +31,7 @@ export const WIDGET_PROJECTS: ReadonlyArray<{ id: string; name: string; icon: Ic
   { id: 'syncroedit', name: 'SyncroEdit', icon: 'file' },
   { id: 'ubume', name: 'Ubume', icon: 'terminal' },
   { id: 'llm', name: 'Codexa', icon: 'chip' },
-  { id: 'movies', name: 'Movies', icon: 'film' },
+  { id: 'hp-prime-emulator', name: 'HP Prime', icon: 'terminal' },
 ];
 
 /** The Search pill above the dock. */

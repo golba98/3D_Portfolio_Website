@@ -1,47 +1,27 @@
 import type { LanguageModel } from '../types/content';
 
-/**
- * Codexa v1, migrated from the previous site's Model section. Numbers come from
- * MODEL_CARD.md, configs/1b.yaml and the training logs in LLM-Codexa-v1.
- */
+// v3 only: configs/250m.yaml and reports/training/evidence/base-500m-report.json.
 export const codexa: LanguageModel = {
-  projectId: 'llm',
-  title: 'Codexa v1',
-  heading: 'I trained a model',
-  lede: "Codexa v1 — 934M parameters, trained from scratch on one 16 GB GPU, so Ubume can run a model of its own rather than routing out to someone else's CLI. Base pretraining and conversational SFT are both complete; native PyTorch is still the only runtime that runs it correctly.",
+  projectId: 'llm', title: 'Codexa v3', heading: 'Built and trained from scratch',
+  lede: 'The completed v3 base run started from random initialization. These measurements describe that run, not conversational fine-tuning or the separate NumPy and v1 projects.',
   spec: [
-    { label: 'Parameters', value: '934,356,480' },
-    { label: 'Layers', value: '24' },
-    { label: 'Hidden size', value: '1,536' },
-    { label: 'Attention heads', value: '24' },
-    { label: 'Context length', value: '2,048 tokens' },
-    { label: 'Vocabulary', value: '16,384' },
-    { label: 'Feed-forward', value: 'SwiGLU' },
-    { label: 'Normalisation', value: 'RMSNorm' },
+    { label: 'Parameters', value: '248,687,488' },
+    { label: 'Layers / hidden width', value: '24 / 896' },
+    { label: 'Attention heads', value: '14' },
+    { label: 'Training context', value: '2,048 tokens' },
+    { label: 'Vocabulary', value: '16,384-token BPE' },
+    { label: 'Feed-forward', value: 'SwiGLU · intermediate width 2,432' },
+    { label: 'Normalization / positions', value: 'RMSNorm / RoPE' },
     { label: 'Embeddings', value: 'Tied input/output' },
-    { label: 'Tokenizer', value: 'Byte-level BPE' },
-    { label: 'Precision', value: 'bf16 mixed' },
+    { label: 'Recorded training precision', value: 'BF16 autocast · FP32 loss' },
   ],
-  specSource: 'configs/1b.yaml and logs/codexa-900m-base-v1/run_metadata.json',
-  loss: [
-    { step: 100, loss: 2.3052, ppl: 10.026 },
-    { step: 1000, loss: 2.2307, ppl: 9.307 },
-    { step: 2000, loss: 2.1706, ppl: 8.765 },
-    { step: 3000, loss: 2.1031, ppl: 8.191 },
-    { step: 4000, loss: 2.0654, ppl: 7.887 },
-    { step: 5000, loss: 2.0311, ppl: 7.623 },
-    { step: 6000, loss: 2.0316, ppl: 7.626 },
-  ],
-  lossCaption:
-    'Conversational SFT validation loss, codexa-900m-sft-v2. Read from logs/codexa-900m-sft-v2/train_metrics.jsonl.',
-  lossAriaLabel: 'Conversational SFT validation loss falling from 2.31 to 2.03 over 6,000 optimizer steps',
+  specSource: 'configs/250m.yaml and reports/training/evidence/base-500m-report.json (v3)',
   counters: [
-    { value: 7700.7, display: '7,700.7', unit: 'tok/s', label: 'median base throughput' },
-    { value: 12920, display: '12,920', unit: 'MiB', label: 'peak reserved VRAM' },
-    { value: 10000, display: '10,000', unit: 'steps', label: 'completed base steps' },
-    { value: 6000, display: '6,000', unit: 'steps', label: 'completed SFT steps' },
+    { value: 500006912, display: '500,006,912', unit: 'targets', label: 'base-run training targets' },
+    { value: 15259, display: '15,259', unit: 'updates', label: 'base-run optimizer updates' },
+    { value: 3.048003, display: '3.048003', unit: '', label: 'full-window validation loss' },
+    { value: 606208, display: '606,208', unit: 'targets', label: 'full-window validation scope' },
   ],
-  caveatLabel: "What it can't do.",
-  caveat:
-    'Native PyTorch inference works, but conversational quality is still being evaluated. The GGUF/LM Studio export failed its behavioral compatibility gate, so the native checkpoint is the only build that runs correctly.',
+  caveatLabel: 'Research limits.',
+  caveat: 'The recorded base run completed on 4 November 2026; validation loss does not establish language or mathematics competence. Baseline responses still include repetition, factual errors and incoherence. Mathematics training admission is pending and no public trained weights are available. Experimental longer-context configurations do not establish learned long-context capability.',
 };

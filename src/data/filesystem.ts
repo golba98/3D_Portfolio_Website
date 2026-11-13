@@ -15,7 +15,7 @@ import { cvSkillGroups, skillGroups } from './skills';
 const file = (name: string, content: string, extra: Partial<FsFile> = {}): FsFile => ({ kind: 'file', name, content, ...extra });
 const dir = (name: string, children: FsNode[]): FsDir => ({ kind: 'dir', name, children });
 
-/** Project files are named after the project, e.g. "fedora-movies.md". */
+/** Project files are named after the project, e.g. "hp-prime-emulator.md". */
 export const slugify = (text: string): string =>
   text
     .toLowerCase()
@@ -60,7 +60,7 @@ const projectsDir = dir('Projects', [
       { opens: { app: 'projects', arg: p.id } },
     ),
   ),
-  file('earlier-projects.txt', ['From my CV:', '', ...earlierProjects.map((p) => `- ${p.title}: ${p.description}`)].join('\n'), {
+  file('earlier-projects.txt', ['Earlier projects:', '', ...earlierProjects.map((p) => `- ${p.title}: ${p.description}`)].join('\n'), {
     opens: { app: 'projects', arg: 'earlier' },
   }),
 ]);

@@ -89,7 +89,7 @@ export const COMMANDS: Record<string, Command> = {
   projects: {
     summary: 'What I built',
     run: () => [
-      ...projects.map((p): OutputLine => [t(p.title.padEnd(15), 'bold'), t(`${p.year.padEnd(20)}`, 'muted'), p.role]),
+      ...projects.map((p): OutputLine => [t(p.title.padEnd(Math.max(...projects.map(project => project.title.length)) + 2), 'bold'), t(`${p.year.padEnd(20)}`, 'muted'), p.role]),
       [''],
       [t('Details: ', 'muted'), t('open projects', 'accent'), t(' or ', 'muted'), t('ls ~/Projects', 'accent')],
     ],
