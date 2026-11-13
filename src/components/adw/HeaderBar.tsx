@@ -38,9 +38,7 @@ export function HeaderBar({ title, subtitle, start, end, variant = 'default', tr
       onDoubleClick={win ? onDoubleClick : undefined}
       onContextMenu={win?.openMenu}
     >
-      <div className={styles.start}>
-        {start}
-      </div>
+      <div className={styles.start}>{start}</div>
       {title !== undefined && (
         <div className={styles.title}>
           <span className={styles.titleText}>{title}</span>
@@ -75,7 +73,13 @@ function WindowControls({ frame }: { frame: WindowFrame }) {
       >
         <Icon name={icon} size={12} strokeWidth={2.4} />
       </button>
-      <button type="button" className={styles.control} aria-label={`Close ${frame.appTitle}`} title="Close" onClick={frame.close}>
+      <button
+        type="button"
+        className={styles.control}
+        aria-label={`Close ${frame.appTitle}`}
+        title="Close"
+        onClick={frame.close}
+      >
         <Icon name="close" size={14} strokeWidth={2.2} />
       </button>
     </>

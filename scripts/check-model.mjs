@@ -22,48 +22,66 @@ const REQUIRED_NODES = [
   'Phone',
   'Phone_Screen',
   'Shelves_Structure_Furniture_Cream_Shelves',
-  ...[1, 2, 3, 4, 5, 6].map((i) => `Whiteboard_Marker_${String(i).padStart(2, '0')}_${['Black', 'Red', 'Blue', 'Black', 'Green', 'Red'][i - 1]}`),
+  ...[1, 2, 3, 4, 5, 6].map(
+    (i) =>
+      `Whiteboard_Marker_${String(i).padStart(2, '0')}_${['Black', 'Red', 'Blue', 'Black', 'Green', 'Red'][i - 1]}`,
+  ),
 ];
 
 const file = process.argv[2] ?? 'public/models/pc-setup.glb';
 await MeshoptDecoder.ready;
-const io = new NodeIO()
-  .registerExtensions(ALL_EXTENSIONS)
-  .registerDependencies({ 'meshopt.decoder': MeshoptDecoder });
+const io = new NodeIO().registerExtensions(ALL_EXTENSIONS).registerDependencies({ 'meshopt.decoder': MeshoptDecoder });
 const doc = await io.read(file);
 const root = doc.getRoot();
 const scene = root.getDefaultScene() ?? root.listScenes()[0];
+if (!scene) throw new Error(`Model has no scene: ${file}`);
 
-const names = new Set(root.listNodes().map((n) => n.getName()));
-const missing = REQUIRED_NODES.filter((n) => !names.has(n));
+const nodesByName = new Map(root.listNodes().map((node) => [node.getName(), node]));
+const missing = REQUIRED_NODES.filter((name) => !nodesByName.has(name));
 
 let primitives = 0;
 let triangles = 0;
 for (const mesh of root.listMeshes()) {
-  for (const prim of mesh.listPrimitives()) {
+  for (const primitive of mesh.listPrimitives()) {
     primitives += 1;
-    const count = prim.getIndices()?.getCount() ?? prim.getAttribute('POSITION')?.getCount() ?? 0;
+    const count = primitive.getIndices()?.getCount() ?? primitive.getAttribute('POSITION')?.getCount() ?? 0;
     triangles += count / 3;
   }
 }
 
-const fmt = (v) => v.map((x) => x.toFixed(3)).join(', ');
+const formatVector = (vector) => vector.map((coordinate) => coordinate.toFixed(3)).join(', ');
 console.log(`file        ${file} (${(statSync(file).size / 1024 / 1024).toFixed(2)} MB)`);
 console.log(`nodes       ${root.listNodes().length}`);
 console.log(`meshes      ${root.listMeshes().length} (${primitives} primitives ≈ draw calls)`);
 console.log(`triangles   ${Math.round(triangles).toLocaleString()}`);
 console.log(`materials   ${root.listMaterials().length}`);
-console.log(`textures    ${root.listTextures().map((t) => `${t.getName() || '?'} ${t.getMimeType()} ${t.getSize()?.join('x')}`).join(' | ')}`);
-console.log(`extensions  ${root.listExtensionsUsed().map((e) => e.extensionName).join(', ')}`);
-const sb = getBounds(scene);
-console.log(`scene bbox  min(${fmt(sb.min)}) max(${fmt(sb.max)})`);
+console.log(
+  `textures    ${root
+    .listTextures()
+    .map((t) => `${t.getName() || '?'} ${t.getMimeType()} ${t.getSize()?.join('x')}`)
+    .join(' | ')}`,
+);
+console.log(
+  `extensions  ${root
+    .listExtensionsUsed()
+    .map((e) => e.extensionName)
+    .join(', ')}`,
+);
+const sceneBounds = getBounds(scene);
+console.log(`scene bbox  min(${formatVector(sceneBounds.min)}) max(${formatVector(sceneBounds.max)})`);
 for (const name of REQUIRED_NODES) {
-  const node = root.listNodes().find((n) => n.getName() === name);
+  const node = nodesByName.get(name);
   if (!node) continue;
-  const b = getBounds(node);
-  console.log(`  ${name.padEnd(22)} min(${fmt(b.min)}) max(${fmt(b.max)})`);
+  const bounds = getBounds(node);
+  console.log(`  ${name.padEnd(22)} min(${formatVector(bounds.min)}) max(${formatVector(bounds.max)})`);
 }
-console.log('top-level:', scene.listChildren().map((n) => `${n.getName()}[${n.listChildren().length}]`).join(' '));
+console.log(
+  'top-level:',
+  scene
+    .listChildren()
+    .map((n) => `${n.getName()}[${n.listChildren().length}]`)
+    .join(' '),
+);
 
 if (missing.length) {
   console.error(`\nMISSING required nodes: ${missing.join(', ')}`);
@@ -78,8 +96,9 @@ for (const name of ['Keychron_Legends_Base', 'Keychron_Legends_Emission']) {
   if (!size || size[0] < 2048 || size[1] < 2048) {
     keyboardErrors.push(`${name} must retain at least 2048×2048 pixels`);
   }
-  const attached = root.listMaterials().some((material) =>
-    material.getBaseColorTexture() === texture || material.getEmissiveTexture() === texture);
+  const attached = root
+    .listMaterials()
+    .some((material) => material.getBaseColorTexture() === texture || material.getEmissiveTexture() === texture);
   if (texture && !attached) keyboardErrors.push(`${name} is not attached to a material`);
 }
 if (!root.listMaterials().some((m) => m.getName() === 'Keychron30_Switch_LED')) {

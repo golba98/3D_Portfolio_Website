@@ -37,14 +37,22 @@ export const hardware: Hardware = {
   desktop: { label: 'Desktop', value: null },
   cpu: { label: 'CPU', value: null },
   gpu: { label: 'GPU', value: null },
-  gpuMemory: { label: 'GPU memory', value: '16 GB', source: 'Previous site: Codexa "trained from scratch on one 16 GB GPU"' },
+  gpuMemory: {
+    label: 'GPU memory',
+    value: '16 GB',
+    source: 'Previous site: Codexa "trained from scratch on one 16 GB GPU"',
+  },
   memory: { label: 'Memory', value: null },
   storage: { label: 'Storage', value: null },
   motherboard: { label: 'Motherboard', value: null },
   cooling: { label: 'Cooling', value: null },
   case: { label: 'Case', value: null },
   displays: { label: 'Displays', value: null },
-  keyboard: { label: 'Keyboard', value: 'Keychron K2 HE Black', source: 'Owner confirmation and reference photographs, 2026-10-15' },
+  keyboard: {
+    label: 'Keyboard',
+    value: 'Keychron K2 HE Black',
+    source: 'Owner confirmation and reference photographs, 2026-10-15',
+  },
   mouse: { label: 'Mouse', value: null },
 };
 

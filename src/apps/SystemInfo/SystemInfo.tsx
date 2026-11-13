@@ -39,7 +39,9 @@ export default function SystemInfo(_props: AppProps) {
             ))}
           </dl>
           {PC_INTEREST && (
-            <p className={`${ui.small} ${ui.muted} ${styles.note}`}>{PC_INTEREST} is on my CV — the 3D desk on the landing page is my own setup.</p>
+            <p className={`${ui.small} ${ui.muted} ${styles.note}`}>
+              {PC_INTEREST} is on my CV — the 3D desk on the landing page is my own setup.
+            </p>
           )}
         </section>
 

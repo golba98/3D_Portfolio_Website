@@ -9,7 +9,8 @@ const HALVES: Record<string, readonly [top: boolean, bottom: boolean]> = {
 
 // Split each banner row into its block-character art and the text after it.
 const ART_WIDTH = Math.max(...BANNER.map((row) => [...row].findLastIndex((ch) => ch in HALVES) + 1));
-const TEXT_COLUMN = Math.min(...BANNER.map((row) => row.slice(ART_WIDTH).search(/\S/)).filter((i) => i >= 0)) + ART_WIDTH;
+const TEXT_COLUMN =
+  Math.min(...BANNER.map((row) => row.slice(ART_WIDTH).search(/\S/)).filter((i) => i >= 0)) + ART_WIDTH;
 
 const cells = BANNER.flatMap((row, y) =>
   [...row.slice(0, ART_WIDTH)].flatMap((ch, x) => {
@@ -24,7 +25,10 @@ const cells = BANNER.flatMap((row, y) =>
  */
 export function Banner() {
   return (
-    <div className={styles.banner} style={{ gridTemplateColumns: `${TEXT_COLUMN}ch 1fr`, gridTemplateRows: `repeat(${BANNER.length}, 1.3em)` }}>
+    <div
+      className={styles.banner}
+      style={{ gridTemplateColumns: `${TEXT_COLUMN}ch 1fr`, gridTemplateRows: `repeat(${BANNER.length}, 1.3em)` }}
+    >
       <svg
         className={styles.bannerArt}
         viewBox={`0 0 ${ART_WIDTH} ${BANNER.length * 2}`}

@@ -11,10 +11,13 @@ export function onEveryMinute(onTick: () => void): () => void {
   let timer = 0;
   const schedule = (): void => {
     const now = Date.now();
-    timer = window.setTimeout(() => {
-      onTick();
-      schedule();
-    }, 60_000 - (now % 60_000) + SLACK_MS);
+    timer = window.setTimeout(
+      () => {
+        onTick();
+        schedule();
+      },
+      60_000 - (now % 60_000) + SLACK_MS,
+    );
   };
   const onVisible = (): void => {
     if (document.visibilityState !== 'visible') return;

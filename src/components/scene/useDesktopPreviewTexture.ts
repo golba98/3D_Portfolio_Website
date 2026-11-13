@@ -4,22 +4,14 @@ import { CanvasTexture, SRGBColorSpace } from 'three';
 import { SCREEN } from '../../config/scene';
 import { APPS } from '../../apps/registry';
 import { useDeviceTier } from '../../hooks/useDeviceTier';
+import { useViewportSize } from '../../hooks/useViewportSize';
+import { loadImage } from '../../lib/images';
 import { clamp } from '../../lib/math';
 import { onEveryMinute } from '../../lib/minuteTicker';
 import type { ScreenRect } from '../../types/scene';
-import { drawDesktopPreview, previewLayout, type PreviewImages, type Size } from './drawDesktopPreview';
+import { drawDesktopPreview, previewLayout, type PreviewImages } from './drawDesktopPreview';
 
 const WALLPAPER_URL = '/wallpaper.webp';
-const RESIZE_DEBOUNCE_MS = 250;
-
-export const readViewport = (): Size => ({ width: window.innerWidth, height: window.innerHeight });
-
-export function loadImage(src: string): Promise<HTMLImageElement> {
-  const image = new Image();
-  image.decoding = 'async';
-  image.src = src;
-  return image.decode().then(() => image);
-}
 
 /**
  * Canvas texture of the desktop preview. It is as many pixels wide as the
@@ -30,33 +22,18 @@ export function loadImage(src: string): Promise<HTMLImageElement> {
 export function useDesktopPreviewTexture(screen: ScreenRect): CanvasTexture {
   const tier = useDeviceTier();
   const maxTextureSize = useThree((s) => s.gl.capabilities.maxTextureSize);
-  const [viewport, setViewport] = useState(readViewport);
+  const viewport = useViewportSize();
   const [images, setImages] = useState<PreviewImages>(() => ({ wallpaper: null, icons: APPS.map(() => null) }));
 
   useEffect(() => {
-    let timer = 0;
-    const onResize = (): void => {
-      window.clearTimeout(timer);
-      timer = window.setTimeout(() => setViewport(readViewport()), RESIZE_DEBOUNCE_MS);
-    };
-    window.addEventListener('resize', onResize);
-    return () => {
-      window.clearTimeout(timer);
-      window.removeEventListener('resize', onResize);
-    };
-  }, []);
-
-  useEffect(() => {
     let cancelled = false;
-    void Promise.allSettled([loadImage(WALLPAPER_URL), ...APPS.map((app) => loadImage(app.iconSrc)), document.fonts.ready]).then(
-      ([wallpaper, ...rest]) => {
+    const assets = [loadImage(WALLPAPER_URL), ...APPS.map((app) => loadImage(app.iconSrc))];
+    void Promise.all([Promise.allSettled(assets), document.fonts.ready.catch(() => undefined)]).then(
+      ([[wallpaper, ...icons]]) => {
         if (cancelled) return;
         setImages({
-          wallpaper: wallpaper?.status === 'fulfilled' ? (wallpaper.value as HTMLImageElement) : null,
-          icons: APPS.map((_, i) => {
-            const result = rest[i];
-            return result?.status === 'fulfilled' ? (result.value as HTMLImageElement) : null;
-          }),
+          wallpaper: wallpaper?.status === 'fulfilled' ? wallpaper.value : null,
+          icons: icons.map((result) => (result.status === 'fulfilled' ? result.value : null)),
         });
       },
     );

@@ -1,4 +1,12 @@
-import { background, backgroundSection, certifications, education, interests, leadership, workHistory } from '../../data/background';
+import {
+  background,
+  backgroundSection,
+  certifications,
+  education,
+  interests,
+  leadership,
+  workHistory,
+} from '../../data/background';
 import { profile } from '../../data/profile';
 import { HeaderBar, HeaderLink } from '../../components/adw/HeaderBar';
 import { ToolbarView } from '../../components/adw/ToolbarView';
@@ -10,7 +18,14 @@ import styles from './About.module.css';
 /** Laid out like a contact card in GNOME Contacts. */
 export default function About({ openApp }: AppProps) {
   return (
-    <ToolbarView top={<HeaderBar title="About" end={<HeaderLink icon="download" label="Download CV" href={profile.resumeUrl} download />} />}>
+    <ToolbarView
+      top={
+        <HeaderBar
+          title="About"
+          end={<HeaderLink icon="download" label="Download CV" href={profile.resumeUrl} download />}
+        />
+      }
+    >
       <article className={`${ui.page} ${ui.narrow}`}>
         <header className={ui.hero}>
           <span className={styles.avatar} aria-hidden="true">
@@ -28,7 +43,12 @@ export default function About({ openApp }: AppProps) {
         </div>
 
         <ul className={`${ui.list} ${ui.section}`} aria-label="Go to">
-          <ActionRow icon="folder-code" title="Projects" subtitle="What I've built, and the model I trained" onActivate={() => openApp('projects')} />
+          <ActionRow
+            icon="folder-code"
+            title="Projects"
+            subtitle="What I've built, and the model I trained"
+            onActivate={() => openApp('projects')}
+          />
           <ActionRow icon="mail" title="Contact" subtitle={profile.email} onActivate={() => openApp('contact')} />
         </ul>
 
@@ -48,7 +68,11 @@ export default function About({ openApp }: AppProps) {
             Education
           </h2>
           <ul className={ui.list}>
-            <ActionRow icon="graduation" title={`${education.institution} — ${education.degree}`} subtitle={education.mode}>
+            <ActionRow
+              icon="graduation"
+              title={`${education.institution} — ${education.degree}`}
+              subtitle={education.mode}
+            >
               <span className={ui.rowSubtitle}>{education.note}</span>
             </ActionRow>
           </ul>

@@ -85,7 +85,6 @@ export function drawDesktopPreview(
     ctx.drawImage(wallpaper, (vp.width - w) / 2, (vp.height - h) / 2, w, h);
   }
 
-
   // Top bar (TopBar.module.css): 32px tall, 6px side padding, 13px bold text.
   const mid = 16;
   ctx.fillStyle = t.topbar;

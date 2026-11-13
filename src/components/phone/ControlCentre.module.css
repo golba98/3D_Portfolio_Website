@@ -3,7 +3,8 @@
   position: absolute;
   inset: 0;
   z-index: 40;
-  padding: calc(env(safe-area-inset-top) + 56px) max(20px, env(safe-area-inset-right)) 0 max(20px, env(safe-area-inset-left));
+  padding: calc(env(safe-area-inset-top) + 56px) max(20px, env(safe-area-inset-right)) 0
+    max(20px, env(safe-area-inset-left));
   background: rgb(0 0 0 / 0.38);
   backdrop-filter: blur(32px) saturate(1.6);
   touch-action: none;

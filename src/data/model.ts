@@ -2,7 +2,9 @@ import type { LanguageModel } from '../types/content';
 
 // v3 only: configs/250m.yaml and reports/training/evidence/base-500m-report.json.
 export const codexa: LanguageModel = {
-  projectId: 'llm', title: 'Codexa v3', heading: 'Built and trained from scratch',
+  projectId: 'llm',
+  title: 'Codexa v3',
+  heading: 'Built and trained from scratch',
   lede: 'The completed v3 base run started from random initialization. These measurements describe that run, not conversational fine-tuning or the separate NumPy and v1 projects.',
   spec: [
     { label: 'Parameters', value: '248,687,488' },
@@ -23,5 +25,6 @@ export const codexa: LanguageModel = {
     { value: 606208, display: '606,208', unit: 'targets', label: 'full-window validation scope' },
   ],
   caveatLabel: 'Research limits.',
-  caveat: 'The recorded base run completed on 4 November 2026; validation loss does not establish language or mathematics competence. Baseline responses still include repetition, factual errors and incoherence. Mathematics training admission is pending and no public trained weights are available. Experimental longer-context configurations do not establish learned long-context capability.',
+  caveat:
+    'The recorded base run completed on 4 November 2026; validation loss does not establish language or mathematics competence. Baseline responses still include repetition, factual errors and incoherence. Mathematics training admission is pending and no public trained weights are available. Experimental longer-context configurations do not establish learned long-context capability.',
 };

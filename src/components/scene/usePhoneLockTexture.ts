@@ -1,17 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useThree } from '@react-three/fiber';
 import { CanvasTexture, SRGBColorSpace } from 'three';
+import { useViewportSize } from '../../hooks/useViewportSize';
 import { phoneFocusPose, phoneShownWhole } from '../../lib/cameraMath';
+import { loadImage } from '../../lib/images';
 import { clamp } from '../../lib/math';
 import { onEveryMinute } from '../../lib/minuteTicker';
 import type { ScreenRect } from '../../types/scene';
-import { planeOnScreen, type Size } from './drawDesktopPreview';
+import { planeOnScreen } from './drawDesktopPreview';
 import { drawPhoneLockScreen } from './drawPhoneLockScreen';
-import { loadImage, readViewport } from './useDesktopPreviewTexture';
 
 /** Apple's iPhone 15 Pro Black Titanium wallpaper, Lock Screen variant. */
 const WALLPAPER_URL = '/wallpaper-iphone-lock.webp';
-const RESIZE_DEBOUNCE_MS = 250;
 /** Texture width bounds; the phone's display is small until the camera arrives. */
 const MIN_WIDTH = 512;
 const MAX_WIDTH = 1536;
@@ -23,21 +23,8 @@ const MAX_WIDTH = 1536;
  */
 export function usePhoneLockTexture(screen: ScreenRect): CanvasTexture {
   const maxTextureSize = useThree((s) => s.gl.capabilities.maxTextureSize);
-  const [viewport, setViewport] = useState<Size>(readViewport);
+  const viewport = useViewportSize();
   const [wallpaper, setWallpaper] = useState<HTMLImageElement | null>(null);
-
-  useEffect(() => {
-    let timer = 0;
-    const onResize = (): void => {
-      window.clearTimeout(timer);
-      timer = window.setTimeout(() => setViewport(readViewport()), RESIZE_DEBOUNCE_MS);
-    };
-    window.addEventListener('resize', onResize);
-    return () => {
-      window.clearTimeout(timer);
-      window.removeEventListener('resize', onResize);
-    };
-  }, []);
 
   useEffect(() => {
     let cancelled = false;

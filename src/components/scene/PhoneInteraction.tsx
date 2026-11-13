@@ -31,9 +31,17 @@ export function PhoneInteraction() {
 
   const hitArea = useMemo(() => {
     if (!bounds) return null;
-    const size = bounds.max.map((max, i) => Math.max(max - (bounds.min[i] ?? 0), MIN_HIT_SIZE)) as [number, number, number];
+    const size = bounds.max.map((max, i) => Math.max(max - (bounds.min[i] ?? 0), MIN_HIT_SIZE)) as [
+      number,
+      number,
+      number,
+    ];
     const center = bounds.max.map((max, i) => (max + (bounds.min[i] ?? 0)) / 2) as [number, number, number];
-    return { size, center, labelAt: [center[0], bounds.max[1] + SCREEN.labelLift * 4, bounds.min[2]] as [number, number, number] };
+    return {
+      size,
+      center,
+      labelAt: [center[0], bounds.max[1] + SCREEN.labelLift * 4, bounds.min[2]] as [number, number, number],
+    };
   }, [bounds]);
 
   // Pin the DOM label just above the phone's top edge.

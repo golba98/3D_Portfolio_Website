@@ -40,26 +40,7 @@
 }
 
 .meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
   margin-top: 6px;
-}
-
-.badge {
-  display: inline-block;
-  padding: 2px 10px;
-  border-radius: var(--radius-pill);
-  background: var(--desk-button);
-  color: var(--desk-fg-muted);
-  font-size: var(--text-sm);
-  font-weight: 700;
-}
-
-.badge[data-active='true'] {
-  background: rgb(87 227 137 / 0.14);
-  color: var(--desk-success);
 }
 
 .summary {

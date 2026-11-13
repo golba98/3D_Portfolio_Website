@@ -1,6 +1,6 @@
 import { codexa } from '../../data/model';
-import { useState } from 'react';
 import { Icon } from '../../components/icons/Icon';
+import { useClipboard } from '../../hooks/useClipboard';
 import type { Project } from '../../types/content';
 import { ActionRow } from '../shared/ActionRow';
 import ui from '../shared/ui.module.css';
@@ -14,17 +14,7 @@ interface ProjectDetailProps {
 }
 
 export function ProjectDetail({ project, compact }: ProjectDetailProps) {
-  const [copied, setCopied] = useState(false);
-
-  const copyInstall = async (command: string): Promise<void> => {
-    try {
-      await navigator.clipboard.writeText(command);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1800);
-    } catch {
-      // Clipboard unavailable; the command is still selectable text.
-    }
-  };
+  const { copied, copy } = useClipboard();
 
   return (
     <article className={`${ui.page} ${ui.narrow}`} aria-labelledby={`project-${project.id}`}>
@@ -32,12 +22,7 @@ export function ProjectDetail({ project, compact }: ProjectDetailProps) {
         <h2 id={`project-${project.id}`} className={ui.h1}>
           {project.title}
         </h2>
-        <p className={styles.meta}>
-          <span className={ui.muted}>{project.role}</span>
-          <span className={styles.badge} data-active={project.active}>
-            {project.year}
-          </span>
-        </p>
+        <p className={`${styles.meta} ${ui.muted}`}>{project.role}</p>
       </header>
 
       {project.image && (
@@ -106,7 +91,7 @@ export function ProjectDetail({ project, compact }: ProjectDetailProps) {
                 <button
                   type="button"
                   className={`${ui.button} ${ui.flat}`}
-                  onClick={() => void copyInstall(project.npm?.install ?? '')}
+                  onClick={() => void copy(project.npm?.install ?? '')}
                   aria-label="Copy install command"
                   title="Copy"
                 >
@@ -125,9 +110,21 @@ export function ProjectDetail({ project, compact }: ProjectDetailProps) {
         <section className={ui.section} aria-label="Links">
           <ul className={ui.list}>
             {project.github && (
-              <ActionRow icon="github" title="View Source" subtitle={project.github.replace(/^https:\/\//, '')} href={project.github} />
+              <ActionRow
+                icon="github"
+                title="View Source"
+                subtitle={project.github.replace(/^https:\/\//, '')}
+                href={project.github}
+              />
             )}
-            {project.demo && <ActionRow icon="external" title="Live Demo" subtitle={project.demo.replace(/^https:\/\//, '')} href={project.demo} />}
+            {project.demo && (
+              <ActionRow
+                icon="external"
+                title="Live Demo"
+                subtitle={project.demo.replace(/^https:\/\//, '')}
+                href={project.demo}
+              />
+            )}
           </ul>
         </section>
       )}

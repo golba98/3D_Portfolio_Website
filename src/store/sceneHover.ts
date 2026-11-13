@@ -35,7 +35,12 @@ export const labelElements: Record<HoverTarget, { current: HTMLElement | null }>
 const projected = new Vector3();
 
 /** Pins a label's bottom centre to a desk-space point, as seen by `camera`. */
-export function pinLabel(target: HoverTarget, point: Vec3, camera: Camera, size: { width: number; height: number }): void {
+export function pinLabel(
+  target: HoverTarget,
+  point: Vec3,
+  camera: Camera,
+  size: { width: number; height: number },
+): void {
   const label = labelElements[target].current;
   if (!label) return;
   projected.set(...point).project(camera);

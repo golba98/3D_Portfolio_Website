@@ -1,30 +1,27 @@
-import { useState } from 'react';
 import { place, profile } from '../../data/profile';
 import { lesotho, marker, outline, provinces, viewBox } from '../../data/zaMap';
 import { HeaderBar, HeaderLink } from '../../components/adw/HeaderBar';
 import { ToolbarView } from '../../components/adw/ToolbarView';
 import { Icon } from '../../components/icons/Icon';
+import { useClipboard } from '../../hooks/useClipboard';
 import type { AppProps } from '../../types/apps';
 import { ActionRow } from '../shared/ActionRow';
 import ui from '../shared/ui.module.css';
 import styles from './Contact.module.css';
 
 export default function Contact(_props: AppProps) {
-  const [copied, setCopied] = useState(false);
-
-  const copyEmail = async (): Promise<void> => {
-    try {
-      await navigator.clipboard.writeText(profile.email);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1800);
-    } catch {
-      // Clipboard blocked (permissions / insecure context); the mailto link still works.
-    }
-  };
+  const { copied, copy } = useClipboard();
 
   return (
     <ToolbarView
-      top={<HeaderBar title="Contact" end={<HeaderLink icon="mail" label="Send Email" text="Send Email" href={`mailto:${profile.email}`} suggested />} />}
+      top={
+        <HeaderBar
+          title="Contact"
+          end={
+            <HeaderLink icon="mail" label="Send Email" text="Send Email" href={`mailto:${profile.email}`} suggested />
+          }
+        />
+      }
     >
       <article className={`${ui.page} ${ui.narrow}`}>
         <section aria-labelledby="contact-channels">
@@ -44,7 +41,13 @@ export default function Contact(_props: AppProps) {
               }
               subtitle="Email"
               suffix={
-                <button type="button" className={`${ui.button} ${ui.flat}`} onClick={() => void copyEmail()} aria-label="Copy email address" title="Copy">
+                <button
+                  type="button"
+                  className={`${ui.button} ${ui.flat}`}
+                  onClick={() => void copy(profile.email)}
+                  aria-label="Copy email address"
+                  title="Copy"
+                >
                   <Icon name={copied ? 'check' : 'copy'} size={16} strokeWidth={2} />
                   <span className="visually-hidden" aria-live="polite">
                     {copied ? 'Copied' : ''}
@@ -62,9 +65,17 @@ export default function Contact(_props: AppProps) {
             Location
           </h2>
           <figure className={`${ui.card} ${styles.map}`}>
-            <svg viewBox={viewBox} role="img" aria-label="Map of South Africa divided into its nine provinces, with the Eastern Cape filled">
+            <svg
+              viewBox={viewBox}
+              role="img"
+              aria-label="Map of South Africa divided into its nine provinces, with the Eastern Cape filled"
+            >
               {provinces.map((province) => (
-                <path key={province.name} className={province.name === 'Eastern Cape' ? styles.home : styles.province} d={province.d} />
+                <path
+                  key={province.name}
+                  className={province.name === 'Eastern Cape' ? styles.home : styles.province}
+                  d={province.d}
+                />
               ))}
               <path className={styles.outline} d={outline} />
               <path className={styles.outline} d={lesotho} />

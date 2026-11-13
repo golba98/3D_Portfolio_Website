@@ -26,10 +26,22 @@ export function ModelSection() {
       {codexa.loss && codexa.loss.length > 1 && (
         <div className={ui.section}>
           <h4 className={ui.groupTitle}>Validation loss</h4>
-          <LossChart points={codexa.loss} caption={codexa.lossCaption ?? ''} ariaLabel={codexa.lossAriaLabel ?? 'Validation loss'} />
+          <LossChart
+            points={codexa.loss}
+            caption={codexa.lossCaption ?? ''}
+            ariaLabel={codexa.lossAriaLabel ?? 'Validation loss'}
+          />
         </div>
       )}
-      <p className={ui.small}><a href="https://github.com/golba98/Codexa-LLM-v3-PyTorch-250M/blob/main/reports/training/evidence/base-500m-report.json" target="_blank" rel="noreferrer">Recorded v3 base-run results</a></p>
+      <p className={ui.small}>
+        <a
+          href="https://github.com/golba98/Codexa-LLM-v3-PyTorch-250M/blob/main/reports/training/evidence/base-500m-report.json"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Recorded v3 base-run results
+        </a>
+      </p>
 
       <div className={ui.section}>
         <h4 className={ui.groupTitle}>Architecture</h4>

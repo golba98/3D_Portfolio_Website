@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { easing } from 'maath';
 import { MathUtils, PerspectiveCamera } from 'three';
-import { EXPLORE } from '../../config/cameraPoses';
+import { EXPLORE, type PoseName } from '../../config/cameraPoses';
 import { TIMINGS } from '../../config/timings';
 import { useEntryDevice, type EntryDevice } from '../../hooks/useEntryDevice';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
@@ -79,9 +79,8 @@ function boardFraming(aspect: number): { lift: number; zoom: number } {
 function lookedAtPose(aspect: number) {
   const stops = useLookStops.getState().stops;
   // Blend towards the board's framing as the pan approaches it.
-  const towardsBoard = stops && stops.board > stops.monitor
-    ? clamp((look.pan - stops.monitor) / (stops.board - stops.monitor), 0, 1)
-    : 0;
+  const towardsBoard =
+    stops && stops.board > stops.monitor ? clamp((look.pan - stops.monitor) / (stops.board - stops.monitor), 0, 1) : 0;
   const atPhone = stops ? clamp(1 - Math.abs(look.pan - stops.phone) / PHONE_STOP_REACH, 0, 1) : 0;
   const board = boardFraming(aspect);
   return applyLook(
@@ -203,16 +202,17 @@ export function CameraRig() {
         break;
 
       case 'exploring':
-        tween.current = previousPhase.current === 'viewing-board' || previousPhase.current === 'viewing-shelf'
-          ? {
-              from: copyCameraState(state.current),
-              to: (aspect) => createCameraState(lookedAtPose(aspect)),
-              delay: 0,
-              duration: reducedMotion ? 0.001 : TIMINGS.boardMove,
-              elapsed: 0,
-              onDone: () => undefined,
-            }
-          : null;
+        tween.current =
+          previousPhase.current === 'viewing-board' || previousPhase.current === 'viewing-shelf'
+            ? {
+                from: copyCameraState(state.current),
+                to: (aspect) => createCameraState(lookedAtPose(aspect)),
+                delay: 0,
+                duration: reducedMotion ? 0.001 : TIMINGS.boardMove,
+                elapsed: 0,
+                onDone: () => undefined,
+              }
+            : null;
         break;
 
       case 'entering-monitor': {
@@ -257,19 +257,20 @@ export function CameraRig() {
       introElapsed.current += delta;
       const progress = clamp((introElapsed.current - TIMINGS.introHold) / TIMINGS.introMove, 0, 1);
       useExperience.getState().setIntroProgress(progress);
-      const segment = progress < 0.15
-        ? ['introSide', 'introSide', 0]
-        : progress < 0.45
-          ? ['introSide', 'chairReach', (progress - 0.15) / 0.30]
-          : progress < 0.72
-            ? ['chairReach', 'chairPass', (progress - 0.45) / 0.27]
-            : ['chairPass', 'presentation', (progress - 0.72) / 0.28];
-      const [from, to, part] = segment as [
-        'introSide' | 'chairReach' | 'chairPass' | 'presentation',
-        'introSide' | 'chairReach' | 'chairPass' | 'presentation',
-        number,
-      ];
-      blendLinear(createCameraState(poseFor(from, aspect)), createCameraState(poseFor(to, aspect)), easeInOutCubic(part), current);
+      const [from, to, part]: [PoseName, PoseName, number] =
+        progress < 0.15
+          ? ['introSide', 'introSide', 0]
+          : progress < 0.45
+            ? ['introSide', 'chairReach', (progress - 0.15) / 0.3]
+            : progress < 0.72
+              ? ['chairReach', 'chairPass', (progress - 0.45) / 0.27]
+              : ['chairPass', 'presentation', (progress - 0.72) / 0.28];
+      blendLinear(
+        createCameraState(poseFor(from, aspect)),
+        createCameraState(poseFor(to, aspect)),
+        easeInOutCubic(part),
+        current,
+      );
       if (progress >= 1) useExperience.getState().finishIntro();
     } else if (active) {
       active.elapsed += delta;
@@ -282,7 +283,10 @@ export function CameraRig() {
     } else if (currentPhase === 'exploring') {
       const stops = lookStops(aspect);
       const lookUi = useLookStops.getState();
-      if (stops && (!lookUi.stops || Math.abs(lookUi.stops.pc - stops.pc) + Math.abs(lookUi.stops.board - stops.board) > 1e-3)) {
+      if (
+        stops &&
+        (!lookUi.stops || Math.abs(lookUi.stops.pc - stops.pc) + Math.abs(lookUi.stops.board - stops.board) > 1e-3)
+      ) {
         lookUi.setStops(stops);
       }
       // A flick keeps sliding after the finger lifts, and slows to a stop.

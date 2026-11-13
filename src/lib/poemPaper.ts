@@ -26,11 +26,18 @@ export function shelfFocusPose(shelf: SceneBounds, aspect: number): CameraPose {
 /** Reader pixels and mesh use identical dimensions so the text follows the page. */
 export function paperReadSize(width: number, height: number): { width: number; height: number } {
   const paperWidth = Math.max(1, Math.min(620, width - 36, (height - 110) * 0.9));
-  return { width: paperWidth, height: Math.max(1, Math.min(paperWidth / (POEM_PAPER.width / POEM_PAPER.height), height - 110)) };
+  return {
+    width: paperWidth,
+    height: Math.max(1, Math.min(paperWidth / (POEM_PAPER.width / POEM_PAPER.height), height - 110)),
+  };
 }
 
 export function paperWorldSize(width: number, height: number, fov: number) {
   const pixels = paperReadSize(width, height);
-  const worldPerPixel = 2 * POEM_PAPER.readDistance * Math.tan(MathUtils.degToRad(fov) / 2) / height;
-  return new Vector3(pixels.width * worldPerPixel / POEM_PAPER.width, pixels.height * worldPerPixel / POEM_PAPER.height, 1);
+  const worldPerPixel = (2 * POEM_PAPER.readDistance * Math.tan(MathUtils.degToRad(fov) / 2)) / height;
+  return new Vector3(
+    (pixels.width * worldPerPixel) / POEM_PAPER.width,
+    (pixels.height * worldPerPixel) / POEM_PAPER.height,
+    1,
+  );
 }

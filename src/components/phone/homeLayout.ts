@@ -44,7 +44,9 @@ export const SEARCH_PILL = { width: 104, height: 32, gap: 12 } as const;
  */
 export function originOf(event: MouseEvent<HTMLElement>): LaunchOrigin {
   const rect = event.currentTarget.getBoundingClientRect();
-  const screen = event.currentTarget.closest('[data-phone-shell]')?.getBoundingClientRect() ?? new DOMRect(0, 0, window.innerWidth, window.innerHeight);
+  const screen =
+    event.currentTarget.closest('[data-phone-shell]')?.getBoundingClientRect() ??
+    new DOMRect(0, 0, window.innerWidth, window.innerHeight);
   return {
     x: (rect.left + rect.width / 2 - screen.left) / screen.width,
     y: (rect.top + rect.height / 2 - screen.top) / screen.height,

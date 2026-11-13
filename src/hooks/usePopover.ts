@@ -1,7 +1,9 @@
 import { useEffect, useState, type RefObject } from 'react';
 
 /** Open state for a top-bar menu: closes on a pointer press outside `root` or on Escape. */
-export function usePopover(root: RefObject<HTMLElement | null>): [boolean, (open: boolean | ((open: boolean) => boolean)) => void] {
+export function usePopover(
+  root: RefObject<HTMLElement | null>,
+): [boolean, (open: boolean | ((open: boolean) => boolean)) => void] {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {

@@ -56,8 +56,6 @@ export interface ProjectImage {
 export interface Project {
   id: string;
   title: string;
-  /** Date range, e.g. "Dec 2025 — Current". Stands in for status. */
-  year: string;
   role: string;
   summary: string;
   note?: string;
@@ -71,8 +69,6 @@ export interface Project {
   npm?: NpmPackage;
   /** Recreated terminal screen shown instead of a screenshot. */
   startupScreen?: { full: TerminalScreen; compact: TerminalScreen; caption: string };
-  /** True for projects still being worked on ("— Current"). */
-  active: boolean;
 }
 
 /** Previous public versions and older CV projects. */

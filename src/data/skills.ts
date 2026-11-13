@@ -4,11 +4,6 @@ import type { SkillGroup } from '../types/content';
  * From the previous site's toolkit: every item was checked against a manifest
  * or source file in a repo before it went in.
  */
-export const toolkitSection = {
-  eyebrow: 'Toolkit',
-  heading: 'What I work with',
-} as const;
-
 export const skillGroups: readonly SkillGroup[] = [
   { label: 'Languages', items: ['Python', 'JavaScript', 'TypeScript', 'C++', 'SQL', 'Bash'] },
   {
@@ -32,7 +27,10 @@ export const skillGroups: readonly SkillGroup[] = [
       'Supabase',
     ],
   },
-  { label: 'Testing & quality', items: ['Playwright', 'Vitest', 'Jest', 'node:test', 'ESLint', 'Prettier', 'axe-core'] },
+  {
+    label: 'Testing & quality',
+    items: ['Playwright', 'Vitest', 'Jest', 'node:test', 'ESLint', 'Prettier', 'axe-core'],
+  },
   {
     label: 'AI & ML',
     items: [
@@ -51,7 +49,17 @@ export const skillGroups: readonly SkillGroup[] = [
   },
   {
     label: 'Systems & tooling',
-    items: ['Linux / Fedora', 'Docker', 'Git', 'CMake', 'Electron', 'PipeWire', 'AppImage / RPM', 'Cloudflare Pages', 'Vercel'],
+    items: [
+      'Linux / Fedora',
+      'Docker',
+      'Git',
+      'CMake',
+      'Electron',
+      'PipeWire',
+      'AppImage / RPM',
+      'Cloudflare Pages',
+      'Vercel',
+    ],
   },
 ];
 

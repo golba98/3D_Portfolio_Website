@@ -11,8 +11,10 @@ export function usePoemTextures() {
   const textures = useMemo(() => {
     const makeTexture = () => {
       const canvas = document.createElement('canvas');
-      canvas.width = Math.floor(Math.min(POEM_PAPER.textureWidth, maxTextureSize * POEM_PAPER.width / POEM_PAPER.height));
-      canvas.height = Math.round(canvas.width * POEM_PAPER.height / POEM_PAPER.width);
+      canvas.width = Math.floor(
+        Math.min(POEM_PAPER.textureWidth, (maxTextureSize * POEM_PAPER.width) / POEM_PAPER.height),
+      );
+      canvas.height = Math.round((canvas.width * POEM_PAPER.height) / POEM_PAPER.width);
       const texture = new CanvasTexture(canvas);
       texture.colorSpace = SRGBColorSpace;
       texture.anisotropy = Math.min(8, maxAnisotropy);
@@ -40,7 +42,7 @@ export function usePoemTextures() {
       ctx.fillRect(0, 0, width, height);
       // Deterministic fibres; redraws and StrictMode remounts keep the same sheet.
       let seed = 404;
-      const random = () => ((seed = Math.imul(seed, 1664525) + 1013904223 | 0) >>> 0) / 4294967296;
+      const random = () => ((seed = (Math.imul(seed, 1664525) + 1013904223) | 0) >>> 0) / 4294967296;
       ctx.fillStyle = '#7564480b';
       for (let i = 0; i < 8000; i++) ctx.fillRect(random() * width, random() * height, 1 + random() * 3, 1);
       ink.clearRect(0, 0, width, height);
@@ -52,7 +54,10 @@ export function usePoemTextures() {
       const margin = width * 0.085;
       let y = height * 0.085;
       for (const line of POEM.split('\n')) {
-        if (!line) { y += fontSize * 0.8; continue; }
+        if (!line) {
+          y += fontSize * 0.8;
+          continue;
+        }
         let current = '';
         for (const word of line.split(' ')) {
           const next = current ? `${current} ${word}` : word;
@@ -69,9 +74,12 @@ export function usePoemTextures() {
       textures.written.needsUpdate = true;
     };
     draw();
-    void document.fonts.load(`400 48px ${POEM_PAPER.fontFamily}`).then(() => {
-      if (!cancelled) draw();
-    }).catch(() => undefined);
+    void document.fonts
+      .load(`400 48px ${POEM_PAPER.fontFamily}`)
+      .then(() => {
+        if (!cancelled) draw();
+      })
+      .catch(() => undefined);
     return () => {
       cancelled = true;
       textures.blank.dispose();

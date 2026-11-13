@@ -45,10 +45,27 @@ export function SceneLighting({ tier }: SceneLightingProps) {
         />
       )}
 
-      <Environment resolution={tier === 'high' ? 256 : 64} frames={1} environmentIntensity={LIGHTING.environmentIntensity}>
+      <Environment
+        resolution={tier === 'high' ? 256 : 64}
+        frames={1}
+        environmentIntensity={LIGHTING.environmentIntensity}
+      >
         <Lightformer form="rect" intensity={2.2} position={[0, 4, 1.5]} rotation-x={Math.PI / 2} scale={[7, 2.5, 1]} />
-        <Lightformer form="rect" intensity={0.9} color="#9fb4ff" position={[-4.5, 1.4, 0]} rotation-y={Math.PI / 2} scale={[4, 1.2, 1]} />
-        <Lightformer form="rect" intensity={1.3} position={[3.5, 1.2, 3.5]} rotation-y={-Math.PI / 4} scale={[3, 1.6, 1]} />
+        <Lightformer
+          form="rect"
+          intensity={0.9}
+          color="#9fb4ff"
+          position={[-4.5, 1.4, 0]}
+          rotation-y={Math.PI / 2}
+          scale={[4, 1.2, 1]}
+        />
+        <Lightformer
+          form="rect"
+          intensity={1.3}
+          position={[3.5, 1.2, 3.5]}
+          rotation-y={-Math.PI / 4}
+          scale={[3, 1.6, 1]}
+        />
         <Lightformer form="ring" color="#ff3b3b" intensity={1.2} position={[-2, 0.6, 2]} scale={0.8} />
       </Environment>
 

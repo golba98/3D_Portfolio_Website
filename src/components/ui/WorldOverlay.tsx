@@ -58,10 +58,15 @@ export function WorldOverlay() {
       {/* Pointers open the board by clicking it (its "Want to draw?" label is the cue);
           this is the keyboard's way in, shown only while focused. */}
       {phase === 'exploring' && (
-        <button ref={shelfTrigger} type="button" className={`${styles.draw} ${styles.shelf}`} onClick={() => {
-          restoreShelfFocus.current = true;
-          useExperience.getState().inspectShelf();
-        }}>
+        <button
+          ref={shelfTrigger}
+          type="button"
+          className={`${styles.draw} ${styles.shelf}`}
+          onClick={() => {
+            restoreShelfFocus.current = true;
+            useExperience.getState().inspectShelf();
+          }}
+        >
           Inspect bottom shelf
         </button>
       )}

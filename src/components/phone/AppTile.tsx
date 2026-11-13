@@ -49,7 +49,14 @@ export function AppTile(props: AppTileProps) {
     );
   }
   return (
-    <button type="button" className={styles.button} aria-label={title} aria-description={description} title={title} onClick={props.onOpen}>
+    <button
+      type="button"
+      className={styles.button}
+      aria-label={title}
+      aria-description={description}
+      title={title}
+      onClick={props.onOpen}
+    >
       {tile}
     </button>
   );

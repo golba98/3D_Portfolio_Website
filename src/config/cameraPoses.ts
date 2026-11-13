@@ -27,14 +27,14 @@ export const CAMERA_POSES: PoseSet = {
   wide: {
     introSide: { position: [0.38, 1.02, 3.65], target: [0.45, 0.36, 0.1], fov: 44 },
     chairReach: { position: [0.16, 0.65, 2.33], target: [0.18, 0.12, 0.73], fov: 45 },
-    chairPass: { position: [0.75, 0.55, 1.83], target: [0.45, 0.30, -0.18], fov: 50 },
-    presentation: { position: [0.62, 0.60, 2.2], target: [0.55, 0.40, -0.34], fov: 52 },
+    chairPass: { position: [0.75, 0.55, 1.83], target: [0.45, 0.3, -0.18], fov: 50 },
+    presentation: { position: [0.62, 0.6, 2.2], target: [0.55, 0.4, -0.34], fov: 52 },
   },
   narrow: {
-    introSide: { position: [0.24, 1.18, 2.95], target: [0.24, 0.24, 0.10], fov: 56 },
+    introSide: { position: [0.24, 1.18, 2.95], target: [0.24, 0.24, 0.1], fov: 56 },
     chairReach: { position: [0.12, 0.82, 2.45], target: [0.18, 0.13, 0.78], fov: 59 },
-    chairPass: { position: [0.42, 0.82, 1.80], target: [0.22, 0.28, -0.22], fov: 58 },
-    presentation: { position: [0.22, 0.98, 1.72], target: [0.20, 0.20, -0.20], fov: 56 },
+    chairPass: { position: [0.42, 0.82, 1.8], target: [0.22, 0.28, -0.22], fov: 58 },
+    presentation: { position: [0.22, 0.98, 1.72], target: [0.2, 0.2, -0.2], fov: 56 },
   },
 };
 

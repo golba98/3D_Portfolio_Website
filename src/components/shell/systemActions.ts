@@ -24,6 +24,7 @@ export function useSystemActions(): SystemAction[] {
     { id: 'cv', icon: 'download', label: 'Download CV', href: profile.resumeUrl, download: true },
     { id: 'github', icon: 'github', label: 'GitHub', href: profile.github },
   ];
-  if (sceneStatus !== 'failed') actions.push({ id: 'leave', icon: 'power', label: 'Back to the 3D desk', onSelect: leaveDesktop });
+  if (sceneStatus !== 'failed')
+    actions.push({ id: 'leave', icon: 'power', label: 'Back to the 3D desk', onSelect: leaveDesktop });
   return actions;
 }

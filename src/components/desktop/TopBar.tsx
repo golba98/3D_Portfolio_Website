@@ -20,7 +20,13 @@ export function TopBar({ leftLabel, leftPressed, onLeft, workspaces }: TopBarPro
       <div className={styles.left}>
         {workspaces ? (
           <>
-            <button type="button" className={styles.workspaces} aria-label={leftLabel} aria-pressed={leftPressed} onClick={onLeft}>
+            <button
+              type="button"
+              className={styles.workspaces}
+              aria-label={leftLabel}
+              aria-pressed={leftPressed}
+              onClick={onLeft}
+            >
               <span className={styles.activeWorkspace} aria-hidden="true" />
               <span className={styles.workspace} aria-hidden="true" />
             </button>
