@@ -1,6 +1,7 @@
-import { useMemo, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { APPS } from '../../apps/registry';
+import { searchPortfolio } from '../../lib/portfolioSearch';
+import { ProjectSearchResults } from '../shell/ProjectSearchResults';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { AppIcon } from '../desktop/AppIcon';
@@ -18,13 +19,7 @@ export function SearchSheet() {
   const setOverlay = usePhone((s) => s.setOverlay);
   useFocusTrap(sheet, true);
 
-  const results = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return APPS;
-    return APPS.filter((app) =>
-      [app.title, app.description, ...app.keywords].some((text) => text.toLowerCase().includes(q)),
-    );
-  }, [query]);
+  const { apps: results, projects } = searchPortfolio(query);
 
   const close = (): void => setOverlay('none');
 
@@ -40,7 +35,11 @@ export function SearchSheet() {
       exit={{ opacity: 0, y: reducedMotion ? 0 : 24 }}
       transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
       onKeyDown={(event) => {
-        if (event.key === 'Escape') close();
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          event.stopPropagation();
+          close();
+        }
       }}
     >
       <div className={styles.bar}>
@@ -49,16 +48,17 @@ export function SearchSheet() {
           <input
             type="search"
             value={query}
-            placeholder="Search"
-            aria-label="Search apps"
+            placeholder="Apps, projects, skills"
+            aria-label="Search apps and projects"
             enterKeyHint="go"
             autoFocus
             onChange={(event) => setQuery(event.target.value)}
             onKeyDown={(event) => {
               const first = results[0];
-              if (event.key === 'Enter' && first) {
+              if (event.key === 'Enter' && !event.nativeEvent.isComposing && (projects[0] || first)) {
                 event.currentTarget.blur();
-                open(first.id);
+                if (projects[0]) open('projects', projects[0].id);
+                else if (first) open(first.id);
               }
             }}
           />
@@ -68,29 +68,32 @@ export function SearchSheet() {
         </button>
       </div>
 
-      {results.length > 0 ? (
-        <ul className={styles.results} aria-label="Apps">
-          {results.map((app) => (
-            <li key={app.id}>
-              <button
-                type="button"
-                className={styles.result}
-                onClick={(event) => open(app.id, undefined, originOf(event))}
-              >
-                <AppIcon app={app} size={40} />
-                <span className={styles.text}>
-                  <span className={styles.title}>{app.title}</span>
-                  <span className={styles.description}>{app.description}</span>
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className={styles.empty} role="status">
-          No apps match “{query}”.
-        </p>
-      )}
+      <div className={styles.scrollResults}>
+        <ProjectSearchResults projects={projects} onOpen={(id) => open('projects', id)} />
+        {results.length > 0 ? (
+          <ul className={styles.results} aria-label="Apps">
+            {results.map((app) => (
+              <li key={app.id}>
+                <button
+                  type="button"
+                  className={styles.result}
+                  onClick={(event) => open(app.id, undefined, originOf(event))}
+                >
+                  <AppIcon app={app} size={40} />
+                  <span className={styles.text}>
+                    <span className={styles.title}>{app.title}</span>
+                    <span className={styles.description}>{app.description}</span>
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : projects.length === 0 ? (
+          <p className={styles.empty} role="status">
+            No apps or projects match “{query}”.
+          </p>
+        ) : null}
+      </div>
     </motion.div>
   );
 }

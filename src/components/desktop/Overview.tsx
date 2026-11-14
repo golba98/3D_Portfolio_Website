@@ -1,6 +1,8 @@
-import { useMemo, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { APPS } from '../../apps/registry';
+import { getApp } from '../../apps/registry';
+import { searchPortfolio } from '../../lib/portfolioSearch';
+import { ProjectSearchResults } from '../shell/ProjectSearchResults';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { useWindows } from '../../store/windows';
@@ -18,16 +20,11 @@ function OverviewPanel() {
   const [query, setQuery] = useState('');
   const panel = useRef<HTMLDivElement>(null);
   const reducedMotion = useReducedMotion();
+  const windows = useWindows((s) => s.windows);
   const { open: openApp, setOverview } = useWindows.getState();
   useFocusTrap(panel, true);
 
-  const results = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return APPS;
-    return APPS.filter((app) =>
-      [app.title, app.description, ...app.keywords].some((text) => text.toLowerCase().includes(q)),
-    );
-  }, [query]);
+  const { apps: results, projects } = searchPortfolio(query);
 
   const close = (): void => setOverview(false);
 
@@ -46,7 +43,11 @@ function OverviewPanel() {
         if (event.target === event.currentTarget) close();
       }}
       onKeyDown={(event) => {
-        if (event.key === 'Escape') close();
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          event.stopPropagation();
+          close();
+        }
       }}
     >
       <div className={styles.search}>
@@ -54,17 +55,37 @@ function OverviewPanel() {
         <input
           type="search"
           value={query}
-          placeholder="Type to search"
-          aria-label="Search apps"
+          placeholder="Search apps, projects or technologies"
+          aria-label="Search apps and projects"
           autoFocus
           onChange={(event) => setQuery(event.target.value)}
           onKeyDown={(event) => {
             const first = results[0];
-            if (event.key === 'Enter' && first) openApp(first.id);
+            if (event.key === 'Enter' && !event.nativeEvent.isComposing) {
+              if (projects[0]) openApp('projects', projects[0].id);
+              else if (first) openApp(first.id);
+            }
           }}
         />
       </div>
 
+      {!query.trim() && windows.length > 0 && (
+        <section className={styles.running} aria-label="Open windows">
+          <h2>Open windows</h2>
+          <div>
+            {windows.map((win) => (
+              <button type="button" key={win.id} onClick={() => openApp(win.id)}>
+                <AppIcon app={getApp(win.appId)} size={32} />
+                <span>
+                  {win.title ?? getApp(win.appId).title}
+                  <small>{win.mode === 'minimized' ? 'Minimized · click to restore' : 'Click to switch'}</small>
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+      <ProjectSearchResults projects={projects} onOpen={(id) => openApp('projects', id)} />
       {results.length > 0 ? (
         <ul className={styles.grid} aria-label="Apps">
           {results.map((app, index) => (
@@ -87,11 +108,12 @@ function OverviewPanel() {
             </motion.li>
           ))}
         </ul>
-      ) : (
+      ) : projects.length === 0 ? (
         <p className={styles.empty} role="status">
-          No apps match “{query}”.
+          No apps or projects match “{query}”.
         </p>
-      )}
+      ) : null}
+      <p className={styles.hint}>Super or Ctrl K opens Activities · Esc returns to the desktop</p>
     </motion.div>
   );
 }

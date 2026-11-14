@@ -4,6 +4,7 @@ import { useClipboard } from '../../hooks/useClipboard';
 import type { Project } from '../../types/content';
 import { ActionRow } from '../shared/ActionRow';
 import ui from '../shared/ui.module.css';
+import { ProjectMark } from './ProjectCatalog';
 import { ModelSection } from './ModelSection';
 import { UbumeScreen } from './UbumeScreen';
 import styles from './Projects.module.css';
@@ -18,12 +19,39 @@ export function ProjectDetail({ project, compact }: ProjectDetailProps) {
 
   return (
     <article className={`${ui.page} ${ui.narrow}`} aria-labelledby={`project-${project.id}`}>
-      <header>
+      <header className={styles.detailHeader}>
+        <ProjectMark category={project.category} />
+        <p className={ui.eyebrow}>{project.category}</p>
         <h2 id={`project-${project.id}`} className={ui.h1}>
           {project.title}
         </h2>
         <p className={`${styles.meta} ${ui.muted}`}>{project.role}</p>
       </header>
+
+      <p className={styles.detailSummary}>{project.summary}</p>
+      {project.github && (
+        <a
+          className={`${ui.button} ${ui.primary} ${styles.sourceAction}`}
+          href={project.github}
+          target="_blank"
+          rel="noreferrer"
+        >
+          <Icon name="github" size={18} /> Explore the code <Icon name="external" size={14} />
+        </a>
+      )}
+      <section className={ui.section} aria-labelledby={`features-${project.id}`}>
+        <h3 id={`features-${project.id}`} className={ui.groupTitle}>
+          What you can do
+        </h3>
+        <ul className={styles.highlights}>
+          {project.highlights.map((highlight) => (
+            <li key={highlight}>
+              <Icon name="check" size={18} />
+              <span>{highlight}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       {project.image && (
         <figure className={ui.figure}>
@@ -46,14 +74,9 @@ export function ProjectDetail({ project, compact }: ProjectDetailProps) {
         />
       )}
 
-      <div className={`${ui.card} ${styles.summary}`}>
-        <p className={ui.prose}>{project.summary}</p>
-        {project.note && <p className={`${ui.prose} ${ui.muted}`}>{project.note}</p>}
-      </div>
-
       <section className={ui.section} aria-labelledby={`how-${project.id}`}>
         <h3 id={`how-${project.id}`} className={ui.groupTitle}>
-          How It Works
+          Under the hood
         </h3>
         <p className={`${ui.card} ${ui.prose}`}>{project.proof}</p>
       </section>
@@ -130,6 +153,12 @@ export function ProjectDetail({ project, compact }: ProjectDetailProps) {
       )}
 
       {project.id === codexa.projectId && <ModelSection />}
+      {project.note && (
+        <aside className={styles.projectNote} aria-label="Project context">
+          <h3 className={ui.groupTitle}>Scope & context</h3>
+          <p className={ui.prose}>{project.note}</p>
+        </aside>
+      )}
     </article>
   );
 }

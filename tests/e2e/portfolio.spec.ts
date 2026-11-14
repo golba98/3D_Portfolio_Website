@@ -174,7 +174,7 @@ test('cancellation, lost capture, blur, keyboard and resize do not connect gestu
   await page.getByRole('button', { name: /Back to desk/ }).click();
   await expect(page.getByRole('button', { name: /Draw on board/ })).toBeAttached();
   await page.goto('/#/desktop/projects');
-  await expect(page.getByRole('heading', { name: 'HP Prime Emulator', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Built to explore.', exact: true })).toBeVisible();
   await page.goto('/');
   await expect(page.locator('canvas')).toBeVisible();
 });

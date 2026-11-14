@@ -81,7 +81,7 @@ export const usePhone = create<PhoneState>()((set, get) => ({
   open: (id, arg, origin) => {
     set((state) => {
       const existing = state.running.find((app) => app.id === id);
-      const relaunch = existing && arg !== undefined && arg !== existing.arg;
+      const relaunch = existing && arg !== undefined;
       const base: RunningApp = existing && !relaunch ? existing : { id, arg, key: (existing?.key ?? 0) + 1 };
       if (relaunch) handlers.delete(id);
       const entry = origin ? { ...base, origin } : base;

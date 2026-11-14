@@ -5,6 +5,8 @@ import { SplitView } from '../../components/adw/SplitView';
 import { useElementWidth } from '../../hooks/useElementWidth';
 import type { AppProps } from '../../types/apps';
 import { EarlierProjects } from './EarlierProjects';
+import type { ProjectCategory } from '../../types/content';
+import { ProjectCatalog } from './ProjectCatalog';
 import { ProjectDetail } from './ProjectDetail';
 import { Repositories } from './Repositories';
 import styles from './Projects.module.css';
@@ -33,9 +35,11 @@ export default function Projects({ arg }: AppProps) {
   const collapsed = width > 0 && width < SPLIT_MIN_WIDTH;
   const [selection, setSelection] = useState<Selection | null>(() => initialSelection(arg));
   const contentRef = useRef<HTMLDivElement>(null);
+  const [query, setQuery] = useState('');
+  const [category, setCategory] = useState<ProjectCategory>();
 
-  // Side by side, something is always selected; collapsed, "nothing" means the list.
-  const shown: Selection | null = selection ?? (collapsed ? null : (projects[0]?.id ?? null));
+  // Start with the gallery; an explicit launch argument opens a project directly.
+  const shown = selection;
   const project = shown ? findProject(shown) : undefined;
 
   const select = (next: Selection): void => {
@@ -64,10 +68,35 @@ export default function Projects({ arg }: AppProps) {
     </li>
   );
 
+  const catalog = (
+    <ProjectCatalog
+      query={query}
+      category={category}
+      onQuery={setQuery}
+      onCategory={setCategory}
+      onSelect={select}
+      collapsed={collapsed}
+    />
+  );
+
   const sidebar = (
     <>
-      <p className={styles.sidebarLabel}>{projectsSection.heading}</p>
-      <ul>{projects.map((p) => navRow(p.id, p.title, p.role))}</ul>
+      {collapsed ? (
+        catalog
+      ) : (
+        <>
+          <button
+            type="button"
+            className={styles.browseButton}
+            aria-current={shown === null ? 'page' : undefined}
+            onClick={() => setSelection(null)}
+          >
+            Browse projects <span>{projects.length}</span>
+          </button>
+          <p className={styles.sidebarLabel}>{projectsSection.heading}</p>
+          <ul>{projects.map((p) => navRow(p.id, p.title, p.role))}</ul>
+        </>
+      )}
       <p className={styles.sidebarLabel}>More</p>
       <ul>
         {navRow('repos', 'All Repositories', 'Public code on GitHub')}
@@ -88,12 +117,12 @@ export default function Projects({ arg }: AppProps) {
       sidebarHeader={{ title: 'Projects' }}
       sidebar={sidebar}
       contentHeader={{
-        title: shown ? titleFor(shown) : '',
+        title: shown ? titleFor(shown) : 'Explore the work',
         end: project?.github ? (
           <HeaderLink icon="github" label="View source on GitHub" href={project.github} />
         ) : undefined,
       }}
-      content={shown && renderDetail(shown)}
+      content={shown ? renderDetail(shown) : catalog}
       contentRef={contentRef}
     />
   );

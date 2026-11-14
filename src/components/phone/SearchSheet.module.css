@@ -39,10 +39,6 @@
   outline: none;
 }
 
-.field input::-webkit-search-cancel-button {
-  filter: invert(1);
-}
-
 .field:focus-within {
   outline: 2px solid color-mix(in srgb, var(--desk-accent) 60%, transparent);
 }
@@ -61,7 +57,6 @@
   gap: 2px;
   margin: 16px 0 0;
   padding: 0;
-  overflow-y: auto;
   list-style: none;
 }
 
@@ -105,4 +100,12 @@
   padding: 32px 0;
   color: var(--desk-fg-muted);
   text-align: center;
+}
+
+.scrollResults {
+  min-height: 0;
+  overflow-y: auto;
+  padding-top: 20px;
+  padding-bottom: 24px;
+  overscroll-behavior: contain;
 }
