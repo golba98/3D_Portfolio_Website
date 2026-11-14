@@ -101,8 +101,8 @@ export const useWindows = create<WindowsState>()((set, get) => {
         update(appId, (w) => ({
           mode: w.mode === 'minimized' ? (w.restoreMode ?? 'normal') : w.mode,
           arg: arg ?? w.arg,
-          // A new argument (e.g. a different project) remounts the app at that item.
-          openCount: arg !== undefined && arg !== w.arg ? w.openCount + 1 : w.openCount,
+          // An explicit destination must reopen there, even after in-app navigation.
+          openCount: arg !== undefined ? w.openCount + 1 : w.openCount,
         }));
       } else {
         const index = get().windows.length;

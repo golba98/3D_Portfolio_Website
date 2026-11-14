@@ -5,16 +5,22 @@ import { ubumeStartup, ubumeStartupCompact } from './ubumeScreen';
 export const projectsSection = {
   eyebrow: 'Work',
   heading: 'What I built',
-  lede: 'Eight projects across tools, systems, collaboration and research.',
+  lede: 'Tools for writing code, apps for working together, and experiments in how software works. Pick a project to see what it does and how I built it.',
 } as const;
 
 export const projects: readonly Project[] = [
   {
     id: 'hp-prime-emulator',
     title: 'HP Prime Emulator',
-    role: 'Rust PPL engine, IDE and debugger',
+    role: 'A calculator programming workspace',
+    category: 'Developer tools',
+    highlights: [
+      'Write calculator programs in a desktop editor without connecting an HP Prime.',
+      'Pause a running program to inspect its variables and follow function calls.',
+      'Preview the calculator screen and export the graphics your program draws.',
+    ],
     summary:
-      'Write, check, debug and run HP Prime PPL programs on a desktop, with a native execution engine that needs neither a calculator nor firmware files.',
+      'A desktop workspace for PPL, the programming language used by HP Prime calculators. Write and run programs, find mistakes and see their graphics without needing the physical calculator or its firmware.',
     proof:
       'A Rust workspace separates syntax, compilation, the VM, graphics and device integration. The egui IDE exposes paused variables and stack frames; the CLI can execute programs and export the 320×240 framebuffer. Compatibility suites and debugger tests exercise the native implementation.',
     technologies: ['Rust', 'egui', 'Bytecode VM', 'PPL', 'HID'],
@@ -24,9 +30,15 @@ export const projects: readonly Project[] = [
   {
     id: 'hp-prime-toolkit',
     title: 'HP Prime Development Toolkit',
-    role: 'Standalone PPL development tools',
+    role: 'Calculator development from the terminal',
+    category: 'Developer tools',
+    highlights: [
+      'Check and run HP Prime programs with the hpdev command-line tool.',
+      'Step through a program and inspect its output without opening the desktop IDE.',
+      'Compare results and screen snapshots in repeatable automated tests.',
+    ],
     summary:
-      'A terminal workflow for checking and running PPL, stepping through programs and inspecting what they draw.',
+      'The command-line companion to the HP Prime Emulator. It brings the same calculator programming engine into terminal workflows, so programs can be checked, debugged and tested automatically.',
     proof:
       'The hpdev CLI builds on a pinned revision of the emulator’s native Rust engine. Statement-level debugging supports breakpoints and frame inspection; isolated worker processes enforce execution limits. Test manifests check results and image snapshots, with terminal, PNG and local browser framebuffer previews.',
     technologies: ['Rust', 'CLI / TUI', 'JSON reports', 'Snapshot testing'],
@@ -36,7 +48,13 @@ export const projects: readonly Project[] = [
   {
     id: 'syncroedit',
     title: 'SyncroEdit',
-    role: 'Real-time collaborative editor',
+    role: 'Write and collaborate in real time',
+    category: 'Web apps',
+    highlights: [
+      'Edit a shared rich-text document while other people are working in it.',
+      'See who is present and discuss changes in the document’s chat panel.',
+      'Keep concurrent edits in sync through a shared document service.',
+    ],
     summary:
       'A document workspace where people edit together, see each other’s presence and discuss the document in a chat panel.',
     proof:
@@ -55,9 +73,15 @@ export const projects: readonly Project[] = [
   {
     id: 'ubume',
     title: 'Ubume',
-    role: 'Terminal workspace for coding agents',
+    role: 'One terminal for your coding agents',
+    category: 'Developer tools',
+    highlights: [
+      'Work with coding-agent CLIs or a local model from one terminal workspace.',
+      'Queue instructions, review code changes and control tool permissions.',
+      'Return to earlier sessions and recover the context of longer tasks.',
+    ],
     summary:
-      'One stateful terminal UI for coding-agent CLIs and local OpenAI-compatible models, with planning, permissions, change review and session recovery.',
+      'A terminal workspace that brings different AI coding tools into one place. Plan work, give instructions, review the changes and pick up a previous session without rebuilding your context each time.',
     proof:
       'TypeScript and Ink provide the interface, with Bun development and test tooling. Provider routes include Codex, Claude Code, Antigravity, Mistral Vibe, the Anthropic API and local models. Queued instructions, session browsing and diff/rewind workflows keep long-running work in one workspace.',
     technologies: ['TypeScript', 'Bun', 'Ink', 'Node.js'],
@@ -78,9 +102,15 @@ export const projects: readonly Project[] = [
   {
     id: 'llm',
     title: 'Codexa v3',
-    role: '249M-parameter language-model research',
+    role: 'Building a language model from scratch',
+    category: 'Research',
+    highlights: [
+      'Train a 249-million-parameter Transformer starting from random weights.',
+      'Follow the pipeline from tokenized text to training, checkpoints and generation.',
+      'Inspect recorded measurements and test recovery with small CPU fixtures.',
+    ],
     summary:
-      'A decoder-only Transformer built and trained from random initialization in PyTorch, including its tokenizer pipeline, training loop, checkpoint recovery and generation code.',
+      'A language model built and trained from scratch in Python and PyTorch. The project follows the whole process: turning text into tokens, training the model, saving progress and generating text.',
     proof:
       'The model uses RMSNorm, rotary positions, SwiGLU and tied embeddings. A completed base run processed 500,006,912 targets; CPU fixtures test training and recovery without requiring the full model or a GPU. Architecture and measured results below refer specifically to v3.',
     technologies: ['Python', 'PyTorch', 'CUDA / BF16', 'BPE', 'RMSNorm / RoPE'],
@@ -90,7 +120,13 @@ export const projects: readonly Project[] = [
   {
     id: 'game',
     title: 'Forest RPG v2',
-    role: 'Procedural TypeScript browser RPG',
+    role: 'A persistent, procedurally generated adventure',
+    category: 'Games',
+    highlights: [
+      'Explore five kinds of terrain in a world generated from a repeatable seed.',
+      'Fight enemies and progress through changing weather and day/night cycles.',
+      'Return to your saved world or export a save file to keep a separate copy.',
+    ],
     summary:
       'Explore a seeded world of forests, meadows, highlands, wetlands and autumn woodland, fight enemies and carry a saved adventure between sessions.',
     proof:
@@ -102,7 +138,13 @@ export const projects: readonly Project[] = [
   {
     id: 'mygui',
     title: 'MyGUI',
-    role: 'C++20 GUI library',
+    role: 'Native interfaces built in C++',
+    category: 'Systems',
+    highlights: [
+      'Compose windows from reusable layouts, labels, images and editable fields.',
+      'Add scrolling, anchored popups and modal dialogs to a native application.',
+      'Integrate the library through CMake and test layout, input and rendering.',
+    ],
     summary:
       'A small native GUI library with layouts, wrapped text, images, scrolling, editable fields, anchored popups and reusable modal dialogs.',
     proof:
@@ -114,9 +156,15 @@ export const projects: readonly Project[] = [
   {
     id: 'http-server',
     title: 'HTTP Server',
-    role: 'C++23 HTTP/1.1 server',
+    role: 'A web server built in C++',
+    category: 'Systems',
+    highlights: [
+      'Serve static files using an HTTP/1.1 server written in C++23.',
+      'Parse requests incrementally and reject ambiguous message boundaries.',
+      'Explore bounded worker threads, request timeouts and controlled shutdown.',
+    ],
     summary:
-      'An HTTP server built around an incremental request parser, a bounded worker pool and a static-file service.',
+      'A web server that receives HTTP requests and sends back files. Built in C++23, it brings request parsing, connection handling and file access together without a web framework.',
     proof:
       'The parser is independent of socket I/O and rejects ambiguous request framing. Linux openat2 confines file access to the document root; poll/eventfd support timeouts and shutdown. Catch2 tests, sanitizers and libFuzzer targets exercise parsing and server behavior.',
     technologies: ['C++23', 'Linux sockets', 'CMake', 'Catch2', 'libFuzzer'],

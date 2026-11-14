@@ -19,10 +19,11 @@ An interactive, 3D developer portfolio and digital workstation. Visitors explore
 - **Interactive Whiteboard**: Approach the desk whiteboard and sketch freely using multi-color markers and erasers. Includes stroke undo/clear, keyboard accessibility, and automatic persistence via `localStorage`.
 - **Dual Operating System Experience**:
   - **Desktop (Fedora / GNOME Shell)**: Libadwaita-themed window manager with draggable and resizable windows, activities overview, application dock, places menu, and system tray.
-  - **Mobile (Simulated iPhone / iOS)**: Adaptive mobile shell featuring a SpringBoard home screen, gesture-based app switcher, spotlight search sheet, and control centre.
+  - **Activities search**: Search applications and individual projects by name, technology, or capability. Use Super or Ctrl K on the desktop, or Search on the phone. Desktop Activities also lists open windows for switching and restoring minimized apps.
+  - **Mobile (Simulated iPhone / iOS)**: Adaptive mobile shell featuring a SpringBoard home screen, gesture-based app switcher, Spotlight-style app and project search, and control centre.
 - **In-Environment Applications**:
   - **Terminal (`kitty`)**: Simulated Unix shell supporting custom commands, filesystem navigation, and `neofetch`.
-  - **Projects (`GNOME Builder`)**: Interactive showcase of real-world projects with technical deep dives, architectural diagrams, and repository links.
+  - **Projects (`GNOME Builder`)**: Searchable project gallery with category filters, plain-language capabilities, technical details, scope notes, and repository links. The desktop uses a split view; the phone uses touch-friendly cards and back navigation.
   - **Files (`Nautilus`)**: Hierarchical filesystem browser to explore resume assets, source code, and project documentation.
   - **System Info (`Settings`)**: Workstation hardware specifications, host Fedora setup, and real-time site engine telemetry.
   - **About & Contact (`Contacts` & `Geary`)**: Biography, BSc Computer Science background (University of London), vector province map, and direct contact channels.

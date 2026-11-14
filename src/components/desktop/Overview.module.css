@@ -75,3 +75,40 @@
 .empty {
   color: var(--desk-fg-muted);
 }
+
+.running {
+  width: min(640px, 100%);
+}
+.running h2 {
+  margin-bottom: 12px;
+  color: var(--desk-fg-muted);
+  font-size: var(--text-sm);
+}
+.running > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.running button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 12px;
+  background: rgb(255 255 255 / 0.08);
+  text-align: left;
+}
+.running button:hover {
+  background: rgb(255 255 255 / 0.14);
+}
+.running small {
+  display: block;
+  margin-top: 3px;
+  color: var(--desk-fg-muted);
+}
+.hint {
+  color: var(--desk-fg-muted);
+  font-size: var(--text-sm);
+  text-align: center;
+}

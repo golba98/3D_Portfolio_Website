@@ -53,10 +53,15 @@ export interface ProjectImage {
   height: number;
 }
 
+export type ProjectCategory = 'Developer tools' | 'Web apps' | 'Research' | 'Games' | 'Systems';
+
 export interface Project {
   id: string;
   title: string;
   role: string;
+  category: ProjectCategory;
+  /** Concrete things a visitor can do with the project. */
+  highlights: readonly string[];
   summary: string;
   note?: string;
   /** Technical details that back up the summary. */

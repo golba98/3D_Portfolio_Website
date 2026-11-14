@@ -33,6 +33,11 @@ export function DesktopShell() {
     const onDown = (event: KeyboardEvent): void => {
       superAlone = event.key === 'Meta' || event.key === 'OS';
       const state = useWindows.getState();
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        setOverview(!state.overviewOpen);
+        return;
+      }
       const win = state.windows.find((w) => w.id === state.focusedId && w.mode !== 'minimized');
       if (!win) return;
       if (event.key === 'F11') {
