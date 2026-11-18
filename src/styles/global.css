@@ -101,3 +101,19 @@ p {
 * {
   scrollbar-width: thin;
 }
+.shell-status {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  background: var(--world-bg);
+  color: var(--world-fg);
+}
+.shell-status button,
+.shell-status a {
+  padding: 10px 14px;
+  color: inherit;
+}

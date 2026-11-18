@@ -1,4 +1,4 @@
-import { Suspense, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { PerformanceMonitor } from '@react-three/drei';
 import { ErrorBoundary } from '../../app/ErrorBoundary';
@@ -19,6 +19,14 @@ export default function World() {
   const tier = useDeviceTier();
   const [dprMin, dprMax] = RENDER.dpr[tier];
   const [dpr, setDpr] = useState(dprMax);
+  const [hidden, setHidden] = useState(document.hidden);
+  useEffect(() => {
+    const changed = () => setHidden(document.hidden);
+    document.addEventListener('visibilitychange', changed);
+    return () => document.removeEventListener('visibilitychange', changed);
+  }, []);
+  const boardReady = useExperience((s) => s.boardReady);
+  const settled = phase === 'exploring' || (phase === 'viewing-board' && boardReady);
   const paused = phase === 'desktop';
   // Flying into the monitor ends on a frame that stays frozen behind the
   // desktop's crossfade, so render it at the display's full resolution,
@@ -36,7 +44,7 @@ export default function World() {
         <Canvas
           className={styles.canvas}
           dpr={canvasDpr}
-          frameloop={paused ? 'never' : 'always'}
+          frameloop={paused || hidden ? 'never' : settled ? 'demand' : 'always'}
           camera={{ fov: initialPose.fov, near: RENDER.near, far: RENDER.far, position: [...initialPose.position] }}
           gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
           onCreated={({ gl }) => {

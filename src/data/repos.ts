@@ -6,11 +6,11 @@ export const reposSection = {
   eyebrow: 'Public code',
   heading: 'On GitHub',
   unreachable:
-    'GitHub is not reachable right now. Showing the public repository snapshot verified on 13 November 2026.',
+    'GitHub is not reachable right now. Showing the public repository snapshot verified on 18 November 2026.',
   viewAll: 'View all repositories',
 } as const;
 
-/** Anonymous GitHub API inventory, 2026-11-13: public, owned, non-fork only. */
+/** Anonymous GitHub API inventory, 2026-11-18: public, owned, non-fork only. */
 export const repos: readonly Repo[] = [
   ...projects.map((project) => ({
     name: project.github!.split('/').at(-1)!,
@@ -41,6 +41,7 @@ export const repos: readonly Repo[] = [
     name: '3D_Portfolio_Website',
     description: 'This portfolio: React, Three.js, a drawable whiteboard and simulated desktop and phone applications.',
   },
+  { name: 'GiCo', description: 'Linux shell command suggestions using small local language models.' },
   { name: 'golba98', description: 'GitHub profile README; account introduction rather than a software project.' },
 ].map((repo) => ({ ...repo, url: 'url' in repo ? repo.url : `${profile.github}/${repo.name}` }));
 

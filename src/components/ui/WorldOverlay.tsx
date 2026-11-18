@@ -1,5 +1,4 @@
-import { useEffect, useRef } from 'react';
-import { profile } from '../../data/profile';
+import { useEffect } from 'react';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { useExperience } from '../../store/experience';
 import styles from './WorldOverlay.module.css';
@@ -8,27 +7,11 @@ import { DevicePrompt } from './DevicePrompt';
 import { TouchNav } from './TouchNav';
 import { PoemOverlay } from './PoemOverlay';
 
-/**
- * DOM layer over the 3D scene. Visually it's just the desk (the centre monitor
- * is the way in); the heading is for screen readers, and keyboard users have
- * the skip link.
- */
 export function WorldOverlay() {
   const phase = useExperience((s) => s.phase);
   const skipIntro = useExperience((s) => s.skipIntro);
-  const openBoard = useExperience((s) => s.openBoard);
   const closeBoard = useExperience((s) => s.closeBoard);
   const touch = useMediaQuery('(pointer: coarse)');
-  const shelfTrigger = useRef<HTMLButtonElement>(null);
-  const restoreShelfFocus = useRef(false);
-
-  useEffect(() => {
-    if (phase === 'exploring' && restoreShelfFocus.current) {
-      shelfTrigger.current?.focus({ preventScroll: true });
-      restoreShelfFocus.current = false;
-    }
-  }, [phase]);
-
   useEffect(() => {
     const onKey = (event: KeyboardEvent): void => {
       if (event.key !== 'Escape') return;
@@ -41,10 +24,6 @@ export function WorldOverlay() {
 
   return (
     <div className={styles.overlay} data-phase={phase}>
-      <h1 className="visually-hidden">
-        {profile.name} — {profile.role}, {profile.location}
-      </h1>
-
       <button
         type="button"
         className={styles.skip}
@@ -55,26 +34,6 @@ export function WorldOverlay() {
         Skip intro {!touch && <kbd>Esc</kbd>}
       </button>
 
-      {/* Pointers open the board by clicking it (its "Want to draw?" label is the cue);
-          this is the keyboard's way in, shown only while focused. */}
-      {phase === 'exploring' && (
-        <button
-          ref={shelfTrigger}
-          type="button"
-          className={`${styles.draw} ${styles.shelf}`}
-          onClick={() => {
-            restoreShelfFocus.current = true;
-            useExperience.getState().inspectShelf();
-          }}
-        >
-          Inspect bottom shelf
-        </button>
-      )}
-      {phase === 'exploring' && (
-        <button type="button" className={styles.draw} onClick={openBoard}>
-          Draw on board <span aria-hidden="true">↗</span>
-        </button>
-      )}
       {touch && <TouchNav visible={phase === 'exploring'} />}
       <BoardToolbar />
       <DevicePrompt />

@@ -21,18 +21,23 @@ function useBatteryLevel(): number | null {
     const nav = navigator as Navigator & { getBattery?: () => Promise<BatteryManagerLike> };
     if (!nav.getBattery) return;
     let battery: BatteryManagerLike | null = null;
+    let disposed = false;
     const update = (): void => {
       if (battery) setLevel(Math.round(battery.level * 100));
     };
     void nav
       .getBattery()
       .then((b) => {
+        if (disposed) return;
         battery = b;
         update();
         b.addEventListener('levelchange', update);
       })
       .catch(() => undefined);
-    return () => battery?.removeEventListener('levelchange', update);
+    return () => {
+      disposed = true;
+      battery?.removeEventListener('levelchange', update);
+    };
   }, []);
   return level;
 }

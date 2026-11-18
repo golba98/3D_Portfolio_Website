@@ -132,3 +132,23 @@
   border-radius: 50%;
   background: var(--desk-fg);
 }
+@media (max-width: 650px) {
+  .dock {
+    max-width: calc(100% - 12px);
+    padding: 6px;
+  }
+  .list {
+    gap: 2px;
+  }
+  .item {
+    padding: 2px;
+  }
+  .item img,
+  .showApps {
+    width: clamp(30px, 9vw, 48px);
+    height: clamp(30px, 9vw, 48px);
+  }
+  .separator {
+    margin-inline: 2px;
+  }
+}

@@ -24,8 +24,8 @@ export function ScreenSurface({ screen, brightness }: ScreenSurfaceProps) {
 
   const { position, quaternion } = useMemo(() => surfacePlacement(screen), [screen]);
 
-  useFrame((_, delta) => {
-    easing.damp(level.current, 'value', brightness, 0.18, delta);
+  useFrame(({ invalidate }, delta) => {
+    if (easing.damp(level.current, 'value', brightness, 0.18, delta)) invalidate();
     material.current?.color.setScalar(level.current.value);
   });
 

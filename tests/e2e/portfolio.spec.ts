@@ -9,11 +9,9 @@ const state = (page: Page) =>
   });
 async function openBoard(page: Page) {
   await page.goto('/');
-  const skip = page.getByRole('button', { name: /Skip intro/ });
+  await page.getByRole('button', { name: 'Portfolio', exact: true }).click();
   const draw = page.getByRole('button', { name: /Draw on board/ });
-  // Shader compilation can delay readiness, and the intro can finish between polls.
-  await expect(skip.or(draw).first()).toBeVisible({ timeout: process.env.CI ? 120_000 : 60_000 });
-  if (await skip.isVisible()) await page.keyboard.press('Escape');
+  await expect(draw).toBeVisible({ timeout: 120_000 });
   await draw.focus();
   await page.keyboard.press('Enter');
   await expect(page.getByRole('button', { name: 'black marker', exact: true })).toBeEnabled({ timeout: 30_000 });
@@ -172,9 +170,9 @@ test('cancellation, lost capture, blur, keyboard and resize do not connect gestu
   expect(point[0]).toBeCloseTo(0.5, 1);
   expect(point[1]).toBeCloseTo(0.5, 1);
   await page.getByRole('button', { name: /Back to desk/ }).click();
-  await expect(page.getByRole('button', { name: /Draw on board/ })).toBeAttached();
+  await expect(page.getByRole('button', { name: 'Portfolio', exact: true })).toBeVisible();
   await page.goto('/#/desktop/projects');
-  await expect(page.getByRole('heading', { name: 'Built to explore.', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Project library', exact: true })).toBeVisible();
   await page.goto('/');
   await expect(page.locator('canvas')).toBeVisible();
 });
@@ -194,7 +192,7 @@ for (const mobile of [false, true])
       'MyGUI',
       'HTTP Server',
     ]) {
-      await page.getByRole('button', { name: new RegExp('^' + title) }).click();
+      await page.getByRole(mobile ? 'link' : 'button', { name: new RegExp('^' + title) }).click();
       await expect(page.getByRole('heading', { name: title, exact: true })).toBeVisible();
       await expect(page.getByRole('link', { name: 'View source on GitHub' })).toHaveAttribute(
         'href',
@@ -224,7 +222,7 @@ for (const mobile of [false, true])
     await page.getByRole('button', { name: /All Repositories Public code/ }).click();
     await expect(page.getByRole('status')).toContainText('snapshot verified');
     const list = page.getByRole('heading', { name: 'On GitHub', exact: true }).locator('..');
-    await expect(list.locator('a[href^="https://github.com/golba98/"]')).toHaveCount(14);
+    await expect(list.locator('a[href^="https://github.com/golba98/"]')).toHaveCount(15);
     await page.screenshot({ path: `.private/projects-${mobile ? 'mobile' : 'desktop'}.png` });
     if (mobile) await page.getByRole('button', { name: 'Projects', exact: true }).click();
     await page.getByRole('button', { name: /Earlier Projects Previous versions/ }).click();
@@ -288,10 +286,10 @@ test('mobile touch and pen, DPR changes, and return from another application', a
   // Enter another portfolio application without reloading the mounted scene.
   await page.getByRole('link', { name: 'Skip to portfolio' }).focus();
   await page.keyboard.press('Enter');
-  await page.getByRole('button', { name: 'Projects', exact: true }).first().click();
-  await expect(page.getByRole('button', { name: /HP Prime Emulator/ })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'HP Prime Emulator', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Control Centre', exact: true }).click();
   await page.getByRole('button', { name: 'Back to the 3D desk', exact: true }).click();
+  await page.getByRole('button', { name: 'Portfolio', exact: true }).click();
   await page.getByRole('button', { name: /Draw on board/ }).focus();
   await page.keyboard.press('Enter');
   await expect(page.getByRole('button', { name: 'black marker', exact: true })).toBeEnabled();

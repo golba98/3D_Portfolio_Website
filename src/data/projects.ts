@@ -5,14 +5,31 @@ import { ubumeStartup, ubumeStartupCompact } from './ubumeScreen';
 export const projectsSection = {
   eyebrow: 'Work',
   heading: 'What I built',
-  lede: 'Tools for writing code, apps for working together, and experiments in how software works. Pick a project to see what it does and how I built it.',
+  lede: 'A calculator workspace, a collaborative editor, and six more projects to explore.',
 } as const;
 
 export const projects: readonly Project[] = [
   {
     id: 'hp-prime-emulator',
     title: 'HP Prime Emulator',
-    role: 'A calculator programming workspace',
+    role: 'Run and debug calculator programs on a desktop.',
+    featured: {
+      order: 1,
+      contribution:
+        'I built the native PPL toolchain and the desktop workspace around it, from parsing source to inspecting a paused program.',
+      outcome:
+        'The same program runs from the terminal without calculator hardware. SQUARE(7) returns 49 in the CLI. The wave sampler shown here exports its grid, labels and curve directly to PNG.',
+      evidenceLabel: 'Download the wave sampler (.ppl)',
+      evidenceUrl: '/shots/WAVES.ppl',
+    },
+    thumbnail: { src: '/shots/prime-display.png', alt: 'Sine wave drawn by the native PPL engine' },
+    image: {
+      src: '/shots/prime-ide.webp',
+      width: 1280,
+      height: 900,
+      alt: 'PPL source in the desktop IDE beside the calculator showing the plotted wave',
+      caption: 'The wave sampler running in the native IDE. Its PPL code draws directly to the 320 × 240 framebuffer.',
+    },
     category: 'Developer tools',
     highlights: [
       'Write calculator programs in a desktop editor without connecting an HP Prime.',
@@ -48,7 +65,16 @@ export const projects: readonly Project[] = [
   {
     id: 'syncroedit',
     title: 'SyncroEdit',
-    role: 'Write and collaborate in real time',
+    role: 'A shared editor that keeps concurrent changes in sync.',
+    featured: {
+      order: 2,
+      contribution:
+        'I built the document editor and its collaboration service, including the interface for sharing a document and the room that tracks edits and presence.',
+      outcome:
+        'The repository’s two-user browser test checks that edits reach both editors, chat reaches the other participant, and changes made offline appear after reconnecting.',
+      evidenceLabel: 'Read the two-user collaboration test',
+      evidenceUrl: 'https://github.com/golba98/SyncroEdit/blob/4d1286e71513/tests/e2e/collaboration.test.js',
+    },
     category: 'Web apps',
     highlights: [
       'Edit a shared rich-text document while other people are working in it.',
@@ -61,13 +87,16 @@ export const projects: readonly Project[] = [
       'Yjs CRDT updates travel over WebSockets through Cloudflare Durable Objects. Hono serves the Worker API, D1 stores application data, and Quill provides rich-text editing. The repository includes unit, integration, frontend and Playwright collaboration tests, plus tooling for deliberate release promotion.',
     technologies: ['Yjs', 'Quill 2', 'Hono', 'Durable Objects', 'Cloudflare D1', 'WebSockets'],
     github: 'https://github.com/golba98/SyncroEdit',
-    note: 'A deployed application under continued development. The public repository holds production application source and release tooling.',
+    demo: 'https://syncroedit.online/',
+    note: 'This capture uses a disposable document in the local Workers environment. The source includes the application and its release tooling.',
+    thumbnail: { src: '/shots/syncro-chat.webp', alt: 'Document chat between the two test editors' },
     image: {
-      src: '/shots/syncroedit.webp',
+      src: '/shots/syncroedit-current.webp',
       alt: 'SyncroEdit document editor with a chat panel',
-      caption: 'Earlier screenshot of the app running locally.',
-      width: 1680,
-      height: 950,
+      caption:
+        'Two local test accounts edited this document in separate browsers. The second editor’s text and chat are visible here.',
+      width: 1200,
+      height: 760,
     },
   },
   {

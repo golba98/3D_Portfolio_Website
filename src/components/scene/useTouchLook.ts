@@ -118,6 +118,7 @@ export function useTouchLook(active: boolean): void {
         look.zoom = (gesture.zoom * gesture.spread) / Math.max(spreadOf(points), 1);
       }
       clampLook(useLookStops.getState().stops);
+      getThree().invalidate();
 
       const dt = event.timeStamp - sample.t;
       if (dt >= MIN_SAMPLE_MS) {
@@ -136,6 +137,7 @@ export function useTouchLook(active: boolean): void {
         return;
       }
       gesture = null;
+      getThree().invalidate();
       if (look.dragging) {
         const stopped = event.timeStamp - sample.t > FLING_WINDOW_MS;
         look.velocity = pinched || stopped ? 0 : velocity;

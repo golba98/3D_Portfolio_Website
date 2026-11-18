@@ -20,6 +20,7 @@ const WALLPAPER_URL = '/wallpaper.webp';
  * resized; redrawn when fonts/images arrive and as each minute starts, for the clock.
  */
 export function useDesktopPreviewTexture(screen: ScreenRect): CanvasTexture {
+  const invalidate = useThree((s) => s.invalidate);
   const tier = useDeviceTier();
   const maxTextureSize = useThree((s) => s.gl.capabilities.maxTextureSize);
   const viewport = useViewportSize();
@@ -67,11 +68,12 @@ export function useDesktopPreviewTexture(screen: ScreenRect): CanvasTexture {
     const redraw = (): void => {
       drawDesktopPreview(ctx, canvas.width, canvas.height, images, new Date(), layout);
       texture.needsUpdate = true;
+      invalidate();
     };
     redraw();
     // Redraw as each minute starts, so the painted clock matches the real one.
     return onEveryMinute(redraw);
-  }, [texture, images, layout]);
+  }, [texture, images, layout, invalidate]);
 
   return texture;
 }

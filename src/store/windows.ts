@@ -1,3 +1,4 @@
+import { desktopHash, writeRoute } from '../app/desktopRoute';
 import { create } from 'zustand';
 import { getApp } from '../apps/registry';
 import { clamp } from '../lib/math';
@@ -6,8 +7,6 @@ import type { Bounds, DesktopWindow, SnapTarget } from '../types/windows';
 
 /** Space the top bar and dock take from the window area, in CSS pixels. */
 export const WORKSPACE_INSETS = { top: 32, bottom: 104, side: 12 } as const;
-/** Windows can't be dragged so far that their title bar becomes unreachable. */
-const MIN_VISIBLE = 96;
 export const MIN_WINDOW_SIZE = { width: 360, height: 260 } as const;
 const CASCADE_STEP = 28;
 
@@ -69,8 +68,8 @@ function initialBounds(appId: AppId, index: number): Bounds {
 function clampPosition(bounds: Bounds): Pick<Bounds, 'x' | 'y'> {
   const area = workspaceSize();
   return {
-    x: clamp(bounds.x, MIN_VISIBLE - bounds.width, area.width - MIN_VISIBLE),
-    y: clamp(bounds.y, 0, Math.max(0, area.height - 40)),
+    x: clamp(bounds.x, 0, Math.max(0, area.width - bounds.width)),
+    y: clamp(bounds.y, 0, Math.max(0, area.height - bounds.height)),
   };
 }
 
@@ -78,10 +77,16 @@ export const useWindows = create<WindowsState>()((set, get) => {
   const update = (id: AppId, patch: (w: DesktopWindow) => Partial<DesktopWindow>): void =>
     set((state) => ({ windows: state.windows.map((w) => (w.id === id ? { ...w, ...patch(w) } : w)) }));
 
-  const raise = (id: AppId): void => {
+  const syncFocus = (replace: boolean): void => {
+    const { focusedId, windows } = get();
+    writeRoute(desktopHash(focusedId, windows.find((w) => w.id === focusedId)?.arg), replace);
+  };
+
+  const raise = (id: AppId, replace = true): void => {
     const z = get().topZ + 1;
     update(id, () => ({ z }));
     set({ topZ: z, focusedId: id });
+    syncFocus(replace);
   };
 
   /** The frontmost window that isn't minimised. */
@@ -102,7 +107,7 @@ export const useWindows = create<WindowsState>()((set, get) => {
           mode: w.mode === 'minimized' ? (w.restoreMode ?? 'normal') : w.mode,
           arg: arg ?? w.arg,
           // An explicit destination must reopen there, even after in-app navigation.
-          openCount: arg !== undefined ? w.openCount + 1 : w.openCount,
+          openCount: appId !== 'projects' && arg !== undefined ? w.openCount + 1 : w.openCount,
         }));
       } else {
         const index = get().windows.length;
@@ -117,15 +122,17 @@ export const useWindows = create<WindowsState>()((set, get) => {
         };
         set((state) => ({ windows: [...state.windows, win], topZ: state.topZ + 1 }));
       }
-      raise(appId);
+      raise(appId, false);
       set({ overviewOpen: false });
     },
 
-    close: (id) =>
+    close: (id) => {
       set((state) => {
         const windows = state.windows.filter((w) => w.id !== id);
         return { windows, focusedId: state.focusedId === id ? nextFocus(windows, id) : state.focusedId };
-      }),
+      });
+      syncFocus(true);
+    },
 
     focus: (id) => {
       if (get().focusedId === id) return;
@@ -135,6 +142,7 @@ export const useWindows = create<WindowsState>()((set, get) => {
     minimize: (id) => {
       update(id, (w) => ({ mode: 'minimized', restoreMode: w.mode === 'minimized' ? w.restoreMode : w.mode }));
       set((state) => ({ focusedId: state.focusedId === id ? nextFocus(state.windows, id) : state.focusedId }));
+      syncFocus(true);
     },
 
     toggleMaximize: (id) => {
@@ -175,12 +183,15 @@ export const useWindows = create<WindowsState>()((set, get) => {
 
     resize: (id, bounds) => {
       const area = workspaceSize();
+      const minWidth = Math.min(MIN_WINDOW_SIZE.width, area.width);
+      const x = clamp(bounds.x, 0, area.width - minWidth);
+      const y = clamp(bounds.y, 0, Math.max(0, area.height - MIN_WINDOW_SIZE.height));
       update(id, () => ({
         bounds: {
-          x: bounds.x,
-          y: Math.max(0, bounds.y),
-          width: clamp(bounds.width, MIN_WINDOW_SIZE.width, area.width),
-          height: clamp(bounds.height, MIN_WINDOW_SIZE.height, area.height),
+          x,
+          y,
+          width: clamp(bounds.width + Math.min(0, bounds.x), minWidth, area.width - x),
+          height: clamp(bounds.height, MIN_WINDOW_SIZE.height, area.height - y),
         },
       }));
     },

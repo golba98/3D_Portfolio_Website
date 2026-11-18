@@ -2,6 +2,9 @@ import { lazy, Suspense, useEffect, useState } from 'react';
 import { useExperience } from '../store/experience';
 import { isWebGLAvailable } from '../lib/webgl';
 import { debugFlags } from '../lib/debugFlags';
+import { ErrorBoundary } from './ErrorBoundary';
+import { RoomEntry } from '../components/ui/RoomEntry';
+import { profile } from '../data/profile';
 import { SkipLink } from '../components/ui/SkipLink';
 import { Fallback } from '../components/ui/Fallback';
 import { useHashSync } from './useHashSync';
@@ -17,41 +20,62 @@ export function App() {
   const sceneFailed = useExperience((s) => s.sceneFailed);
   useHashSync();
 
-  // Decided once, before anything 3D is downloaded.
-  const [webglProblem] = useState<string | null>(() => {
-    if (debugFlags.forceFallback()) return 'Fallback forced with ?fallback (dev only).';
-    return isWebGLAvailable() ? null : 'This browser or device does not support WebGL.';
-  });
-
-  // The world mounts on first need and then stays mounted (paused while the
-  // desktop is open) so returning to it is instant.
-  const [worldMounted, setWorldMounted] = useState(false);
   const worldWanted = phase !== 'desktop' && phase !== 'fallback';
-  if (worldWanted && !worldMounted && !webglProblem) setWorldMounted(true);
-
+  const [worldMounted, setWorldMounted] = useState<boolean | null>(null);
+  if (worldWanted && worldMounted === null) setWorldMounted(!debugFlags.forceFallback() && isWebGLAvailable());
   useEffect(() => {
-    if (worldWanted && webglProblem) sceneFailed(webglProblem);
-  }, [worldWanted, webglProblem, sceneFailed]);
+    if (worldWanted && worldMounted === false) sceneFailed('WebGL is unavailable on this device.');
+  }, [worldWanted, worldMounted, sceneFailed]);
 
   // Fetch the desktop while the visitor looks around, so it's ready to paint
   // the moment the camera reaches the monitor instead of popping in late.
   useEffect(() => {
-    if (phase === 'exploring') void loadDesktop();
+    if (phase === 'exploring') void loadDesktop().catch(() => undefined);
   }, [phase]);
 
   return (
     <>
       {phase !== 'desktop' && phase !== 'fallback' && <SkipLink />}
+      {worldWanted && <RoomEntry />}
+      {worldWanted && !worldMounted && (
+        <p className="shell-status" role="status">
+          Loading the desk…
+        </p>
+      )}
       {worldMounted && phase !== 'fallback' && (
-        <Suspense fallback={null}>
-          <World />
-        </Suspense>
+        <ErrorBoundary fallback={<Fallback />} onError={() => sceneFailed('The room could not be loaded.')}>
+          <Suspense
+            fallback={
+              <p className="shell-status" role="status">
+                Loading the desk…
+              </p>
+            }
+          >
+            <World />
+          </Suspense>
+        </ErrorBoundary>
       )}
       {phase === 'fallback' && <Fallback />}
       {phase === 'desktop' && (
-        <Suspense fallback={null}>
-          <Desktop />
-        </Suspense>
+        <ErrorBoundary
+          fallback={
+            <main className="shell-status">
+              <h1>The desktop couldn’t open</h1>
+              <button onClick={() => location.reload()}>Retry desktop</button>
+              <a href={profile.github}>Open GitHub</a>
+            </main>
+          }
+        >
+          <Suspense
+            fallback={
+              <p className="shell-status" role="status">
+                Opening portfolio…
+              </p>
+            }
+          >
+            <Desktop />
+          </Suspense>
+        </ErrorBoundary>
       )}
     </>
   );

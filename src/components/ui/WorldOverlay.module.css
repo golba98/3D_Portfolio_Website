@@ -51,32 +51,3 @@
 .skip:hover {
   border-color: rgb(255 255 255 / 0.28);
 }
-
-.draw {
-  position: absolute;
-  right: max(24px, env(safe-area-inset-right));
-  bottom: max(24px, env(safe-area-inset-bottom));
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 16px;
-  border: 1px solid rgb(255 255 255 / 0.24);
-  border-radius: var(--radius-pill);
-  background: rgb(12 13 16 / 0.78);
-  color: var(--world-fg);
-  font-weight: 600;
-  backdrop-filter: blur(8px);
-  /* Keyboard only: off-screen until tabbed to (pointers click the board itself). */
-  transform: translateY(calc(100% + 48px));
-  transition: transform var(--duration-base) var(--ease-out);
-}
-
-.draw:focus-visible {
-  transform: none;
-  pointer-events: auto;
-}
-
-.shelf {
-  left: max(24px, env(safe-area-inset-left));
-  right: auto;
-}

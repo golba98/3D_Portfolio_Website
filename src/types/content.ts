@@ -71,6 +71,14 @@ export interface Project {
   github?: string;
   demo?: string;
   image?: ProjectImage;
+  thumbnail?: Pick<ProjectImage, 'src' | 'alt'>;
+  featured?: {
+    order: number;
+    contribution: string;
+    outcome: string;
+    evidenceLabel: string;
+    evidenceUrl: string;
+  };
   npm?: NpmPackage;
   /** Recreated terminal screen shown instead of a screenshot. */
   startupScreen?: { full: TerminalScreen; compact: TerminalScreen; caption: string };

@@ -115,7 +115,9 @@ export function CameraRig() {
   const getThree = useThree((s) => s.get);
   const phase = useExperience((s) => s.phase);
   const reducedMotion = useReducedMotion();
-  const pointer = usePointerParallax(!reducedMotion);
+  const invalidate = useThree((s) => s.invalidate);
+  const pointer = usePointerParallax(phase === 'exploring' && !reducedMotion, invalidate);
+  useEffect(() => useLookStops.subscribe(() => invalidate()), [invalidate]);
   useTouchLook(phase === 'exploring');
   // Phones fly onto the phone on the desk; everything else into the monitor.
   const entry = useEntryDevice();
@@ -238,6 +240,7 @@ export function CameraRig() {
         tween.current = null;
     }
     previousPhase.current = phase;
+    invalidate();
   }, [phase, reducedMotion]); // eslint-disable-line react-hooks/exhaustive-deps -- aspectNow reads live state
 
   useFrame((three, delta) => {
@@ -273,6 +276,7 @@ export function CameraRig() {
       );
       if (progress >= 1) useExperience.getState().finishIntro();
     } else if (active) {
+      if (currentPhase === 'exploring') three.invalidate();
       active.elapsed += delta;
       const progress = clamp((active.elapsed - active.delay) / active.duration, 0, 1);
       blendLinear(active.from, active.to(aspect), easeInOutCubic(progress), current);
@@ -302,12 +306,13 @@ export function CameraRig() {
       orbitPose(lookedAtPose(aspect), x * EXPLORE.yawRange, y * EXPLORE.pitchRange + look.pitch, goal.current);
       // A finger drag tracks closely; everything else (mouse parallax, chip jumps) glides.
       const smooth = look.dragging ? EXPLORE.dragSmoothTime : EXPLORE.smoothTime;
-      easing.damp3(current.position, goal.current.position, smooth, delta);
-      easing.damp3(current.target, goal.current.target, smooth, delta);
-      easing.damp(current, 'fov', goal.current.fov, smooth, delta);
+      const moving = easing.damp3(current.position, goal.current.position, smooth, delta);
+      const turning = easing.damp3(current.target, goal.current.target, smooth, delta);
+      const zooming = easing.damp(current, 'fov', goal.current.fov, smooth, delta);
       // Rights the camera after coming back up from the phone.
-      easing.damp3(current.up, goal.current.up, smooth, delta);
+      const tilting = easing.damp3(current.up, goal.current.up, smooth, delta);
       current.up.normalize();
+      if (moving || turning || zooming || tilting || look.velocity !== 0) three.invalidate();
     } else if (currentPhase === 'desktop') {
       const focus = focusPose(entryRef.current, aspect);
       if (focus) setCameraState(current, focus);

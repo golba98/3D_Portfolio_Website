@@ -7,16 +7,12 @@ import type { AppId } from '../../types/apps';
 import { AppFrameContext, type MobileFrame } from '../adw/frame';
 import { AppHost } from '../desktop/AppHost';
 import { HomeScreen } from './HomeScreen';
-import { handleHistoryPop, openFromDeepLink, usePhone, type RunningApp } from './phoneStore';
+import { usePhone, type RunningApp } from './phoneStore';
 import { AppSwitcher } from './AppSwitcher';
 import { ControlCentre } from './ControlCentre';
 import { SearchSheet } from './SearchSheet';
 import { StatusBar } from './StatusBar';
 import styles from './PhoneShell.module.css';
-
-interface PhoneShellProps {
-  initialApp: AppId | null;
-}
 
 /**
  * Small screens get an iPhone instead of a desktop (it's an iPhone on the
@@ -25,7 +21,7 @@ interface PhoneShellProps {
  * the home indicator along the bottom, an app switcher, and swipe-from-the-edge
  * to go back.
  */
-export function PhoneShell({ initialApp }: PhoneShellProps) {
+export function PhoneShell() {
   const running = usePhone((s) => s.running);
   const active = usePhone((s) => s.active);
   const overlay = usePhone((s) => s.overlay);
@@ -33,18 +29,14 @@ export function PhoneShell({ initialApp }: PhoneShellProps) {
   const edgeX = useMotionValue(0);
 
   useEffect(() => {
-    if (initialApp) openFromDeepLink(initialApp);
-    window.addEventListener('popstate', handleHistoryPop);
     const onKey = (event: KeyboardEvent): void => {
       if (event.key === 'Escape' && !event.defaultPrevented) usePhone.getState().back();
     };
     window.addEventListener('keydown', onKey);
     return () => {
-      window.removeEventListener('popstate', handleHistoryPop);
       window.removeEventListener('keydown', onKey);
-      usePhone.getState().reset();
     };
-  }, [initialApp]);
+  }, []);
 
   return (
     <div className={styles.shell} data-phone-shell="" data-app-open={active !== null}>
@@ -114,7 +106,8 @@ function AppLayer({ app, visible, edgeX }: AppLayerProps) {
       transition={{ duration: reducedMotion ? 0.15 : 0.3, ease: [0.22, 1, 0.36, 1] }}
       // Hidden layers can't take focus, so it moves in once the app has grown in.
       onAnimationComplete={(definition) => {
-        if (definition === 'shown') section.current?.focus({ preventScroll: true });
+        if (definition === 'shown' && !section.current?.contains(document.activeElement))
+          section.current?.focus({ preventScroll: true });
       }}
     >
       {/* The other apps draw their own (iOS-styled) header bars; the terminal gets a plain title bar. */}

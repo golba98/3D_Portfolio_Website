@@ -42,6 +42,19 @@ export function WindowMenu({ x, y, mode, actions, onDismiss }: WindowMenuProps) 
       if (!root.current?.contains(event.target as Node)) onDismiss();
     };
     const onKey = (event: KeyboardEvent): void => {
+      if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) {
+        const items = Array.from(root.current?.querySelectorAll<HTMLButtonElement>('button') ?? []);
+        if (!items.length) return;
+        event.preventDefault();
+        const current = items.findIndex((item) => item === document.activeElement);
+        const index =
+          event.key === 'Home'
+            ? 0
+            : event.key === 'End'
+              ? items.length - 1
+              : (current + (event.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
+        items[index]?.focus();
+      }
       if (event.key === 'Escape') {
         event.stopPropagation();
         onDismiss();
@@ -57,37 +70,31 @@ export function WindowMenu({ x, y, mode, actions, onDismiss }: WindowMenuProps) 
     };
   }, [onDismiss]);
 
-  const items: ReadonlyArray<
-    { label: string; icon: IconName; run: () => void; shortcut?: string; checked?: boolean } | 'separator'
-  > = [
+  const items: ReadonlyArray<{ label: string; icon: IconName; run: () => void; checked?: boolean } | 'separator'> = [
     {
       label: restorable ? 'Restore' : 'Maximise',
       icon: restorable ? 'restore' : 'maximize',
       run: actions.maximize,
-      shortcut: 'Super+↑',
     },
     {
       label: 'Tile Left',
       icon: 'tile-left',
       run: actions.tileLeft,
-      shortcut: 'Super+←',
       checked: mode === 'tiled-left',
     },
     {
       label: 'Tile Right',
       icon: 'tile-right',
       run: actions.tileRight,
-      shortcut: 'Super+→',
       checked: mode === 'tiled-right',
     },
     {
       label: mode === 'fullscreen' ? 'Leave Fullscreen' : 'Fullscreen',
       icon: mode === 'fullscreen' ? 'unfullscreen' : 'fullscreen',
       run: actions.fullscreen,
-      shortcut: 'F11',
     },
     'separator',
-    { label: 'Minimise', icon: 'minimize', run: actions.minimize, shortcut: 'Super+↓' },
+    { label: 'Minimise', icon: 'minimize', run: actions.minimize },
     { label: 'Close', icon: 'close', run: actions.close },
   ];
 
@@ -116,7 +123,6 @@ export function WindowMenu({ x, y, mode, actions, onDismiss }: WindowMenuProps) 
           >
             <Icon name={item.icon} size={16} strokeWidth={1.8} />
             <span className={styles.label}>{item.label}</span>
-            {item.shortcut && <kbd className={styles.shortcut}>{item.shortcut}</kbd>}
           </button>
         ),
       )}

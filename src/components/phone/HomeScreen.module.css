@@ -236,3 +236,21 @@
   margin: 0;
   padding: calc(var(--gap) * 0.6) var(--gap);
 }
+.prompt {
+  height: auto;
+  min-height: 44px;
+  padding-block: 4px;
+  color: #e1e1e6;
+}
+.promptText {
+  white-space: normal;
+  font-size: 13px;
+  line-height: 1.35;
+}
+.projects {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.projectName {
+  color: #d5d5de;
+  font-size: 12px;
+}

@@ -51,7 +51,7 @@ export function SearchSheet() {
             placeholder="Apps, projects, skills"
             aria-label="Search apps and projects"
             enterKeyHint="go"
-            autoFocus
+            data-initial-focus
             onChange={(event) => setQuery(event.target.value)}
             onKeyDown={(event) => {
               const first = results[0];

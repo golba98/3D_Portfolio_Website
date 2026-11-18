@@ -68,9 +68,11 @@ export function PoemOverlay() {
       </button>
       {!reading && (
         <>
-          <p className={styles.hint} role="status">
-            {shelfReady ? 'A page, waiting to be read.' : 'Something on the shelf…'}
-          </p>
+          {!shelfReady && (
+            <p className={styles.hint} role="status">
+              Something on the shelf…
+            </p>
+          )}
           <button
             ref={read}
             type="button"

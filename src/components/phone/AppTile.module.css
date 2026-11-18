@@ -43,3 +43,17 @@
   outline: 2px solid var(--ios-tint);
   outline-offset: 3px;
 }
+.tile {
+  position: relative;
+  padding-bottom: 10px;
+}
+.label {
+  position: absolute;
+  bottom: 4px;
+  inset-inline: 1px;
+  color: #eee;
+  font-size: 10px;
+  font-weight: 550;
+  line-height: 1.1;
+  text-align: center;
+}

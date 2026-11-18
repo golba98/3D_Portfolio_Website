@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties } from 'react';
+import { useLayoutEffect, type CSSProperties } from 'react';
 import { motion } from 'framer-motion';
 import { isAppId } from '../../apps/registry';
 import { PHONE_CONTAIN } from '../../config/cameraPoses';
@@ -7,16 +7,10 @@ import { useDetectedDevice, useEntryDevice } from '../../hooks/useEntryDevice';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { useSceneLayout } from '../../store/sceneLayout';
 import { useWindows } from '../../store/windows';
-import type { AppId } from '../../types/apps';
+import { usePhone } from '../phone/phoneStore';
 import { PhoneShell } from '../phone/PhoneShell';
 import { DesktopShell } from './DesktopShell';
 import styles from './Desktop.module.css';
-
-/** App named in the URL (#/desktop/<app>), if any. */
-function appFromHash(): AppId | null {
-  const segment = window.location.hash.replace(/^#\/desktop\/?/, '').split('/')[0] ?? '';
-  return isAppId(segment) ? segment : null;
-}
 
 /** iPhone 15 Pro display, width / height, for when the model hasn't been measured (a deep link). */
 const FALLBACK_PHONE_ASPECT = 393 / 852;
@@ -31,16 +25,35 @@ export default function Desktop() {
   const detected = useDetectedDevice();
   const phoneScreen = useSceneLayout((s) => s.phoneScreen);
   const reducedMotion = useReducedMotion();
-  const [initialApp] = useState(appFromHash);
-
-  // A deep link (#/desktop/<app>) opens its app once the crossfade has
-  // finished. Otherwise the desktop starts empty, like a fresh login.
-  useEffect(() => {
-    if (entry === 'phone' || !initialApp) return;
-    const delay = reducedMotion ? 0 : TIMINGS.desktopCrossfade * 1000;
-    const timer = window.setTimeout(() => useWindows.getState().open(initialApp), delay);
-    return () => window.clearTimeout(timer);
-  }, [entry, initialApp, reducedMotion]);
+  useLayoutEffect(() => {
+    function applyRoute() {
+      const [base, shell, id, arg] = location.hash.split('/');
+      if (base !== '#' || shell !== 'desktop') return;
+      if (id && isAppId(id)) {
+        let destination = arg ?? '';
+        try {
+          destination = decodeURIComponent(destination);
+        } catch {
+          /* Show the unavailable project notice. */
+        }
+        const open = entry === 'phone' ? usePhone.getState().open : useWindows.getState().open;
+        open(id, id === 'projects' ? destination : undefined);
+      } else {
+        if (entry === 'phone') usePhone.getState().home();
+        else
+          useWindows.setState((state) => ({
+            focusedId: null,
+            overviewOpen: false,
+            windows: state.windows.map((w) =>
+              w.mode === 'minimized' ? w : { ...w, restoreMode: w.mode, mode: 'minimized' },
+            ),
+          }));
+      }
+    }
+    applyRoute();
+    window.addEventListener('hashchange', applyRoute);
+    return () => window.removeEventListener('hashchange', applyRoute);
+  }, [entry]);
 
   // The phone on a computer (chosen anyway): a phone-sized screen where the 3D phone's was.
   const framed = entry === 'phone' && detected === 'monitor';
@@ -61,10 +74,10 @@ export default function Desktop() {
         <DesktopShell />
       ) : framed ? (
         <div className={styles.phoneFrame} style={frameVars}>
-          <PhoneShell initialApp={initialApp} />
+          <PhoneShell />
         </div>
       ) : (
-        <PhoneShell initialApp={initialApp} />
+        <PhoneShell />
       )}
     </motion.div>
   );

@@ -21,7 +21,7 @@ export function useSystemActions(): SystemAction[] {
   const sceneStatus = useExperience((s) => s.sceneStatus);
   const leaveDesktop = useExperience((s) => s.leaveDesktop);
   const actions: SystemAction[] = [
-    { id: 'cv', icon: 'download', label: 'Download CV', href: profile.resumeUrl, download: true },
+    { id: 'cv', icon: 'download', label: 'Download CV (PDF)', href: profile.resumeUrl, download: true },
     { id: 'github', icon: 'github', label: 'GitHub', href: profile.github },
   ];
   if (sceneStatus !== 'failed')

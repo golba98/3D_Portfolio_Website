@@ -22,7 +22,7 @@ export default function About({ openApp }: AppProps) {
       top={
         <HeaderBar
           title="About"
-          end={<HeaderLink icon="download" label="Download CV" href={profile.resumeUrl} download />}
+          end={<HeaderLink icon="download" label="Download CV (PDF)" href={profile.resumeUrl} download />}
         />
       }
     >

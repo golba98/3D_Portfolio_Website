@@ -1,3 +1,4 @@
+import { projects } from '../../data/projects';
 import type { MouseEvent } from 'react';
 import { profile } from '../../data/profile';
 import type { AppId } from '../../types/apps';
@@ -27,12 +28,9 @@ export const GRID_TILES: readonly HomeTile[] = [
 ];
 
 /** The Now building widget's buttons: a project id (data/projects.ts), short name and glyph. */
-export const WIDGET_PROJECTS: ReadonlyArray<{ id: string; name: string; icon: IconName }> = [
-  { id: 'syncroedit', name: 'SyncroEdit', icon: 'file' },
-  { id: 'ubume', name: 'Ubume', icon: 'terminal' },
-  { id: 'llm', name: 'Codexa', icon: 'chip' },
-  { id: 'hp-prime-emulator', name: 'HP Prime', icon: 'terminal' },
-];
+export const WIDGET_PROJECTS = projects
+  .filter((project) => project.featured)
+  .sort((a, b) => a.featured!.order - b.featured!.order);
 
 /** The Search pill above the dock. */
 export const SEARCH_PILL = { width: 104, height: 32, gap: 12 } as const;

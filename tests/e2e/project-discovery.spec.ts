@@ -4,13 +4,13 @@ for (const mobile of [false, true]) {
   test(`project gallery filters, details and back navigation (${mobile ? 'phone' : 'Linux'})`, async ({ page }) => {
     if (mobile) await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/#/desktop/projects');
-    const catalog = page.getByRole('region', { name: 'Built to explore.' });
+    const catalog = page.getByRole('region', { name: 'Project library' });
     await expect(catalog.getByRole('status')).toHaveText('8 projects');
     await catalog.getByRole('button', { name: 'Systems', exact: true }).click();
     await expect(catalog.getByRole('status')).toHaveText('2 projects');
     await catalog.getByRole('searchbox').fill('C++23');
     await expect(catalog.getByRole('status')).toHaveText('1 project');
-    await catalog.getByRole('button', { name: mobile ? 'HTTP Server' : 'Explore HTTP Server', exact: true }).click();
+    await catalog.getByRole('link', { name: mobile ? 'HTTP Server' : 'Explore HTTP Server', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'HTTP Server', exact: true })).toBeVisible();
     await expect(page.getByRole('region', { name: 'What you can do' }).getByRole('listitem')).toHaveCount(3);
     await expect(page.getByRole('link', { name: 'Explore the code' })).toHaveAttribute(
@@ -56,7 +56,7 @@ for (const mobile of [false, true]) {
       await (mobile ? page.getByRole('region', { name: 'Projects', exact: true }) : page)
         .getByRole('button', { name: mobile ? 'Projects' : /Browse projects/, exact: mobile })
         .click();
-      await expect(page.getByRole('heading', { name: 'Built to explore.' })).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'Project library' })).toBeVisible();
       if (mobile) await page.getByRole('button', { name: 'Home', exact: true }).click();
     }
     await launchSearch();
@@ -73,12 +73,27 @@ for (const mobile of [false, true]) {
         .locator('xpath=ancestor::header')
         .click({ button: 'right' });
       await page.getByRole('menuitem', { name: /^Minimise/ }).click();
-      await expect(page.getByRole('heading', { name: 'Built to explore.' })).not.toBeVisible();
-      await page.keyboard.press('Control+k');
+      await expect(page.getByRole('heading', { name: 'Project library' })).not.toBeVisible();
+      await page.keyboard.press('/');
       const running = page.getByRole('region', { name: 'Open windows' });
       await expect(running.getByRole('button', { name: /^Projects/ })).toContainText('Minimized');
       await running.getByRole('button', { name: /^Projects/ }).click();
-      await expect(page.getByRole('heading', { name: 'Built to explore.' })).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'Project library' })).toBeVisible();
     }
+  });
+}
+
+for (const phone of [false, true]) {
+  test(`closing project search returns keyboard focus to the launcher (${phone ? 'phone' : 'desktop'})`, async ({
+    page,
+  }) => {
+    if (phone) await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/#/desktop');
+    const launcher = page.getByRole('button', { name: phone ? 'Search' : 'Activities', exact: true });
+    await launcher.focus();
+    await launcher.press('Enter');
+    await expect(page.getByRole('searchbox')).toBeFocused();
+    await page.keyboard.press('Escape');
+    await expect(launcher).toBeFocused();
   });
 }

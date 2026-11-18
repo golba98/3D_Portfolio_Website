@@ -1,0 +1,103 @@
+.entry {
+  position: fixed;
+  z-index: 12;
+  left: max(24px, env(safe-area-inset-left));
+  bottom: max(22px, env(safe-area-inset-bottom));
+  width: max-content;
+  max-width: min(22rem, calc(100vw - 32px));
+  max-height: 72dvh;
+  overflow-y: auto;
+  padding: 10px;
+  color: var(--world-fg);
+  border: 1px solid rgb(255 255 255 / 0.17);
+  border-radius: 15px;
+  background: rgb(16 16 19 / 0.94);
+  box-shadow: 0 5px 24px #0006;
+}
+.identity {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px;
+  padding: 4px 5px 12px;
+}
+.identity h1 {
+  font-size: 1.45rem;
+  line-height: 1.2;
+  letter-spacing: -0.035em;
+  margin-top: 4px;
+}
+.identity span {
+  color: #c8c4c6;
+  font-size: var(--text-xs);
+}
+.identity p {
+  grid-column: 1 / -1;
+  max-width: 29ch;
+  line-height: 1.45;
+  font-size: var(--text-sm);
+}
+.entry button,
+.entry a {
+  color: inherit;
+  border: 0;
+  background: transparent;
+  text-decoration: none;
+}
+.identity button {
+  align-self: start;
+  min-width: 32px;
+  min-height: 32px;
+  font-size: 20px;
+  border-radius: 50%;
+}
+.actions {
+  display: flex;
+  gap: 5px;
+}
+.actions > *,
+.links > * {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 6px 12px;
+  font-size: var(--text-sm);
+  border-radius: 8px;
+}
+.actions .primary {
+  background: #eee8e8;
+  color: #221d1e;
+  font-weight: 650;
+}
+.actions .primary span {
+  color: #892c35;
+}
+.entry button:hover,
+.links a:hover {
+  background: #ffffff1c;
+}
+.links {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  border-top: 1px solid #ffffff26;
+  margin-top: 8px;
+  padding-top: 6px;
+}
+.links > * {
+  justify-content: start;
+}
+@media (pointer: coarse), (max-width: 600px) {
+  .entry {
+    left: max(12px, env(safe-area-inset-left));
+    top: max(12px, env(safe-area-inset-top));
+    bottom: auto;
+    max-width: calc(100vw - 24px);
+  }
+  .actions > *,
+  .links > *,
+  .identity button {
+    min-height: 44px;
+  }
+}

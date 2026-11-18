@@ -10,7 +10,7 @@ import ui from '../shared/ui.module.css';
 import styles from './Contact.module.css';
 
 export default function Contact(_props: AppProps) {
-  const { copied, copy } = useClipboard();
+  const { copied, copy, feedback } = useClipboard();
 
   return (
     <ToolbarView
@@ -49,14 +49,14 @@ export default function Contact(_props: AppProps) {
                   title="Copy"
                 >
                   <Icon name={copied ? 'check' : 'copy'} size={16} strokeWidth={2} />
-                  <span className="visually-hidden" aria-live="polite">
-                    {copied ? 'Copied' : ''}
+                  <span className={styles.copyFeedback} aria-live="polite">
+                    {feedback}
                   </span>
                 </button>
               }
             />
             <ActionRow icon="github" title={`@${profile.githubUsername}`} subtitle="GitHub" href={profile.github} />
-            <ActionRow icon="file" title="Resume.pdf" subtitle="CV" href={profile.resumeUrl} download />
+            <ActionRow icon="file" title="Download CV (PDF)" subtitle="Resume.pdf" href={profile.resumeUrl} download />
           </ul>
         </section>
 

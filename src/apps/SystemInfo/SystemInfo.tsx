@@ -14,7 +14,7 @@ export default function SystemInfo(_props: AppProps) {
   const specs = [{ label: 'Device Name', value: hardware.hostname }, ...knownHardware()];
 
   return (
-    <ToolbarView top={<HeaderBar title="About" />}>
+    <ToolbarView top={<HeaderBar title="System Info" />}>
       <article className={`${ui.page} ${ui.narrow}`}>
         <header className={ui.hero}>
           <div className={styles.mark} aria-hidden="true">

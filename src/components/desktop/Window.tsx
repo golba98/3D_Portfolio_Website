@@ -210,6 +210,14 @@ export function Window({ win }: WindowProps) {
       animate={minimized ? { opacity: 0, scale: 0.86, y: 120 } : { opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.94, transition: { duration: duration * 0.8 } }}
       transition={{ duration, ease: [0.22, 1, 0.36, 1] }}
+      onKeyDown={(event) => {
+        if ((event.shiftKey && event.key === 'F10') || event.key === 'ContextMenu') {
+          if ((event.target as HTMLElement).closest('input, textarea, [contenteditable=true]')) return;
+          event.preventDefault();
+          const rect = event.currentTarget.getBoundingClientRect();
+          setMenu({ x: rect.left + 16, y: rect.top + 32 });
+        }
+      }}
       onPointerDownCapture={() => focus(win.id)}
       onFocusCapture={() => focus(win.id)}
     >
@@ -261,7 +269,10 @@ export function Window({ win }: WindowProps) {
           x={menu.x}
           y={menu.y}
           mode={mode}
-          onDismiss={() => setMenu(null)}
+          onDismiss={() => {
+            setMenu(null);
+            section.current?.focus({ preventScroll: true });
+          }}
           actions={{
             maximize: () => (restorable ? restore(win.id) : toggleMaximize(win.id)),
             tileLeft: () => tile(win.id, 'left'),

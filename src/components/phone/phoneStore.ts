@@ -1,3 +1,4 @@
+import { desktopHash, writeRoute } from '../../app/desktopRoute';
 import { create } from 'zustand';
 import type { AppId } from '../../types/apps';
 
@@ -46,33 +47,6 @@ interface PhoneState {
 
 const handlers = new Map<AppId, BackHandler[]>();
 
-/*
-  Browser history mirrors one level: home (#/desktop) or an app
-  (#/desktop/<app>). Android's back gesture and the browser's Back button
-  arrive as popstate and run the same `back()` as the on-screen gestures; if
-  that leaves an app open (an in-app step, or a closed overlay), the app entry
-  is pushed again so the next Back still has something to pop.
-*/
-let appEntryPushed = false;
-let ignoreNextPop = false;
-
-const appHash = (id: AppId): string => `#/desktop/${id}`;
-
-function pushAppEntry(id: AppId): void {
-  if (appEntryPushed) {
-    window.history.replaceState(null, '', appHash(id));
-  } else {
-    window.history.pushState(null, '', appHash(id));
-    appEntryPushed = true;
-  }
-}
-
-function popAppEntry(): void {
-  if (!appEntryPushed) return;
-  ignoreNextPop = true;
-  window.history.back();
-}
-
 export const usePhone = create<PhoneState>()((set, get) => ({
   running: [],
   active: null,
@@ -81,23 +55,23 @@ export const usePhone = create<PhoneState>()((set, get) => ({
   open: (id, arg, origin) => {
     set((state) => {
       const existing = state.running.find((app) => app.id === id);
-      const relaunch = existing && arg !== undefined;
+      const relaunch = existing && arg !== undefined && id !== 'projects';
       const base: RunningApp = existing && !relaunch ? existing : { id, arg, key: (existing?.key ?? 0) + 1 };
       if (relaunch) handlers.delete(id);
-      const entry = origin ? { ...base, origin } : base;
+      const entry = { ...base, arg: arg ?? base.arg, origin: origin ?? base.origin };
       return {
         running: [...state.running.filter((app) => app.id !== id), entry],
         active: id,
         overlay: 'none',
       };
     });
-    pushAppEntry(id);
+    writeRoute(desktopHash(id, get().running.find((app) => app.id === id)?.arg));
   },
 
   home: () => {
     if (get().active === null && get().overlay === 'none') return;
     set({ active: null, overlay: 'none' });
-    popAppEntry();
+    writeRoute(desktopHash());
   },
 
   close: (id) => {
@@ -106,7 +80,7 @@ export const usePhone = create<PhoneState>()((set, get) => ({
       running: state.running.filter((app) => app.id !== id),
       active: state.active === id ? null : state.active,
     }));
-    if (get().active === null) popAppEntry();
+    if (get().active === null) writeRoute(desktopHash(), true);
   },
 
   setOverlay: (overlay) => set({ overlay }),
@@ -141,31 +115,6 @@ export const usePhone = create<PhoneState>()((set, get) => ({
 
   reset: () => {
     handlers.clear();
-    appEntryPushed = false;
-    ignoreNextPop = false;
     set({ running: [], active: null, overlay: 'none' });
   },
 }));
-
-/** Runs system Back (popstate) through the phone's own back logic. */
-export function handleHistoryPop(): void {
-  if (!appEntryPushed) return;
-  appEntryPushed = false;
-  if (ignoreNextPop) {
-    ignoreNextPop = false;
-    return;
-  }
-  const { back } = usePhone.getState();
-  back();
-  const { active } = usePhone.getState();
-  if (active) pushAppEntry(active);
-}
-
-/**
- * A deep link (#/desktop/<app>) opens straight into the app; put home
- * underneath it so Back lands on the home screen rather than leaving the site.
- */
-export function openFromDeepLink(id: AppId, arg?: string): void {
-  window.history.replaceState(null, '', '#/desktop');
-  usePhone.getState().open(id, arg);
-}
