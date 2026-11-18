@@ -21,8 +21,8 @@ it('features eight unique public projects with working navigation targets', () =
   for (const p of WIDGET_PROJECTS) expect(findProject(p.id)).toBeDefined();
 });
 it('uses a canonical public inventory without obsolete/private fallback entries', () => {
-  expect(repos).toHaveLength(14);
-  expect(new Set(repos.map((r) => r.name.toLowerCase())).size).toBe(14);
+  expect(repos).toHaveLength(15);
+  expect(new Set(repos.map((r) => r.name.toLowerCase())).size).toBe(15);
   for (const r of repos) expect(r.url).toBe(`https://github.com/golba98/${r.name}`);
   expect(repos.map((r) => r.name)).not.toContain('Movie_App');
   for (const p of earlierProjects) if (p.github) expect(repos.some((r) => r.url === p.github)).toBe(true);

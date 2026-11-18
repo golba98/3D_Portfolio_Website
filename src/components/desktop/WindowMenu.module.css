@@ -46,12 +46,6 @@
   flex: 1;
 }
 
-.shortcut {
-  color: var(--desk-fg-muted);
-  font-family: inherit;
-  font-size: var(--text-sm);
-}
-
 .separator {
   height: 1px;
   margin: 6px 4px;

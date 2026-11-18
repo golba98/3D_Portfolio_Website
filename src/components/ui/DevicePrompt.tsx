@@ -75,7 +75,12 @@ function Prompt({ device }: { device: EntryDevice }) {
           {copy.body}
         </p>
         <div className={styles.actions}>
-          <button type="button" className={styles.primary} autoFocus onClick={() => enterDevice(detected, false)}>
+          <button
+            type="button"
+            className={styles.primary}
+            data-initial-focus
+            onClick={() => enterDevice(detected, false)}
+          >
             {copy.instead}
           </button>
           <button type="button" className={styles.secondary} onClick={() => enterDevice(device, true)}>

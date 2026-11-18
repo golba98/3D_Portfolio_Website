@@ -58,7 +58,7 @@ export function FullscreenSupport() {
           exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.2 }}
         >
-          Press <kbd>F11</kbd> or <kbd>Esc</kbd> to exit full screen
+          Press <kbd>Esc</kbd> to exit full screen
         </motion.p>
       )}
     </AnimatePresence>

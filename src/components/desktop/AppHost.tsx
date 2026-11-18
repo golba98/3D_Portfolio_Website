@@ -17,12 +17,18 @@ export function AppHost({ appId, arg, openApp, setTitle }: AppHostProps) {
   const frame = (body: ReactNode) =>
     chrome ? body : <ToolbarView top={<HeaderBar title={title} />}>{body}</ToolbarView>;
   return (
-    <ErrorBoundary fallback={frame(<p className={styles.message}>{title} couldn't be opened. Please try again.</p>)}>
+    <ErrorBoundary
+      fallback={frame(
+        <p className={styles.message}>
+          {title} couldn't be opened. <button onClick={() => location.reload()}>Retry {title}</button>
+        </p>,
+      )}
+    >
       <Suspense
         fallback={frame(
           <div className={styles.loading} role="status">
             <span className={styles.spinner} aria-hidden="true" />
-            <span className="visually-hidden">Loading {title}…</span>
+            <span>Loading {title}…</span>
           </div>,
         )}
       >

@@ -11,7 +11,7 @@ for (const mobile of [false, true]) {
     if (mobile) await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(mobile ? '/#/desktop' : '/#/desktop/about');
 
-    const link = page.getByRole('link', { name: mobile ? 'CV' : 'Download CV', exact: true });
+    const link = page.getByRole('link', { name: 'Download CV (PDF)', exact: true });
     await expect(link).toHaveAttribute('href', '/Resume.pdf');
     const [download] = await Promise.all([page.waitForEvent('download'), link.click()]);
 

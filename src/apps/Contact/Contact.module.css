@@ -52,3 +52,7 @@
   color: var(--desk-fg);
   font-size: var(--text-md);
 }
+.copyFeedback {
+  font-size: var(--text-xs);
+  white-space: normal;
+}

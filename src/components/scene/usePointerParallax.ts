@@ -12,7 +12,7 @@ export interface PointerOffset {
  * the window so DOM overlays above the canvas don't interrupt it. Touch and
  * disabled states report the centre.
  */
-export function usePointerParallax(enabled: boolean): RefObject<PointerOffset> {
+export function usePointerParallax(enabled: boolean, invalidate: () => void): RefObject<PointerOffset> {
   const offset = useRef<PointerOffset>({ x: 0, y: 0 });
 
   useEffect(() => {
@@ -21,12 +21,14 @@ export function usePointerParallax(enabled: boolean): RefObject<PointerOffset> {
 
     const onMove = (event: PointerEvent): void => {
       if (event.pointerType !== 'mouse') return;
+      invalidate();
       offset.current = {
         x: (event.clientX / window.innerWidth) * 2 - 1,
         y: -((event.clientY / window.innerHeight) * 2 - 1),
       };
     };
     const onLeave = (): void => {
+      invalidate();
       offset.current = { x: 0, y: 0 };
     };
     window.addEventListener('pointermove', onMove, { passive: true });
@@ -35,7 +37,7 @@ export function usePointerParallax(enabled: boolean): RefObject<PointerOffset> {
       window.removeEventListener('pointermove', onMove);
       document.documentElement.removeEventListener('pointerleave', onLeave);
     };
-  }, [enabled]);
+  }, [enabled, invalidate]);
 
   return offset;
 }

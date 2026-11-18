@@ -1,3 +1,4 @@
+import { useThree } from '@react-three/fiber';
 import { useEffect, useMemo } from 'react';
 import { CanvasTexture, SRGBColorSpace } from 'three';
 import { BOARD_COLORS, useBoardDrawing, type BoardStroke } from '../../store/boardDrawing';
@@ -33,6 +34,7 @@ function paint(ctx: CanvasRenderingContext2D, stroke: BoardStroke): void {
 
 /** Owns the scratchpad texture, redraw subscription and disposal. */
 export function useBoardTexture() {
+  const invalidate = useThree((s) => s.invalidate);
   const drawing = useMemo(() => {
     const canvas = document.createElement('canvas');
     canvas.width = WIDTH;
@@ -51,6 +53,7 @@ export function useBoardTexture() {
       strokes.forEach((stroke) => paint(ctx, stroke));
       if (current) paint(ctx, current);
       drawing.texture.needsUpdate = true;
+      invalidate();
     };
     redraw();
     const unsubscribe = useBoardDrawing.subscribe(redraw);
@@ -58,7 +61,7 @@ export function useBoardTexture() {
       unsubscribe();
       drawing.texture.dispose();
     };
-  }, [drawing]);
+  }, [drawing, invalidate]);
 
   return drawing.texture;
 }

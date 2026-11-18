@@ -28,10 +28,10 @@
   --desk-active: rgb(255 255 255 / 0.12);
   --desk-selected: rgb(255 255 255 / 0.1);
   --desk-accent: var(--ios-tint);
-  --desk-accent-strong: var(--ios-tint);
+  --desk-accent-strong: #0063c7;
   --desk-accent-strong-hover: #409cff;
   --desk-fg-muted: rgb(235 235 245 / 0.6);
-  --desk-fg-subtle: rgb(235 235 245 / 0.3);
+  --desk-fg-subtle: rgb(235 235 245 / 0.58);
   position: relative;
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', var(--font-sans);
   display: flex;

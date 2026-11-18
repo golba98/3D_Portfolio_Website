@@ -1,24 +1,29 @@
 import { useEffect, useRef, useState } from 'react';
 
-const COPIED_DURATION_MS = 1800;
-
-/** Copy feedback shared by the email and installation command buttons. */
 export function useClipboard() {
-  const [copied, setCopied] = useState(false);
+  const [feedback, setFeedback] = useState('');
   const timer = useRef(0);
+  const attempt = useRef(0);
+  useEffect(
+    () => () => {
+      attempt.current++;
+      window.clearTimeout(timer.current);
+    },
+    [],
+  );
 
-  useEffect(() => () => window.clearTimeout(timer.current), []);
-
-  const copy = async (text: string): Promise<void> => {
+  async function copy(text: string) {
+    const current = ++attempt.current;
+    window.clearTimeout(timer.current);
+    let result = 'Copied';
     try {
       await navigator.clipboard.writeText(text);
-      window.clearTimeout(timer.current);
-      setCopied(true);
-      timer.current = window.setTimeout(() => setCopied(false), COPIED_DURATION_MS);
     } catch {
-      // Clipboard access can be blocked; the original text remains available.
+      result = 'Copy unavailable. Select the text to copy it.';
     }
-  };
-
-  return { copied, copy };
+    if (attempt.current !== current) return;
+    setFeedback(result);
+    if (result === 'Copied') timer.current = window.setTimeout(() => setFeedback(''), 1800);
+  }
+  return { copied: feedback === 'Copied', failed: Boolean(feedback && feedback !== 'Copied'), feedback, copy };
 }

@@ -5,7 +5,6 @@ import styles from './Fallback.module.css';
 /** Shown when WebGL or the model is unavailable. The portfolio stays one click away. */
 export function Fallback() {
   const reason = useExperience((s) => s.fallbackReason);
-  const enterDesktopDirectly = useExperience((s) => s.enterDesktopDirectly);
 
   return (
     <main className={styles.fallback}>
@@ -18,9 +17,14 @@ export function Fallback() {
         <p className={styles.notice} role="status">
           The 3D desk couldn't be shown{reason ? `: ${reason}` : '.'} Everything in the portfolio is still available.
         </p>
-        <button type="button" className={styles.enter} onClick={enterDesktopDirectly} autoFocus>
-          Open portfolio
-        </button>
+        <div className={styles.actions}>
+          <a className={styles.enter} href="#/desktop/projects">
+            View projects
+          </a>
+          <button type="button" onClick={() => location.reload()}>
+            Retry room
+          </button>
+        </div>
       </div>
     </main>
   );

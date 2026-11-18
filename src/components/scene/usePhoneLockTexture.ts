@@ -22,6 +22,7 @@ const MAX_WIDTH = 1536;
  * starts, for the clock, and rebuilt when the window is resized.
  */
 export function usePhoneLockTexture(screen: ScreenRect): CanvasTexture {
+  const invalidate = useThree((s) => s.invalidate);
   const maxTextureSize = useThree((s) => s.gl.capabilities.maxTextureSize);
   const viewport = useViewportSize();
   const [wallpaper, setWallpaper] = useState<HTMLImageElement | null>(null);
@@ -66,11 +67,12 @@ export function usePhoneLockTexture(screen: ScreenRect): CanvasTexture {
     const redraw = (): void => {
       drawPhoneLockScreen(ctx, canvas.width, canvas.height, wallpaper, new Date(), layout);
       texture.needsUpdate = true;
+      invalidate();
     };
     redraw();
     // Redraw as each minute starts, so the painted clock matches the real one.
     return onEveryMinute(redraw);
-  }, [texture, wallpaper, layout]);
+  }, [texture, wallpaper, layout, invalidate]);
 
   return texture;
 }

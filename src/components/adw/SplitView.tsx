@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode, Ref } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import type { IconName } from '../icons/Icon';
 import { useAppFrame, useBackHandler } from './frame';
@@ -28,6 +28,7 @@ interface SplitViewProps {
   sidebarHeader: PaneHeader;
   sidebar: ReactNode;
   sidebarLabel: string;
+  sidebarRef?: Ref<HTMLElement>;
   contentHeader: PaneHeader;
   content: ReactNode;
   /** The content pane's scroller, so the parent can reset its scroll position. */
@@ -51,6 +52,7 @@ export function SplitView({
   sidebarHeader,
   sidebar,
   sidebarLabel,
+  sidebarRef,
   contentHeader,
   content,
   contentRef,
@@ -75,56 +77,54 @@ export function SplitView({
       data-collapsed={collapsed}
       style={{ '--sidebar-width': `${sidebarWidth}px` } as CSSProperties}
     >
-      <AnimatePresence initial={false}>
-        {showSidebar && (
-          <motion.div
-            key="sidebar"
-            className={styles.sidebarPane}
-            initial={enter(-slide)}
-            animate={{ x: 0, opacity: 1 }}
-            transition={transition}
-          >
-            <HeaderBar variant="sidebar" trailing={collapsed} {...sidebarHeader} />
-            <nav className={styles.sidebar} aria-label={sidebarLabel}>
-              {sidebar}
-            </nav>
-          </motion.div>
-        )}
-        {showMain && (
-          <motion.div
-            key="content"
-            className={styles.contentPane}
-            initial={enter(slide)}
-            animate={{ x: 0, opacity: 1 }}
-            transition={transition}
-          >
-            <HeaderBar
-              {...contentHeader}
-              start={
-                <>
-                  {collapsed && (
-                    <HeaderButton
-                      icon={backIcon}
-                      label={backLabel}
-                      // iOS back buttons name the page they return to.
-                      text={
-                        onPhone && backIcon === 'back' && typeof sidebarHeader.title === 'string'
-                          ? sidebarHeader.title
-                          : undefined
-                      }
-                      onClick={onBack}
-                    />
-                  )}
-                  {contentHeader.start}
-                </>
-              }
-            />
-            <div ref={contentRef} className={styles.content}>
-              {content}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {showSidebar && (
+        <motion.div
+          key="sidebar"
+          className={styles.sidebarPane}
+          initial={reducedMotion ? false : enter(-slide)}
+          animate={{ x: 0, opacity: 1 }}
+          transition={transition}
+        >
+          <HeaderBar variant="sidebar" trailing={collapsed} {...sidebarHeader} />
+          <nav ref={sidebarRef} className={styles.sidebar} aria-label={sidebarLabel}>
+            {sidebar}
+          </nav>
+        </motion.div>
+      )}
+      {showMain && (
+        <motion.div
+          key="content"
+          className={styles.contentPane}
+          initial={reducedMotion ? false : enter(slide)}
+          animate={{ x: 0, opacity: 1 }}
+          transition={transition}
+        >
+          <HeaderBar
+            {...contentHeader}
+            start={
+              <>
+                {collapsed && (
+                  <HeaderButton
+                    icon={backIcon}
+                    label={backLabel}
+                    // iOS back buttons name the page they return to.
+                    text={
+                      onPhone && backIcon === 'back' && typeof sidebarHeader.title === 'string'
+                        ? sidebarHeader.title
+                        : undefined
+                    }
+                    onClick={onBack}
+                  />
+                )}
+                {contentHeader.start}
+              </>
+            }
+          />
+          <div ref={contentRef} className={styles.content}>
+            {content}
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 }

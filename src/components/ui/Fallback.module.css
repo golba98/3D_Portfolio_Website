@@ -50,3 +50,19 @@
 .enter:hover {
   transform: translateY(-1px);
 }
+.actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.actions a {
+  text-decoration: none;
+}
+.actions button {
+  background: transparent;
+  color: inherit;
+  padding: 10px 14px;
+  border: 1px solid currentColor;
+  border-radius: var(--radius-pill);
+}

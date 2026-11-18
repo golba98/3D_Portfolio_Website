@@ -1,34 +1,25 @@
 import { useEffect } from 'react';
 import { useExperience } from '../store/experience';
+import { writeRoute } from './desktopRoute';
 
-/**
- * Mirrors the desktop phase into the URL (`#/desktop`) so refreshes and shared
- * links land on the portfolio directly, and the browser Back button leaves it.
- */
 export function useHashSync(): void {
-  const phase = useExperience((s) => s.phase);
-
   useEffect(() => {
-    const onDesktop = window.location.hash.startsWith('#/desktop');
-    if (phase === 'desktop' && !onDesktop) {
-      window.history.pushState(null, '', '#/desktop');
-    } else if (phase !== 'desktop' && phase !== 'fallback' && onDesktop) {
-      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    const onDesktop = () => /^#\/desktop(?:\/|$)/.test(location.hash);
+    const unsubscribe = useExperience.subscribe(({ phase }, previous) => {
+      if (phase === previous.phase) return;
+      if (phase === 'desktop' && !onDesktop()) writeRoute('#/desktop');
+      if (previous.phase === 'desktop' && phase !== 'desktop' && onDesktop()) writeRoute('');
+    });
+    function followLocation() {
+      const state = useExperience.getState();
+      if (onDesktop() && state.phase !== 'desktop') state.enterDesktopDirectly();
+      if (!onDesktop() && state.phase === 'desktop') state.leaveDesktop();
     }
-  }, [phase]);
-
-  useEffect(() => {
-    const onHashChange = (): void => {
-      const { phase: current, enterDesktopDirectly, leaveDesktop } = useExperience.getState();
-      const wantsDesktop = window.location.hash.startsWith('#/desktop');
-      if (wantsDesktop && current !== 'desktop') enterDesktopDirectly();
-      else if (!wantsDesktop && current === 'desktop') leaveDesktop();
-    };
-    window.addEventListener('hashchange', onHashChange);
-    window.addEventListener('popstate', onHashChange);
+    window.addEventListener('hashchange', followLocation);
+    followLocation();
     return () => {
-      window.removeEventListener('hashchange', onHashChange);
-      window.removeEventListener('popstate', onHashChange);
+      unsubscribe();
+      window.removeEventListener('hashchange', followLocation);
     };
   }, []);
 }

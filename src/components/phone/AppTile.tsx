@@ -29,6 +29,7 @@ export function AppTile(props: AppTileProps) {
   const tile = (
     <span className={styles.tile} style={{ width: size, height: size }}>
       {art}
+      <span className={styles.label}>{title}</span>
     </span>
   );
 
@@ -41,7 +42,7 @@ export function AppTile(props: AppTileProps) {
         download={props.download || undefined}
         target={external ? '_blank' : undefined}
         rel={external ? 'noreferrer' : undefined}
-        aria-label={title}
+        aria-label={'download' in props && props.download ? 'Download CV (PDF)' : title}
         title={title}
       >
         {tile}

@@ -37,17 +37,10 @@
 .read {
   bottom: max(20px, env(safe-area-inset-bottom));
   left: 50%;
-  transform: translate(-50%, calc(100% + 48px));
-}
-
-.read:focus-visible {
-  transform: translate(-50%, 0);
-}
-.overlay:has(.read:focus-visible) .hint {
-  visibility: hidden;
+  transform: translateX(-50%);
 }
 .read:disabled {
-  pointer-events: none;
+  visibility: hidden;
 }
 .close:hover {
   border-color: rgb(255 255 255 / 0.5);

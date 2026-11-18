@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { findProject, projects, projectsSection } from '../../data/projects';
 import { HeaderLink } from '../../components/adw/HeaderBar';
 import { SplitView } from '../../components/adw/SplitView';
@@ -29,11 +29,11 @@ function titleFor(selection: Selection): string {
 }
 
 /** A navigation split view, like GNOME Builder's or Settings'. */
-export default function Projects({ arg }: AppProps) {
+export default function Projects({ arg, openApp }: AppProps) {
   const root = useRef<HTMLDivElement>(null);
   const width = useElementWidth(root);
   const collapsed = width > 0 && width < SPLIT_MIN_WIDTH;
-  const [selection, setSelection] = useState<Selection | null>(() => initialSelection(arg));
+  const selection = initialSelection(arg);
   const contentRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState<ProjectCategory>();
@@ -42,16 +42,36 @@ export default function Projects({ arg }: AppProps) {
   const shown = selection;
   const project = shown ? findProject(shown) : undefined;
 
+  const lastProject = useRef<string | null>(null);
+  const catalogTop = useRef(0);
+  const sidebarRef = useRef<HTMLElement>(null);
+  const sidebarCatalog = collapsed ? sidebarRef : contentRef;
+  useLayoutEffect(() => {
+    if (shown) {
+      lastProject.current = shown;
+      contentRef.current?.scrollTo(0, 0);
+      contentRef.current?.querySelector<HTMLElement>('h2')?.focus({ preventScroll: true });
+    } else if (lastProject.current) {
+      sidebarCatalog.current?.scrollTo(0, catalogTop.current);
+      const card = root.current?.querySelector<HTMLElement>(`[data-project-id="${CSS.escape(lastProject.current)}"]`);
+      (card ?? root.current?.querySelector('input'))?.focus({ preventScroll: true });
+      lastProject.current = null;
+    }
+  }, [shown, sidebarCatalog]);
   const select = (next: Selection): void => {
-    setSelection(next);
-    contentRef.current?.scrollTo({ top: 0 });
+    if (!shown) catalogTop.current = sidebarCatalog.current?.scrollTop ?? 0;
+    openApp('projects', next);
+  };
+  const browse = (): void => {
+    if (history.state?.previousHash === '#/desktop/projects' && shown) history.back();
+    else openApp('projects', '');
   };
 
   const renderDetail = (value: Selection) => {
     if (value === 'earlier') return <EarlierProjects />;
     if (value === 'repos') return <Repositories />;
     const found = findProject(value);
-    return found ? <ProjectDetail project={found} compact={width > 0 && width < 760} /> : null;
+    return found ? <ProjectDetail key={found.id} project={found} compact={width > 0 && width < 760} /> : null;
   };
 
   const navRow = (id: Selection, title: string, subtitle: string) => (
@@ -70,6 +90,7 @@ export default function Projects({ arg }: AppProps) {
 
   const catalog = (
     <ProjectCatalog
+      unavailable={Boolean(arg && !selection)}
       query={query}
       category={category}
       onQuery={setQuery}
@@ -89,7 +110,7 @@ export default function Projects({ arg }: AppProps) {
             type="button"
             className={styles.browseButton}
             aria-current={shown === null ? 'page' : undefined}
-            onClick={() => setSelection(null)}
+            onClick={browse}
           >
             Browse projects <span>{projects.length}</span>
           </button>
@@ -110,11 +131,12 @@ export default function Projects({ arg }: AppProps) {
       ref={root}
       collapsed={collapsed}
       showContent={selection !== null}
-      onBack={() => setSelection(null)}
+      onBack={browse}
       backLabel="All projects"
       sidebarLabel="Projects"
       sidebarWidth={260}
       sidebarHeader={{ title: 'Projects' }}
+      sidebarRef={sidebarRef}
       sidebar={sidebar}
       contentHeader={{
         title: shown ? titleFor(shown) : 'Explore the work',

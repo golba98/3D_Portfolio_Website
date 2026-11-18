@@ -1,13 +1,18 @@
-import { useEffect, type RefObject } from 'react';
+import { useLayoutEffect, type RefObject } from 'react';
 
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 /** Keeps Tab / Shift+Tab inside `container` while `active`, and restores focus afterwards. */
 export function useFocusTrap(container: RefObject<HTMLElement | null>, active: boolean): void {
-  useEffect(() => {
-    if (!active) return;
+  useLayoutEffect(() => {
+    const dialog = container.current;
+    if (!active || !dialog) return;
     const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+
+    const firstControl =
+      dialog.querySelector<HTMLElement>('[data-initial-focus]') ?? dialog.querySelector<HTMLElement>(FOCUSABLE);
+    firstControl?.focus({ preventScroll: true });
 
     const onKeyDown = (event: KeyboardEvent): void => {
       if (event.key !== 'Tab' || !container.current) return;
@@ -26,7 +31,12 @@ export function useFocusTrap(container: RefObject<HTMLElement | null>, active: b
     document.addEventListener('keydown', onKeyDown);
     return () => {
       document.removeEventListener('keydown', onKeyDown);
-      previous?.focus({ preventScroll: true });
+      if (
+        previous?.isConnected &&
+        (document.activeElement === document.body || dialog.contains(document.activeElement))
+      ) {
+        previous.focus({ preventScroll: true });
+      }
     };
   }, [container, active]);
 }

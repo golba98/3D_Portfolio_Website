@@ -72,6 +72,7 @@ export function Dock() {
                 <button
                   type="button"
                   className={styles.item}
+                  data-launch-app={app.id}
                   data-running={running}
                   aria-label={running ? `${app.title} (open)` : app.title}
                   onClick={() => onActivate(app.id)}

@@ -1,0 +1,20 @@
+EXPORT WAVES()
+BEGIN
+  LOCAL x, y, previous;
+  RECT_P(0,0,319,239,RGB(13,22,32),RGB(13,22,32));
+  TEXTOUT_P("Wave sampler",18,14,4,RGB(220,236,245));
+  TEXTOUT_P("PPL  /  320 x 240",18,42,1,RGB(158,182,196));
+  FOR x FROM 20 TO 300 STEP 28 DO
+    LINE_P(x,76,x,200,RGB(36,55,69));
+  END;
+  FOR y FROM 76 TO 200 STEP 31 DO
+    LINE_P(20,y,300,y,RGB(36,55,69));
+  END;
+  previous := 138;
+  FOR x FROM 21 TO 300 DO
+    y := 138 - IP(48*SIN((x-20)/32));
+    LINE_P(x-1,previous,x,y,RGB(115,229,203));
+    previous := y;
+  END;
+  TEXTOUT_P("Native framebuffer",18,211,1,RGB(158,182,196));
+END;

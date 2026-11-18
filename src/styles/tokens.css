@@ -48,11 +48,11 @@
   --desk-border: rgb(255 255 255 / 0.07);
   --desk-border-strong: rgb(255 255 255 / 0.15);
   --desk-fg: #ffffff;
-  --desk-fg-muted: rgb(255 255 255 / 0.55);
-  --desk-fg-subtle: rgb(255 255 255 / 0.45);
+  --desk-fg-muted: rgb(255 255 255 / 0.7);
+  --desk-fg-subtle: rgb(255 255 255 / 0.59);
   --desk-accent: #7bdff4;
-  --desk-accent-strong: #2190a4;
-  --desk-accent-strong-hover: #2a9db2;
+  --desk-accent-strong: #176a7a;
+  --desk-accent-strong-hover: #207385;
   --desk-success: #57e389;
   --desk-warning: #f8e45c;
   --desk-danger: #ff938c;

@@ -108,7 +108,7 @@ export function HomeScreen({ hidden }: { hidden: boolean }) {
             );
           })}
 
-          <section className={`${styles.widget} ${styles.building}`} aria-label="Now building">
+          <section className={`${styles.widget} ${styles.building}`} aria-label="Featured projects">
             <button type="button" className={styles.prompt} onClick={launch('about')}>
               <span className={styles.promptMark} aria-hidden="true">
                 JV
@@ -120,9 +120,9 @@ export function HomeScreen({ hidden }: { hidden: boolean }) {
                 <li key={project.id}>
                   <button type="button" className={styles.project} onClick={launch('projects', project.id)}>
                     <span className={styles.circle} aria-hidden="true">
-                      <Icon name={project.icon} size={22} strokeWidth={1.9} />
+                      <Icon name={project.category === 'Web apps' ? 'file' : 'terminal'} size={22} strokeWidth={1.9} />
                     </span>
-                    <span className={styles.projectName}>{project.name}</span>
+                    <span className={styles.projectName}>{project.title}</span>
                   </button>
                 </li>
               ))}

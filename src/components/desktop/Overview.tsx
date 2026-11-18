@@ -57,7 +57,7 @@ function OverviewPanel() {
           value={query}
           placeholder="Search apps, projects or technologies"
           aria-label="Search apps and projects"
-          autoFocus
+          data-initial-focus
           onChange={(event) => setQuery(event.target.value)}
           onKeyDown={(event) => {
             const first = results[0];
@@ -113,7 +113,7 @@ function OverviewPanel() {
           No apps or projects match “{query}”.
         </p>
       ) : null}
-      <p className={styles.hint}>Super or Ctrl K opens Activities · Esc returns to the desktop</p>
+      <p className={styles.hint}>Super or / opens Activities · Esc returns to the desktop</p>
     </motion.div>
   );
 }
